@@ -1,0 +1,17 @@
+{
+  "name": "AniFoX",
+  "short_name": "AniFoX",
+  "description": "Platform streaming anime modern",
+  "start_url": "/anifox/",
+  "display": "standalone",
+  "background_color": "#0d0618",
+  "theme_color": "#7b2ff7",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
