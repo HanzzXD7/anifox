@@ -1,11 +1,5 @@
-const DUMMY = [
-  { id: 1, title: "Solo Leveling", poster: "https://picsum.photos/seed/anime1/300/450", rating: 8.5, eps: 12, synopsis: "Sung Jinwoo, hunter terlemah, mendapatkan kekuatan misterius untuk naik level tanpa batas." },
-  { id: 2, title: "Jujutsu Kaisen", poster: "https://picsum.photos/seed/anime2/300/450", rating: 8.7, eps: 24, synopsis: "Yuji Itadori terjun ke dunia penyihir jujutsu setelah menelan jari kutukan." },
-  { id: 3, title: "Demon Slayer", poster: "https://picsum.photos/seed/anime3/300/450", rating: 8.6, eps: 26, synopsis: "Tanjiro berjuang jadi pemburu iblis untuk menyelamatkan adiknya." },
-  { id: 4, title: "One Piece", poster: "https://picsum.photos/seed/anime4/300/450", rating: 8.9, eps: 1000, synopsis: "Luffy dan kru bajak lautnya mencari harta karun legendaris One Piece." },
-  { id: 5, title: "Chainsaw Man", poster: "https://picsum.photos/seed/anime5/300/450", rating: 8.4, eps: 12, synopsis: "Denji jadi pemburu iblis dengan kekuatan gergaji mesin." },
-  { id: 6, title: "Attack on Titan", poster: "https://picsum.photos/seed/anime6/300/450", rating: 9.0, eps: 87, synopsis: "Manusia bertahan dari raksasa pemakan manusia di balik tembok." },
-];
+// Ganti URL dasar pake proxy biar gak kena CORS
+const API_BASE = 'https://corsproxy.io/?' + encodeURIComponent('https://www.sankavollerei.web.id');
 
 window.addEventListener("load", () => {
   let progress = 0;
@@ -14,7 +8,6 @@ window.addEventListener("load", () => {
 
   const interval = setInterval(() => {
     progress += Math.floor(Math.random() * 5) + 1;
-    
     if (progress >= 100) {
       progress = 100;
       clearInterval(interval);
@@ -43,28 +36,57 @@ document.getElementById("btn-google").addEventListener("click", () => {
 
 document.getElementById("btn-skip").addEventListener("click", goHome);
 
-function renderHome() {
-  const hero = DUMMY[0];
-  document.getElementById("hero-img").src = hero.poster;
-  document.getElementById("hero-title").textContent = hero.title;
+async function renderHome() {
+  // Tampilin loading dulu di list
+  document.getElementById("latest-list").innerHTML = "<p style='color:white'>Memuat data dari server...</p>";
+  document.getElementById("popular-list").innerHTML = "";
+  
+  try {
+    // Ambil data dari API (kita ambil anime ongoing biar dapet banyak)
+    const res = await fetch(`${API_BASE}/anime/ongoing/1`);
+    const json = await res.json();
+    
+    // SankaApi biasanya naruh data di json.data.animeList
+    let animeList = [];
+    if (json && json.data && json.data.animeList) {
+      animeList = json.data.animeList;
+    }
 
-  document.getElementById("latest-list").innerHTML = DUMMY.map(cardHTML).join("");
-  document.getElementById("popular-list").innerHTML = DUMMY.slice().reverse().map(cardHTML).join("");
-  attachCardClicks();
+    if (animeList.length === 0) throw new Error("Data kosong");
+
+    // Set Hero Image pake anime pertama
+    const hero = animeList[0];
+    document.getElementById("hero-img").src = hero.poster;
+    document.getElementById("hero-title").textContent = hero.title;
+
+    // Render list
+    document.getElementById("latest-list").innerHTML = animeList.slice(0, 10).map(cardHTML).join("");
+    document.getElementById("popular-list").innerHTML = animeList.slice(10, 20).map(cardHTML).join("");
+    
+    attachCardClicks(animeList);
+
+  } catch (error) {
+    console.error(error);
+    document.getElementById("latest-list").innerHTML = "<p style='color:white'>Gagal memuat data. Proxy mungkin sedang down.</p>";
+  }
 }
 
 function cardHTML(a) {
   return `
-    <div class="card" data-id="${a.id}">
-      <img src="${a.poster}" alt="${a.title}" loading="lazy" />
+    <div class="card" data-id="${a.animeId}">
+      <img src="${a.poster}" alt="${a.title}" loading="lazy" style="object-fit:cover;" />
       <h3>${a.title}</h3>
-      <small>Rating ${a.rating} | ${a.eps} eps</small>
+      <small>Score ${a.score || '-'}</small>
     </div>`;
 }
 
-function attachCardClicks() {
+function attachCardClicks(animeList) {
   document.querySelectorAll(".card").forEach(c => {
-    c.onclick = () => openDetail(parseInt(c.dataset.id));
+    c.onclick = () => {
+      const id = c.dataset.id;
+      const anime = animeList.find(x => x.animeId === id);
+      if(anime) openDetail(anime);
+    };
   });
 }
 
@@ -75,35 +97,27 @@ document.querySelectorAll(".nav-item").forEach(item => {
     const page = item.dataset.page;
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     document.getElementById(`page-${page}`).classList.add("active");
-    if (page === "search") renderSearch("");
+    
+    // Search belum kita implementasi ke API di versi ini
+    if (page === "search") {
+        document.getElementById("search-results").innerHTML = "<p style='color:white;grid-column:1/-1;'>Fitur pencarian belum disambungkan ke API.</p>";
+    }
   });
 });
 
-const searchInput = document.getElementById("search-input");
-searchInput.addEventListener("input", e => renderSearch(e.target.value));
-
-function renderSearch(q) {
-  const results = DUMMY.filter(a => a.title.toLowerCase().includes(q.toLowerCase()));
-  document.getElementById("search-results").innerHTML =
-    results.length ? results.map(cardHTML).join("") :
-    `<p style="color:var(--text-muted);font-size:13px;grid-column:1/-1">Tidak ada hasil untuk "${q}"</p>`;
-  attachCardClicks();
-}
-
-function openDetail(id) {
-  const a = DUMMY.find(x => x.id === id);
-  if (!a) return;
-
-  document.getElementById("detail-img").src = a.poster;
-  document.getElementById("detail-title").textContent = a.title;
-  document.getElementById("detail-rating").textContent = `Rating ${a.rating}`;
+// Detail Sederhana (Karena API Sanka butuh request tambahan buat detail)
+function openDetail(anime) {
+  document.getElementById("detail-img").src = anime.poster;
+  document.getElementById("detail-title").textContent = anime.title;
+  document.getElementById("detail-rating").textContent = `Score ${anime.score || '-'}`;
   document.getElementById("detail-status").textContent = "Ongoing";
-  document.getElementById("detail-episodes").textContent = `${a.eps} eps`;
-  document.getElementById("detail-synopsis").textContent = a.synopsis;
+  document.getElementById("detail-episodes").textContent = `- eps`;
+  document.getElementById("detail-synopsis").textContent = "Sinopsis belum tersedia di halaman ini (butuh API detail).";
 
+  // Bikin dummy episode buat ngetes tombol
   const epList = document.getElementById("detail-episodes-list");
-  epList.innerHTML = Array.from({ length: Math.min(a.eps, 24) }, (_, i) =>
-    `<button onclick="openPlayer('${a.title}', ${i + 1})">${i + 1}</button>`
+  epList.innerHTML = Array.from({ length: 12 }, (_, i) =>
+    `<button onclick="openPlayer('${anime.title}', ${i + 1})">${i + 1}</button>`
   ).join("");
 
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
@@ -119,7 +133,6 @@ function openPlayer(animeTitle, ep) {
   document.getElementById("player-title").textContent = `Episode ${ep}`;
   document.getElementById("player-anime").textContent = animeTitle;
   document.getElementById("player-episode").textContent = `Episode ${ep}`;
-
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.getElementById("page-player").classList.add("active");
 }
@@ -127,6 +140,4 @@ function openPlayer(animeTitle, ep) {
 function closePlayer() {
   document.getElementById("page-player").classList.remove("active");
   document.getElementById("page-detail").classList.add("active");
-}
-
-renderHome();
+      }
