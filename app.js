@@ -1,4 +1,3 @@
-// Jikan API tidak butuh proxy, bisa ditembak langsung
 const API_BASE = 'https://api.jikan.moe/v4';
 
 window.addEventListener("load", () => {
@@ -31,38 +30,50 @@ function goHome() {
 }
 
 document.getElementById("btn-google").addEventListener("click", () => {
-  alert("Login Google belum tersedia.\nFitur ini akan segera hadir.");
+  alert("Login Google belum tersedia.");
 });
 
 document.getElementById("btn-skip").addEventListener("click", goHome);
 
 async function renderHome() {
-  document.getElementById("latest-list").innerHTML = "<p style='color:white'>Memuat data anime...</p>";
-  document.getElementById("popular-list").innerHTML = "";
+  const latestList = document.getElementById("latest-list");
+  latestList.innerHTML = "<p style='color:white;'>Memuat data anime...</p>";
   
   try {
-    // Ambil data anime populer dari Jikan
-    const res = await fetch(`${API_BASE}/top/anime?limit=20`);
-    const json = await res.json();
+    // Kasih timeout biar gak nunggu kelamaan
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik
+
+    // Fetch data
+    const res = await fetch(`${API_BASE}/top/anime?limit=12`, { signal: controller.signal });
+    clearTimeout(timeoutId);
     
+    if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+
+    const json = await res.json();
     const animeList = json.data;
 
-    if (!animeList || animeList.length === 0) throw new Error("Data kosong");
+    if (!animeList || animeList.length === 0) throw new Error("Data anime kosong.");
 
-    // Set Hero Image pakai anime nomor 1
+    // Hero
     const hero = animeList[0];
     document.getElementById("hero-img").src = hero.images.jpg.large_image_url;
     document.getElementById("hero-title").textContent = hero.title;
 
-    // Render list (10 terbaru, 10 populer)
-    document.getElementById("latest-list").innerHTML = animeList.slice(0, 10).map(cardHTML).join("");
-    document.getElementById("popular-list").innerHTML = animeList.slice(10, 20).map(cardHTML).join("");
+    // Render
+    latestList.innerHTML = animeList.slice(0, 6).map(cardHTML).join("");
+    document.getElementById("popular-list").innerHTML = animeList.slice(6, 12).map(cardHTML).join("");
     
     attachCardClicks(animeList);
 
   } catch (error) {
     console.error(error);
-    document.getElementById("latest-list").innerHTML = "<p style='color:white'>Gagal memuat data. Coba refresh lagi.</p>";
+    // Nampilin pesan error asli ke layar
+    if (error.name === 'AbortError') {
+      latestList.innerHTML = "<p style='color:red;'>Gagal: Koneksi lambat atau diblokir (Timeout).</p>";
+    } else {
+      latestList.innerHTML = `<p style='color:red;'>Gagal: ${error.message}</p>`;
+    }
   }
 }
 
@@ -92,10 +103,6 @@ document.querySelectorAll(".nav-item").forEach(item => {
     const page = item.dataset.page;
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     document.getElementById(`page-${page}`).classList.add("active");
-    
-    if (page === "search") {
-        document.getElementById("search-results").innerHTML = "<p style='color:white;grid-column:1/-1;'>Fitur pencarian sedang disiapkan.</p>";
-    }
   });
 });
 
@@ -105,7 +112,7 @@ function openDetail(anime) {
   document.getElementById("detail-rating").textContent = `Score ${anime.score || '-'}`;
   document.getElementById("detail-status").textContent = anime.status || "Unknown";
   document.getElementById("detail-episodes").textContent = `${anime.episodes || '?'} eps`;
-  document.getElementById("detail-synopsis").textContent = anime.synopsis || "Sinopsis belum tersedia.";
+  document.getElementById("detail-synopsis").textContent = anime.synopsis || "Sinopsis tidak tersedia.";
 
   const epList = document.getElementById("detail-episodes-list");
   const totalEps = anime.episodes || 12;
