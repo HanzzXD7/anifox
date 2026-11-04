@@ -17,11 +17,25 @@
 
 body {
   font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-  background: var(--bg-base);
-  background-image: var(--bg-gradient);
+  background-color: var(--bg-base);
+  /* Background pakai gambar logo, di-set cover */
+  background-image: url('logo.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+/* Overlay gelap biar tulisan tetep kebaca */
+.bg-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 6, 24, 0.85); /* 85% gelap */
+  z-index: -1;
+  pointer-events: none;
 }
 
 .hidden { display: none !important; }
@@ -40,25 +54,10 @@ body {
 .splash {
   position: fixed; inset: 0; z-index: 100;
   display: flex; align-items: center; justify-content: center;
-  background: var(--bg-base); background-image: var(--bg-gradient);
+  /* Background splash dihapus biar tembus pandang ke body */
   overflow: hidden; transition: opacity 0.6s ease, visibility 0.6s;
 }
 .splash.fade-out { opacity: 0; visibility: hidden; }
-
-.blob {
-  position: absolute; border-radius: 50%;
-  filter: blur(70px); opacity: 0.65;
-  animation: float 10s ease-in-out infinite;
-}
-.blob-1 { width: 300px; height: 300px; background: var(--purple-1); top: -80px; left: -80px; }
-.blob-2 { width: 260px; height: 260px; background: var(--purple-2); bottom: -60px; right: -60px; animation-delay: -3s; }
-.blob-3 { width: 200px; height: 200px; background: #4a1a8a; top: 40%; left: 50%; animation-delay: -6s; }
-
-@keyframes float {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(40px, -30px) scale(1.1); }
-  66% { transform: translate(-30px, 30px) scale(0.95); }
-}
 
 .splash-content {
   position: relative; z-index: 2;
@@ -82,7 +81,7 @@ body {
   width: 80%;
   max-width: 250px;
   height: 18px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   overflow: hidden;
   margin-top: 15px;
