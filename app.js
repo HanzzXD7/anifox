@@ -8,9 +8,28 @@ const DUMMY = [
 ];
 
 window.addEventListener("load", () => {
-  setTimeout(() => {
-    document.getElementById("auth-actions").classList.remove("hidden");
-  }, 1800);
+  let progress = 0;
+  const progressBar = document.getElementById("progress-bar");
+  const loadingText = document.getElementById("loading-text");
+
+  // Logika buat progress bar jalan sampai 100%
+  const interval = setInterval(() => {
+    progress += Math.floor(Math.random() * 5) + 1;
+    
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(interval);
+      
+      loadingText.textContent = "Selesai!";
+      setTimeout(() => {
+        document.getElementById("auth-actions").classList.remove("hidden");
+      }, 300);
+    } else {
+      loadingText.textContent = `Memuat... ${progress}%`;
+    }
+    
+    progressBar.style.width = progress + "%";
+  }, 40);
 });
 
 function goHome() {
