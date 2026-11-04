@@ -40,7 +40,7 @@ async function renderHome() {
   latestList.innerHTML = "<p style='color:white;'>Memuat data anime...</p>";
   
   try {
-    const res = await fetch(`${API_BASE}/anime?page[limit]=12&sort=-averageRating`);
+    const res = await fetch(`${API_BASE}/anime?page[limit]=24&sort=-averageRating`);
     if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
     const json = await res.json();
     const animeList = json.data;
@@ -51,8 +51,8 @@ async function renderHome() {
     document.getElementById("hero-img").src = hero.attributes.posterImage.original;
     document.getElementById("hero-title").textContent = hero.attributes.canonicalTitle;
 
-    latestList.innerHTML = animeList.slice(0, 6).map(cardHTML).join("");
-    document.getElementById("popular-list").innerHTML = animeList.slice(6, 12).map(cardHTML).join("");
+    latestList.innerHTML = animeList.slice(0, 10).map(cardHTML).join("");
+    document.getElementById("popular-list").innerHTML = animeList.slice(10, 24).map(cardHTML).join("");
     
     attachCardClicks(animeList);
 
@@ -100,8 +100,10 @@ function openDetail(anime) {
   document.getElementById("detail-synopsis").textContent = anime.attributes.synopsis || "Sinopsis tidak tersedia.";
 
   const epList = document.getElementById("detail-episodes-list");
-  const totalEps = anime.attributes.episodeCount || 12;
-  epList.innerHTML = Array.from({ length: Math.min(totalEps, 24) }, (_, i) =>
+  
+  // UBAH DISINI: Pakai total episode asli, kalau gak ada baru max 100
+  const totalEps = anime.attributes.episodeCount || 100; 
+  epList.innerHTML = Array.from({ length: Math.min(totalEps, 100) }, (_, i) =>
     `<button onclick="openPlayer('${anime.attributes.canonicalTitle}', ${i + 1})">${i + 1}</button>`
   ).join("");
 
@@ -118,11 +120,23 @@ function openPlayer(animeTitle, ep) {
   document.getElementById("player-anime").textContent = animeTitle;
   document.getElementById("player-episode").textContent = `Episode ${ep}`;
 
-  // Generate 12 episode di bawah player
   const playerEpList = document.getElementById("player-episodes-list");
-  playerEpList.innerHTML = Array.from({ length: 12 }, (_, i) =>
-    `<button onclick="openPlayer('${animeTitle}', ${i + 1})" class="${(i+1) === ep ? 'active' : ''}">${i + 1}</button>`
-  ).join("");
+  let episodesHTML = "";
+  
+  // UBAH DISINI: Bikin loop sampai 100 episode
+  for (let i = 1; i <= 100; i++) {
+    const activeClass = (i === ep) ? "active" : "";
+    episodesHTML += `<button onclick="openPlayer('${animeTitle}', ${i})" class="${activeClass}">${i}</button>`;
+  }
+  
+  playerEpList.innerHTML = episodesHTML;
+  
+  setTimeout(() => {
+    const activeBtn = playerEpList.querySelector(".active");
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+  }, 100);
 
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.getElementById("page-player").classList.add("active");
