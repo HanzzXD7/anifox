@@ -1,4 +1,5 @@
-const API_BASE = 'https://api.jikan.moe/v4';
+// Kitsu API (Lebih ringan dan biasanya lebih stabil diakses dari HP)
+const API_BASE = 'https://kitsu.io/api/edge';
 
 window.addEventListener("load", () => {
   let progress = 0;
@@ -40,11 +41,8 @@ async function renderHome() {
   latestList.innerHTML = "<p style='color:white;'>Memuat data anime...</p>";
   
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    const res = await fetch(`${API_BASE}/top/anime?limit=12`, { signal: controller.signal });
-    clearTimeout(timeoutId);
+    // Ambil 12 anime populer dari Kitsu
+    const res = await fetch(`${API_BASE}/anime?page[limit]=12&sort=-averageRating`);
     
     if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
 
@@ -53,10 +51,13 @@ async function renderHome() {
 
     if (!animeList || animeList.length === 0) throw new Error("Data anime kosong.");
 
+    // Set Hero (Ambil anime pertama)
     const hero = animeList[0];
-    document.getElementById("hero-img").src = hero.images.jpg.large_image_url;
-    document.getElementById("hero-title").textContent = hero.title;
+    const heroImg = hero.attributes.posterImage.original;
+    document.getElementById("hero-img").src = heroImg;
+    document.getElementById("hero-title").textContent = hero.attributes.canonicalTitle;
 
+    // Render list
     latestList.innerHTML = animeList.slice(0, 6).map(cardHTML).join("");
     document.getElementById("popular-list").innerHTML = animeList.slice(6, 12).map(cardHTML).join("");
     
@@ -64,28 +65,24 @@ async function renderHome() {
 
   } catch (error) {
     console.error(error);
-    if (error.name === 'AbortError') {
-      latestList.innerHTML = "<p style='color:red;'>Gagal: Koneksi lambat (Timeout).</p>";
-    } else {
-      latestList.innerHTML = `<p style='color:red;'>Gagal: ${error.message}</p>`;
-    }
+    latestList.innerHTML = `<p style='color:red;'>Gagal memuat: ${error.message}</p>`;
   }
 }
 
 function cardHTML(a) {
   return `
-    <div class="card" data-id="${a.mal_id}">
-      <img src="${a.images.jpg.large_image_url}" alt="${a.title}" loading="lazy" style="object-fit:cover;" />
-      <h3>${a.title}</h3>
-      <small>Score ${a.score || '-'}</small>
+    <div class="card" data-id="${a.id}">
+      <img src="${a.attributes.posterImage.medium}" alt="${a.attributes.canonicalTitle}" loading="lazy" style="object-fit:cover;" />
+      <h3>${a.attributes.canonicalTitle}</h3>
+      <small>Rating ${a.attributes.averageRating || '-'}</small>
     </div>`;
 }
 
 function attachCardClicks(animeList) {
   document.querySelectorAll(".card").forEach(c => {
     c.onclick = () => {
-      const id = parseInt(c.dataset.id);
-      const anime = animeList.find(x => x.mal_id === id);
+      const id = c.dataset.id;
+      const anime = animeList.find(x => x.id === id);
       if(anime) openDetail(anime);
     };
   });
@@ -102,17 +99,17 @@ document.querySelectorAll(".nav-item").forEach(item => {
 });
 
 function openDetail(anime) {
-  document.getElementById("detail-img").src = anime.images.jpg.large_image_url;
-  document.getElementById("detail-title").textContent = anime.title;
-  document.getElementById("detail-rating").textContent = `Score ${anime.score || '-'}`;
-  document.getElementById("detail-status").textContent = anime.status || "Unknown";
-  document.getElementById("detail-episodes").textContent = `${anime.episodes || '?'} eps`;
-  document.getElementById("detail-synopsis").textContent = anime.synopsis || "Sinopsis tidak tersedia.";
+  document.getElementById("detail-img").src = anime.attributes.posterImage.original;
+  document.getElementById("detail-title").textContent = anime.attributes.canonicalTitle;
+  document.getElementById("detail-rating").textContent = `Rating ${anime.attributes.averageRating || '-'}`;
+  document.getElementById("detail-status").textContent = anime.attributes.status || "Unknown";
+  document.getElementById("detail-episodes").textContent = `${anime.attributes.episodeCount || '?'} eps`;
+  document.getElementById("detail-synopsis").textContent = anime.attributes.synopsis || "Sinopsis tidak tersedia.";
 
   const epList = document.getElementById("detail-episodes-list");
-  const totalEps = anime.episodes || 12;
+  const totalEps = anime.attributes.episodeCount || 12;
   epList.innerHTML = Array.from({ length: Math.min(totalEps, 24) }, (_, i) =>
-    `<button onclick="openPlayer('${anime.title}', ${i + 1})">${i + 1}</button>`
+    `<button onclick="openPlayer('${anime.attributes.canonicalTitle}', ${i + 1})">${i + 1}</button>`
   ).join("");
 
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
