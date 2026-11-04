@@ -22,7 +22,7 @@ function goHome() {
 }
 
 document.getElementById("btn-google").addEventListener("click", () => {
-  alert("Login Google belum tersambung.\nNanti kita sambungin ke Firebase Auth.");
+  alert("Login Google belum tersedia.\nFitur ini akan segera hadir.");
 });
 
 document.getElementById("btn-skip").addEventListener("click", goHome);
@@ -72,7 +72,7 @@ function renderSearch(q) {
   const results = DUMMY.filter(a => a.title.toLowerCase().includes(q.toLowerCase()));
   document.getElementById("search-results").innerHTML =
     results.length ? results.map(cardHTML).join("") :
-    `<p style="color:var(--text-muted);font-size:13px;grid-column:1/-1">Gak ada hasil buat "${q}"</p>`;
+    `<p style="color:var(--text-muted);font-size:13px;grid-column:1/-1">Tidak ada hasil untuk "${q}"</p>`;
   attachCardClicks();
 }
 
