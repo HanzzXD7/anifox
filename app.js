@@ -20,12 +20,12 @@ window.addEventListener("load", () => {
       progress = 100;
       clearInterval(interval);
       
-      loadingText.textContent = "Selesai!";
+      loadingText.textContent = "100%";
       setTimeout(() => {
         document.getElementById("auth-actions").classList.remove("hidden");
       }, 300);
     } else {
-      loadingText.textContent = `Memuat... ${progress}%`;
+      loadingText.textContent = `${progress}%`;
     }
     
     progressBar.style.width = progress + "%";
