@@ -1,4 +1,3 @@
-// Ganti URL dasar pake proxy biar gak kena CORS
 const API_BASE = 'https://corsproxy.io/?' + encodeURIComponent('https://www.sankavollerei.web.id');
 
 window.addEventListener("load", () => {
