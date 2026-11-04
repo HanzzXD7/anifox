@@ -5,9 +5,7 @@
   --text-main: #f5f0ff;
   --text-muted: rgba(245, 240, 255, 0.7);
   --nav-h: 74px;
-  
-  /* Liquid Glass yang lebih solid & kebaca */
-  --glass-bg: rgba(25, 10, 45, 0.65); /* Ungu gelap transparan 65% */
+  --glass-bg: rgba(25, 10, 45, 0.65);
   --glass-border: rgba(255, 255, 255, 0.15);
   --glass-blur: 20px;
 }
@@ -23,7 +21,6 @@ body {
   position: relative;
 }
 
-/* ============ BACKGROUND EFFECTS ============ */
 .bg-base {
   position: fixed; inset: 0;
   background: radial-gradient(circle at 20% 0%, #2a0f4a 0%, var(--bg-base) 60%);
@@ -46,21 +43,17 @@ body {
 
 .hidden { display: none !important; }
 
-/* ============ LIQUID GLASS CORE ============ */
 .liquid-glass {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur)) saturate(150%);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
   border: 1px solid var(--glass-border);
-  border-top: 1px solid rgba(255, 255, 255, 0.25); /* Highlight atas */
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
   border-left: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 24px;
-  box-shadow: 
-    0 8px 32px 0 rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-/* ============ SPLASH SCREEN ============ */
 .splash {
   position: fixed; inset: 0; z-index: 100;
   display: flex; align-items: center; justify-content: center;
@@ -81,7 +74,6 @@ body {
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-/* Progress Bar */
 .progress-container {
   position: relative; width: 100%; height: 16px;
   background: rgba(0, 0, 0, 0.4); border-radius: 20px; overflow: hidden;
@@ -113,7 +105,6 @@ body {
 .btn-google:active { transform: scale(0.96); }
 .btn-skip { background: transparent; border: none; color: var(--text-muted); font-size: 13px; font-weight: 500; cursor: pointer; padding: 10px; }
 
-/* ============ MAIN APP ============ */
 .app { padding-bottom: calc(var(--nav-h) + 30px); min-height: 100vh; }
 .page { display: none; padding: 20px 16px; animation: fadeIn 0.4s ease; }
 .page.active { display: block; }
@@ -123,7 +114,6 @@ body {
 .avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(123, 47, 247, 0.5); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; }
 .section-title { font-size: 16px; margin: 22px 0 12px; font-weight: 700; padding-left: 5px; }
 
-/* HERO */
 .hero { position: relative; overflow: hidden; height: 220px; display: flex; align-items: flex-end; padding: 0; }
 .hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.6; z-index: 0; }
 .hero-overlay { position: relative; z-index: 2; padding: 20px; background: linear-gradient(to top, rgba(13, 6, 24, 0.95), transparent); width: 100%; border-radius: 0 0 24px 24px; }
@@ -132,7 +122,6 @@ body {
 .btn-primary { background: linear-gradient(135deg, var(--purple-1), var(--purple-2)); color: #fff; border: none; padding: 12px 20px; border-radius: 14px; font-weight: 700; font-size: 14px; cursor: pointer; }
 .btn-primary:active { transform: scale(0.96); }
 
-/* CARD */
 .hscroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
 .hscroll::-webkit-scrollbar { display: none; }
 .hscroll .card { flex: 0 0 130px; }
@@ -143,7 +132,6 @@ body {
 .card h3 { font-size: 13px; margin-top: 8px; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .card small { color: var(--text-muted); font-size: 11px; }
 
-/* SEARCH & EMPTY */
 .search-bar { padding: 5px 20px; margin-bottom: 20px; }
 .search-bar input { width: 100%; background: transparent; border: none; outline: none; color: var(--text-main); font-size: 16px; padding: 15px 0; font-weight: 500; }
 .search-bar input::placeholder { color: var(--text-muted); }
@@ -151,7 +139,6 @@ body {
 .empty-state p { font-weight: 600; font-size: 16px; }
 .empty-state span { color: var(--text-muted); font-size: 13px; }
 
-/* BOTTOM NAV */
 .bottom-nav { position: fixed; bottom: 20px; left: 20px; right: 20px; height: var(--nav-h); display: flex; align-items: center; justify-content: space-around; z-index: 50; padding: 0 10px; }
 .nav-item { background: transparent; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 20px; border-radius: 16px; cursor: pointer; transition: all 0.3s; }
 .nav-item svg { width: 24px; height: 24px; transition: transform 0.3s; }
@@ -159,13 +146,11 @@ body {
 .nav-item.active { color: var(--text-main); background: rgba(123, 47, 247, 0.4); box-shadow: inset 0 1px 0 rgba(255,255,255,0.15); }
 .nav-item.active svg { transform: translateY(-2px); color: var(--purple-2); }
 
-/* DETAIL & PLAYER PAGES */
 .detail-page, .player-page { position: fixed; inset: 0; z-index: 60; background: var(--bg-base); background: radial-gradient(circle at 50% 0%, #2a0f4a 0%, var(--bg-base) 70%); overflow-y: auto; padding: 0 0 calc(var(--nav-h) + 30px); display: none; }
 .detail-page.active, .player-page.active { display: block; }
 .back-btn { position: fixed; top: 20px; left: 20px; z-index: 70; width: 46px; height: 46px; border-radius: 50%; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .back-btn:active { transform: scale(0.9); }
 
-/* DETAIL CONTENT */
 .detail-hero { position: relative; height: 350px; }
 .detail-hero img { width: 100%; height: 100%; object-fit: cover; }
 .detail-fade { position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-base) 5%, transparent 80%); }
@@ -179,7 +164,6 @@ body {
 .episode-grid button { aspect-ratio: 1; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-main); font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
 .episode-grid button:active { background: var(--purple-1); border-color: var(--purple-2); transform: scale(0.9); }
 
-/* PLAYER CONTENT */
 .video-wrap { margin: 80px 20px 20px; aspect-ratio: 16/9; overflow: hidden; padding: 0; }
 .video-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-muted); background: rgba(0,0,0,0.6); border-radius: 24px; }
 .video-placeholder svg { color: var(--purple-2); }
