@@ -12,14 +12,12 @@ window.addEventListener("load", () => {
   const progressBar = document.getElementById("progress-bar");
   const loadingText = document.getElementById("loading-text");
 
-  // Logika buat progress bar jalan sampai 100%
   const interval = setInterval(() => {
     progress += Math.floor(Math.random() * 5) + 1;
     
     if (progress >= 100) {
       progress = 100;
       clearInterval(interval);
-      
       loadingText.textContent = "100%";
       setTimeout(() => {
         document.getElementById("auth-actions").classList.remove("hidden");
@@ -27,7 +25,6 @@ window.addEventListener("load", () => {
     } else {
       loadingText.textContent = `${progress}%`;
     }
-    
     progressBar.style.width = progress + "%";
   }, 40);
 });
@@ -75,11 +72,9 @@ document.querySelectorAll(".nav-item").forEach(item => {
   item.addEventListener("click", () => {
     document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
     item.classList.add("active");
-
     const page = item.dataset.page;
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     document.getElementById(`page-${page}`).classList.add("active");
-
     if (page === "search") renderSearch("");
   });
 });
