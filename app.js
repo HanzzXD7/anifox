@@ -1,4 +1,3 @@
-// Kitsu API (Lebih ringan dan biasanya lebih stabil diakses dari HP)
 const API_BASE = 'https://kitsu.io/api/edge';
 
 window.addEventListener("load", () => {
@@ -41,23 +40,17 @@ async function renderHome() {
   latestList.innerHTML = "<p style='color:white;'>Memuat data anime...</p>";
   
   try {
-    // Ambil 12 anime populer dari Kitsu
     const res = await fetch(`${API_BASE}/anime?page[limit]=12&sort=-averageRating`);
-    
     if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-
     const json = await res.json();
     const animeList = json.data;
 
     if (!animeList || animeList.length === 0) throw new Error("Data anime kosong.");
 
-    // Set Hero (Ambil anime pertama)
     const hero = animeList[0];
-    const heroImg = hero.attributes.posterImage.original;
-    document.getElementById("hero-img").src = heroImg;
+    document.getElementById("hero-img").src = hero.attributes.posterImage.original;
     document.getElementById("hero-title").textContent = hero.attributes.canonicalTitle;
 
-    // Render list
     latestList.innerHTML = animeList.slice(0, 6).map(cardHTML).join("");
     document.getElementById("popular-list").innerHTML = animeList.slice(6, 12).map(cardHTML).join("");
     
@@ -122,9 +115,15 @@ function closeDetail() {
 }
 
 function openPlayer(animeTitle, ep) {
-  document.getElementById("player-title").textContent = `Episode ${ep}`;
   document.getElementById("player-anime").textContent = animeTitle;
   document.getElementById("player-episode").textContent = `Episode ${ep}`;
+
+  // Generate 12 episode di bawah player
+  const playerEpList = document.getElementById("player-episodes-list");
+  playerEpList.innerHTML = Array.from({ length: 12 }, (_, i) =>
+    `<button onclick="openPlayer('${animeTitle}', ${i + 1})" class="${(i+1) === ep ? 'active' : ''}">${i + 1}</button>`
+  ).join("");
+
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.getElementById("page-player").classList.add("active");
 }
