@@ -1,4 +1,4 @@
-const API_BASE = 'https://corsproxy.io/?' + encodeURIComponent('https://www.sankavollerei.web.id');
+const API_BASE = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://www.sankavollerei.web.id');
 
 window.addEventListener("load", () => {
   let progress = 0;
