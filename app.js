@@ -1,4 +1,5 @@
-const API_BASE = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://www.sankavollerei.web.id');
+// Jikan API tidak butuh proxy, bisa ditembak langsung
+const API_BASE = 'https://api.jikan.moe/v4';
 
 window.addEventListener("load", () => {
   let progress = 0;
@@ -36,29 +37,24 @@ document.getElementById("btn-google").addEventListener("click", () => {
 document.getElementById("btn-skip").addEventListener("click", goHome);
 
 async function renderHome() {
-  // Tampilin loading dulu di list
-  document.getElementById("latest-list").innerHTML = "<p style='color:white'>Memuat data dari server...</p>";
+  document.getElementById("latest-list").innerHTML = "<p style='color:white'>Memuat data anime...</p>";
   document.getElementById("popular-list").innerHTML = "";
   
   try {
-    // Ambil data dari API (kita ambil anime ongoing biar dapet banyak)
-    const res = await fetch(`${API_BASE}/anime/ongoing/1`);
+    // Ambil data anime populer dari Jikan
+    const res = await fetch(`${API_BASE}/top/anime?limit=20`);
     const json = await res.json();
     
-    // SankaApi biasanya naruh data di json.data.animeList
-    let animeList = [];
-    if (json && json.data && json.data.animeList) {
-      animeList = json.data.animeList;
-    }
+    const animeList = json.data;
 
-    if (animeList.length === 0) throw new Error("Data kosong");
+    if (!animeList || animeList.length === 0) throw new Error("Data kosong");
 
-    // Set Hero Image pake anime pertama
+    // Set Hero Image pakai anime nomor 1
     const hero = animeList[0];
-    document.getElementById("hero-img").src = hero.poster;
+    document.getElementById("hero-img").src = hero.images.jpg.large_image_url;
     document.getElementById("hero-title").textContent = hero.title;
 
-    // Render list
+    // Render list (10 terbaru, 10 populer)
     document.getElementById("latest-list").innerHTML = animeList.slice(0, 10).map(cardHTML).join("");
     document.getElementById("popular-list").innerHTML = animeList.slice(10, 20).map(cardHTML).join("");
     
@@ -66,14 +62,14 @@ async function renderHome() {
 
   } catch (error) {
     console.error(error);
-    document.getElementById("latest-list").innerHTML = "<p style='color:white'>Gagal memuat data. Proxy mungkin sedang down.</p>";
+    document.getElementById("latest-list").innerHTML = "<p style='color:white'>Gagal memuat data. Coba refresh lagi.</p>";
   }
 }
 
 function cardHTML(a) {
   return `
-    <div class="card" data-id="${a.animeId}">
-      <img src="${a.poster}" alt="${a.title}" loading="lazy" style="object-fit:cover;" />
+    <div class="card" data-id="${a.mal_id}">
+      <img src="${a.images.jpg.large_image_url}" alt="${a.title}" loading="lazy" style="object-fit:cover;" />
       <h3>${a.title}</h3>
       <small>Score ${a.score || '-'}</small>
     </div>`;
@@ -82,8 +78,8 @@ function cardHTML(a) {
 function attachCardClicks(animeList) {
   document.querySelectorAll(".card").forEach(c => {
     c.onclick = () => {
-      const id = c.dataset.id;
-      const anime = animeList.find(x => x.animeId === id);
+      const id = parseInt(c.dataset.id);
+      const anime = animeList.find(x => x.mal_id === id);
       if(anime) openDetail(anime);
     };
   });
@@ -97,25 +93,23 @@ document.querySelectorAll(".nav-item").forEach(item => {
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     document.getElementById(`page-${page}`).classList.add("active");
     
-    // Search belum kita implementasi ke API di versi ini
     if (page === "search") {
-        document.getElementById("search-results").innerHTML = "<p style='color:white;grid-column:1/-1;'>Fitur pencarian belum disambungkan ke API.</p>";
+        document.getElementById("search-results").innerHTML = "<p style='color:white;grid-column:1/-1;'>Fitur pencarian sedang disiapkan.</p>";
     }
   });
 });
 
-// Detail Sederhana (Karena API Sanka butuh request tambahan buat detail)
 function openDetail(anime) {
-  document.getElementById("detail-img").src = anime.poster;
+  document.getElementById("detail-img").src = anime.images.jpg.large_image_url;
   document.getElementById("detail-title").textContent = anime.title;
   document.getElementById("detail-rating").textContent = `Score ${anime.score || '-'}`;
-  document.getElementById("detail-status").textContent = "Ongoing";
-  document.getElementById("detail-episodes").textContent = `- eps`;
-  document.getElementById("detail-synopsis").textContent = "Sinopsis belum tersedia di halaman ini (butuh API detail).";
+  document.getElementById("detail-status").textContent = anime.status || "Unknown";
+  document.getElementById("detail-episodes").textContent = `${anime.episodes || '?'} eps`;
+  document.getElementById("detail-synopsis").textContent = anime.synopsis || "Sinopsis belum tersedia.";
 
-  // Bikin dummy episode buat ngetes tombol
   const epList = document.getElementById("detail-episodes-list");
-  epList.innerHTML = Array.from({ length: 12 }, (_, i) =>
+  const totalEps = anime.episodes || 12;
+  epList.innerHTML = Array.from({ length: Math.min(totalEps, 24) }, (_, i) =>
     `<button onclick="openPlayer('${anime.title}', ${i + 1})">${i + 1}</button>`
   ).join("");
 
@@ -139,4 +133,4 @@ function openPlayer(animeTitle, ep) {
 function closePlayer() {
   document.getElementById("page-player").classList.remove("active");
   document.getElementById("page-detail").classList.add("active");
-      }
+}
