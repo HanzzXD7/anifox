@@ -40,11 +40,9 @@ async function renderHome() {
   latestList.innerHTML = "<p style='color:white;'>Memuat data anime...</p>";
   
   try {
-    // Kasih timeout biar gak nunggu kelamaan
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    // Fetch data
     const res = await fetch(`${API_BASE}/top/anime?limit=12`, { signal: controller.signal });
     clearTimeout(timeoutId);
     
@@ -55,12 +53,10 @@ async function renderHome() {
 
     if (!animeList || animeList.length === 0) throw new Error("Data anime kosong.");
 
-    // Hero
     const hero = animeList[0];
     document.getElementById("hero-img").src = hero.images.jpg.large_image_url;
     document.getElementById("hero-title").textContent = hero.title;
 
-    // Render
     latestList.innerHTML = animeList.slice(0, 6).map(cardHTML).join("");
     document.getElementById("popular-list").innerHTML = animeList.slice(6, 12).map(cardHTML).join("");
     
@@ -68,9 +64,8 @@ async function renderHome() {
 
   } catch (error) {
     console.error(error);
-    // Nampilin pesan error asli ke layar
     if (error.name === 'AbortError') {
-      latestList.innerHTML = "<p style='color:red;'>Gagal: Koneksi lambat atau diblokir (Timeout).</p>";
+      latestList.innerHTML = "<p style='color:red;'>Gagal: Koneksi lambat (Timeout).</p>";
     } else {
       latestList.innerHTML = `<p style='color:red;'>Gagal: ${error.message}</p>`;
     }
