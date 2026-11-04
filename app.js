@@ -1,4 +1,4 @@
-const API_BASE = 'https://kitsu.io/api/edge';
+const API_BASE = 'https://api.jikan.moe/v4';
 
 window.addEventListener("load", () => {
   let progress = 0;
@@ -40,19 +40,24 @@ async function renderHome() {
   latestList.innerHTML = "<p style='color:white;'>Memuat data anime...</p>";
   
   try {
-    const res = await fetch(`${API_BASE}/anime?page[limit]=24&sort=-averageRating`);
+    // Minta 24 data anime terpopuler ke Jikan
+    const res = await fetch(`${API_BASE}/top/anime?limit=24`);
+    
     if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+
     const json = await res.json();
     const animeList = json.data;
 
-    if (!animeList || animeList.length === 0) throw new Error("Data anime kosong.");
+    if (!animeList || animeList.length === 0) throw new Error("Data kosong");
 
+    // Set Hero pakai anime pertama
     const hero = animeList[0];
-    document.getElementById("hero-img").src = hero.attributes.posterImage.original;
-    document.getElementById("hero-title").textContent = hero.attributes.canonicalTitle;
+    document.getElementById("hero-img").src = hero.images.jpg.large_image_url;
+    document.getElementById("hero-title").textContent = hero.title;
 
-    latestList.innerHTML = animeList.slice(0, 10).map(cardHTML).join("");
-    document.getElementById("popular-list").innerHTML = animeList.slice(10, 24).map(cardHTML).join("");
+    // Render list (Bagi 2 baris: 12 Terbaru, 12 Populer)
+    latestList.innerHTML = animeList.slice(0, 12).map(cardHTML).join("");
+    document.getElementById("popular-list").innerHTML = animeList.slice(12, 24).map(cardHTML).join("");
     
     attachCardClicks(animeList);
 
@@ -64,18 +69,18 @@ async function renderHome() {
 
 function cardHTML(a) {
   return `
-    <div class="card" data-id="${a.id}">
-      <img src="${a.attributes.posterImage.medium}" alt="${a.attributes.canonicalTitle}" loading="lazy" style="object-fit:cover;" />
-      <h3>${a.attributes.canonicalTitle}</h3>
-      <small>Rating ${a.attributes.averageRating || '-'}</small>
+    <div class="card" data-id="${a.mal_id}">
+      <img src="${a.images.jpg.large_image_url}" alt="${a.title}" loading="lazy" style="object-fit:cover;" />
+      <h3>${a.title}</h3>
+      <small>Score ${a.score || '-'}</small>
     </div>`;
 }
 
 function attachCardClicks(animeList) {
   document.querySelectorAll(".card").forEach(c => {
     c.onclick = () => {
-      const id = c.dataset.id;
-      const anime = animeList.find(x => x.id === id);
+      const id = parseInt(c.dataset.id);
+      const anime = animeList.find(x => x.mal_id === id);
       if(anime) openDetail(anime);
     };
   });
@@ -92,19 +97,19 @@ document.querySelectorAll(".nav-item").forEach(item => {
 });
 
 function openDetail(anime) {
-  document.getElementById("detail-img").src = anime.attributes.posterImage.original;
-  document.getElementById("detail-title").textContent = anime.attributes.canonicalTitle;
-  document.getElementById("detail-rating").textContent = `Rating ${anime.attributes.averageRating || '-'}`;
-  document.getElementById("detail-status").textContent = anime.attributes.status || "Unknown";
-  document.getElementById("detail-episodes").textContent = `${anime.attributes.episodeCount || '?'} eps`;
-  document.getElementById("detail-synopsis").textContent = anime.attributes.synopsis || "Sinopsis tidak tersedia.";
+  document.getElementById("detail-img").src = anime.images.jpg.large_image_url;
+  document.getElementById("detail-title").textContent = anime.title;
+  document.getElementById("detail-rating").textContent = `Score ${anime.score || '-'}`;
+  document.getElementById("detail-status").textContent = anime.status || "Unknown";
+  document.getElementById("detail-episodes").textContent = `${anime.episodes || '?'} eps`;
+  document.getElementById("detail-synopsis").textContent = anime.synopsis || "Sinopsis tidak tersedia.";
 
   const epList = document.getElementById("detail-episodes-list");
+  // Kalau Jikan gak ngasih tau jumlah episode (null), kita anggap 12
+  const totalEps = anime.episodes || 12; 
   
-  // UBAH DISINI: Pakai total episode asli, kalau gak ada baru max 100
-  const totalEps = anime.attributes.episodeCount || 100; 
   epList.innerHTML = Array.from({ length: Math.min(totalEps, 100) }, (_, i) =>
-    `<button onclick="openPlayer('${anime.attributes.canonicalTitle}', ${i + 1})">${i + 1}</button>`
+    `<button onclick="openPlayer('${anime.title}', ${i + 1})">${i + 1}</button>`
   ).join("");
 
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
@@ -123,7 +128,6 @@ function openPlayer(animeTitle, ep) {
   const playerEpList = document.getElementById("player-episodes-list");
   let episodesHTML = "";
   
-  // UBAH DISINI: Bikin loop sampai 100 episode
   for (let i = 1; i <= 100; i++) {
     const activeClass = (i === ep) ? "active" : "";
     episodesHTML += `<button onclick="openPlayer('${animeTitle}', ${i})" class="${activeClass}">${i}</button>`;
