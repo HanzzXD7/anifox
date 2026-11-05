@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07182d">
+  <meta name="description" content="AniFoX — jelajahi katalog anime, simpan favorit, dan lanjutkan tontonanmu.">
+  <title>AniFoX — Anime, in focus.</title>
+  <link rel="preconnect" href="https://api.jikan.moe">
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <div class="noise"></div>
+
+  <div id="splash" class="splash">
+    <div class="splash-mark"><span class="mark-eye"></span><span>AF</span></div>
+    <p class="eyebrow">ANIME, IN FOCUS</p>
+    <h1>AniFo<span>X</span></h1>
+    <p class="splash-sub">A quieter way to find your next story.</p>
+    <div class="loader"><i id="progress-bar"></i></div>
+    <button id="btn-skip" class="text-button">Masuk ke AniFoX <span>↗</span></button>
+  </div>
+
+  <main id="app" class="app hidden">
+    <header class="topbar glass">
+      <a class="brand" href="#" data-go="home" aria-label="AniFoX home">
+        <span class="brand-symbol">A<span>F</span></span>
+        <span class="brand-name">AniFoX<small>ANIME INDEX</small></span>
+      </a>
+      <div class="top-actions">
+        <button class="icon-button" id="quick-search" aria-label="Cari"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></button>
+        <button class="profile-dot" id="profile-button" aria-label="Profil">A</button>
+      </div>
+    </header>
+
+    <section id="page-home" class="page active">
+      <div class="welcome-line"><div><p class="eyebrow">DISCOVER YOUR NEXT WORLD</p><h2>Stories worth<br><em>staying for.</em></h2></div><span class="edition">VOL. 01<br>2026</span></div>
+      <section class="feature glass">
+        <div class="feature-art" id="hero-art"></div>
+        <div class="feature-shade"></div>
+        <div class="feature-copy"><span class="micro-label"><i></i> EDITOR'S PICK</span><h3 id="hero-title">Menyiapkan pilihan...</h3><p id="hero-meta">Menjelajahi katalog anime</p><button id="hero-open" class="pill-button">Lihat detail <span>↗</span></button></div>
+        <div class="feature-index">01 <span>/ FEATURED</span></div>
+      </section>
+
+      <div class="section-head"><div><p class="eyebrow">FRESHLY ADDED TO THE INDEX</p><h3>Musim ini</h3></div><button class="inline-link" data-go="season">Jelajahi ↗</button></div>
+      <div id="season-list" class="poster-row"><div class="skeleton-poster"></div><div class="skeleton-poster"></div><div class="skeleton-poster"></div></div>
+
+      <div class="section-head"><div><p class="eyebrow">THE COMMUNITY'S FAVORITES</p><h3>Paling populer</h3></div><button class="inline-link" data-go="popular">Lihat semua ↗</button></div>
+      <div id="popular-list" class="poster-grid"></div>
+
+      <div class="section-head"><div><p class="eyebrow">PICK A MOOD</p><h3>Jelajahi genre</h3></div></div>
+      <div id="genre-list" class="genre-cloud">
+        <button data-genre="Action">Action</button><button data-genre="Adventure">Adventure</button><button data-genre="Comedy">Comedy</button><button data-genre="Drama">Drama</button><button data-genre="Fantasy">Fantasy</button><button data-genre="Romance">Romance</button><button data-genre="Sci-Fi">Sci-Fi</button><button data-genre="Slice of Life">Slice of Life</button>
+      </div>
+    </section>
+
+    <section id="page-search" class="page">
+      <div class="page-intro"><p class="eyebrow">FIND YOUR NEXT FAVORITE</p><h2>Search<span>.</span></h2><p>Judul, karakter, atau cerita yang sedang kamu cari.</p></div>
+      <label class="search-field glass"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg><input id="search-input" type="search" placeholder="Cari judul anime..." autocomplete="off"><button id="clear-search" aria-label="Hapus pencarian">×</button></label>
+      <div class="filter-line"><span id="search-caption">MULAI DENGAN SEBUAH JUDUL</span><select id="search-order" aria-label="Urutkan"><option value="score">Rating tertinggi</option><option value="title">Judul A–Z</option><option value="episodes">Jumlah episode</option></select></div>
+      <div id="search-results" class="poster-grid"></div>
+      <button id="load-more" class="load-more hidden">Muat lebih banyak</button>
+    </section>
+
+    <section id="page-season" class="page">
+      <div class="page-intro"><p class="eyebrow">WHAT'S AIRING NOW</p><h2>Current season<span>.</span></h2><p>Anime yang terdaftar untuk musim berjalan.</p></div>
+      <div id="season-full" class="poster-grid"></div>
+    </section>
+
+    <section id="page-popular" class="page">
+      <div class="page-intro"><p class="eyebrow">THE MOST LOVED</p><h2>Popular<span>.</span></h2><p>Judul yang banyak dibicarakan para penggemar.</p></div>
+      <div id="popular-full" class="poster-grid"></div>
+    </section>
+
+    <section id="page-list" class="page">
+      <div class="page-intro"><p class="eyebrow">YOUR PERSONAL COLLECTION</p><h2>Watchlist<span>.</span></h2><p>Disimpan di perangkat ini, tanpa akun.</p></div>
+      <div id="watchlist" class="poster-grid"></div>
+    </section>
+
+    <section id="page-detail" class="page detail-page">
+      <button class="back-link" data-back>← Kembali</button>
+      <div class="detail-cover"><img id="detail-img" alt=""><div class="cover-gradient"></div></div>
+      <div class="detail-layout">
+        <div class="detail-poster"><img id="detail-poster" alt=""></div>
+        <div class="detail-heading"><p class="eyebrow" id="detail-type">ANIME PROFILE</p><h2 id="detail-title">-</h2><div class="detail-stats" id="detail-stats"></div><div class="detail-actions"><button id="detail-watchlist" class="pill-button">＋ Watchlist</button><a id="detail-official" class="outline-button" target="_blank" rel="noopener">Situs info ↗</a></div></div>
+      </div>
+      <div class="detail-body">
+        <div class="detail-main"><p class="eyebrow">THE SYNOPSIS</p><h3>Tentang cerita</h3><p id="detail-synopsis" class="synopsis"></p><div class="detail-section"><p class="eyebrow">GENRE & THEMES</p><div id="detail-genres" class="genre-cloud compact"></div></div><div class="detail-section"><p class="eyebrow">EPISODE GUIDE</p><h3>Daftar episode</h3><p class="muted-note" id="episode-note">Informasi episode dari katalog.</p><div id="detail-episodes-list" class="episode-list"></div><button id="episodes-more" class="inline-link hidden">Muat episode lainnya ↓</button></div></div>
+        <aside class="detail-aside glass"><p class="eyebrow">AT A GLANCE</p><div id="detail-facts"></div><p class="aside-note">Data katalog berasal dari MyAnimeList melalui Jikan API. AniFoX bukan penyedia video.</p></aside>
+      </div>
+    </section>
+
+    <section id="page-player" class="page player-page">
+      <button class="back-link" data-back>← Kembali ke detail</button>
+      <div class="player-heading"><p class="eyebrow">NOW PLAYING</p><h2 id="player-title">-</h2><p id="player-episode">Episode -</p></div>
+      <div class="video-shell glass">
+        <video id="video-player" controls playsinline preload="metadata"></video>
+        <div id="video-empty" class="video-empty"><div class="play-orbit">▶</div><h3>Putar dari sumber milikmu</h3><p>Masukkan tautan video MP4/WebM yang kamu miliki atau berhak gunakan, atau pilih file lokal.</p></div>
+      </div>
+      <div class="source-panel glass"><label for="video-url">URL video legal (MP4 / WebM)</label><div class="source-input"><input id="video-url" type="url" placeholder="https://contoh.com/video.mp4"><button id="load-video">Putar</button></div><label class="file-label" for="video-file">Atau pilih file video dari perangkat <span>＋</span></label><input id="video-file" type="file" accept="video/mp4,video/webm,video/ogg" hidden><p class="source-help">Tautan video tidak disediakan oleh katalog anime. Gunakan file pribadi atau sumber resmi yang mengizinkan pemutaran.</p></div>
+      <div class="episode-player-panel glass"><div class="section-head"><div><p class="eyebrow">KEEP WATCHING</p><h3>Episode lainnya</h3></div></div><div id="player-episodes-list" class="episode-list"></div><div class="player-nav"><button id="prev-episode" class="outline-button">← Sebelumnya</button><button id="next-episode" class="outline-button">Berikutnya →</button></div></div>
+    </section>
+
+    <nav class="bottom-nav glass" aria-label="Navigasi utama">
+      <button class="nav-item active" data-page="home"><span>⌂</span><small>Home</small></button>
+      <button class="nav-item" data-page="search"><span>⌕</span><small>Search</small></button>
+      <button class="nav-item" data-page="list"><span>♡</span><small>Watchlist</small></button>
+    </nav>
+    <div id="toast" class="toast" role="status"></div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
