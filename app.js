@@ -273,7 +273,7 @@ async function api(path) {
 
     const timeout = setTimeout(() => {
       controller.abort();
-    }, 10000);
+    }, 25000);
 
     try {
 
