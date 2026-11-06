@@ -417,10 +417,7 @@ async function loadHome() {
   if (season.status === 'fulfilled') {
     remember(season.value);
 
-    renderCards(
-      'season-list',
-      season.value.slice(0, 10)
-    );
+    renderCards('season-list', season.value.slice(0, 10));
   } else {
     $('season-list').innerHTML = `
       <div class="empty-message">
@@ -432,10 +429,7 @@ async function loadHome() {
   if (popular.status === 'fulfilled') {
     remember(popular.value);
 
-    renderCards(
-      'popular-list',
-      popular.value.slice(0, 10)
-    );
+    renderCards('popular-list', popular.value.slice(0, 10));
 
     state.featured = popular.value[0] || null;
   } else {
@@ -460,15 +454,13 @@ async function loadHome() {
           : '—'
       }`;
 
-    const art = state.featured.bannerImage ||
-      imageOf(state.featured);
+    const art = state.featured.bannerImage || imageOf(state.featured);
 
     $('hero-art').style.backgroundImage =
       art ? `url("${art}")` : '';
 
   } else {
-    $('hero-title').textContent =
-      'Temukan anime favoritmu';
+    $('hero-title').textContent = 'Temukan anime favoritmu';
 
     $('hero-meta').textContent =
       'Katalog sedang tidak dapat dimuat. Coba lagi nanti.';
@@ -489,10 +481,7 @@ async function loadSeason(full = false) {
 
     remember(items);
 
-    renderCards(
-      target,
-      full ? items : items.slice(0, 10)
-    );
+    renderCards(target, full ? items : items.slice(0, 10));
 
   } catch (error) {
     $(target).innerHTML = `
@@ -513,10 +502,7 @@ async function loadPopular(full = false) {
 
     remember(items);
 
-    renderCards(
-      target,
-      full ? items : items.slice(0, 10)
-    );
+    renderCards(target, full ? items : items.slice(0, 10));
 
   } catch (error) {
     $(target).innerHTML = `
@@ -550,7 +536,6 @@ async function loadGenres() {
       throw new Error('Data genre tidak valid.');
     }
 
-    // Genre yang tidak ditampilkan
     const excluded = ['Ecchi', 'Hentai'];
 
     const genres = result.data.filter(genre =>
@@ -571,6 +556,7 @@ async function loadGenres() {
       button.addEventListener('click', () => {
         const genre = button.dataset.genre;
 
+        clearTimeout(state.searchTimer);
         state.currentGenre = genre;
         state.genrePage = 1;
 
@@ -584,9 +570,7 @@ async function loadGenres() {
 
   } catch (error) {
     host.innerHTML = `
-      <div class="empty-message">
-        ${esc(error.message)}
-      </div>
+      <div class="empty-message">${esc(error.message)}</div>
     `;
   }
 }
@@ -618,9 +602,7 @@ async function loadGenreAnime(genre, page = 1) {
     if (request !== state.searchRequest) return;
 
     if (!result.status) {
-      throw new Error(
-        result.message || 'Data genre gagal dimuat.'
-      );
+      throw new Error(result.message || 'Data genre gagal dimuat.');
     }
 
     state.currentGenre = genre;
@@ -681,9 +663,7 @@ async function loadGenreAnime(genre, page = 1) {
     if (request !== state.searchRequest) return;
 
     host.innerHTML = `
-      <div class="empty-message">
-        ${esc(error.message)}
-      </div>
+      <div class="empty-message">${esc(error.message)}</div>
     `;
   }
 }
@@ -695,14 +675,14 @@ async function loadGenreAnime(genre, page = 1) {
 function onSearchInput() {
   clearTimeout(state.searchTimer);
 
-  // Ketika pengguna mengetik sendiri,
-  // pencarian kembali menggunakan AniList.
+  // Batalkan permintaan genre atau pencarian sebelumnya.
+  state.searchRequest++;
   state.currentGenre = '';
+  state.genreHasNextPage = false;
 
   const keyword = $('search-input').value.trim();
 
   if (!keyword) {
-    state.searchRequest++;
     $('search-results').innerHTML = '';
     return;
   }
