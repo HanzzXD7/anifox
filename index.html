@@ -1,227 +1,175 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#07152f">
-  <meta name="description" content="AniFoX - Anime catalogue and official anime videos">
-
-  <title>AniFoX - Anime Streaming</title>
+  <meta name="description" content="AniFoX — katalog anime dan video resmi">
+  <title>AniFoX — Anime Streaming</title>
   <link rel="icon" type="image/png" href="anifox-logo.png">
+  <link rel="preconnect" href="https://graphql.anilist.co">
+  <link rel="preconnect" href="https://s4.anilist.co">
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
-  <!-- LOADING SCREEN -->
   <div id="splash" class="splash">
-    <img src="anifox-logo.png" alt="AniFoX Logo" class="logo">
-    <p>Anime streaming app nya</p>
-    <div class="loading-bar">
-      <div id="loading-progress"></div>
-    </div>
-    <span>Memuat AniFoX...</span>
-    <button id="skip-loading">Lewati</button>
+    <img src="anifox-logo.png" alt="AniFoX" onerror="this.style.display='none'">
+    <div class="splash-brand">Ani<span>FoX</span></div>
+    <p>Temukan dunia anime favoritmu</p>
+    <div class="loading-track"><div id="loading-progress"></div></div>
+    <small>Menyiapkan pengalaman AniFoX...</small>
+    <button id="skip-loading" type="button">Lewati</button>
   </div>
 
-  <!-- MAIN APP -->
   <div id="app" class="app hidden">
-
-    <!-- NAVBAR -->
-    <header class="navbar">
-      <a href="#" class="brand" aria-label="AniFoX Home">
-        <img src="anifox-logo.png" alt="AniFoX" class="nav-logo">
+    <aside class="sidebar">
+      <a class="brand" href="#" data-page="home" aria-label="AniFoX Beranda">
+        <img src="anifox-logo.png" alt="" onerror="this.style.display='none'">
+        <span>Ani<span>FoX</span></span>
       </a>
+      <p class="nav-caption">MENU UTAMA</p>
+      <nav class="side-nav" aria-label="Navigasi utama">
+        <button class="nav-item active" data-page="home"><span>⌂</span>Beranda</button>
+        <button class="nav-item" data-page="season"><span>▦</span>Season Anime</button>
+        <button class="nav-item" data-page="popular"><span>✦</span>Anime Populer</button>
+        <button class="nav-item" data-page="search"><span>⌕</span>Cari Anime</button>
+        <button class="nav-item" data-page="list"><span>♡</span>Watchlist</button>
+      </nav>
+      <div class="sidebar-note">
+        <span class="note-icon">✧</span>
+        <strong>Jelajahi anime</strong>
+        <p>Koleksi dan video resmi dalam satu tempat.</p>
+        <button type="button" data-page="search">Mulai cari <span>→</span></button>
+      </div>
+      <div class="sidebar-footer">AniFoX <span>•</span> Anime discovery</div>
+    </aside>
 
-      <button id="search-button" class="icon-button" aria-label="Cari anime">
-        🔍
-      </button>
-    </header>
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="mobile-brand">Ani<span>FoX</span></div>
+        <div class="topbar-copy"><span class="eyebrow">WELCOME BACK</span><strong>Jelajahi dunia anime</strong></div>
+        <button id="search-button" class="top-search" type="button"><span>⌕</span><span>Cari anime favoritmu...</span><kbd>/</kbd></button>
+        <div class="top-avatar" aria-label="AniFoX">狐</div>
+      </header>
 
-    <!-- HOME -->
-    <main>
-
-      <section id="page-home" class="page active">
-
-        <!-- HERO -->
-        <section class="hero">
-          <div class="hero-content">
-            <span class="hero-label">RECOMMENDED FOR YOU</span>
-            <h1 id="hero-title">Selamat datang di AniFoX</h1>
-            <p id="hero-meta">Temukan anime favoritmu di sini.</p>
-            <button id="hero-detail" class="primary-button">
-              Lihat Detail
-            </button>
-          </div>
-          <div id="hero-art" class="hero-art"></div>
-        </section>
-
-        <!-- MUSE INDONESIA -->
-        <section id="muse-section" class="content-section">
-          <div class="section-heading">
-            <div>
-              <h2>Video Terbaru</h2>
-              <p>Official uploads dari Muse Indonesia</p>
+      <main>
+        <section id="page-home" class="page active">
+          <section class="hero">
+            <div class="hero-glow"></div>
+            <div class="hero-content">
+              <span class="hero-label"><i></i> REKOMENDASI ANIME</span>
+              <p class="hero-kicker">Temukan cerita berikutnya</p>
+              <h1 id="hero-title">Selamat datang di AniFoX</h1>
+              <p id="hero-meta">Temukan anime favoritmu di sini.</p>
+              <div class="hero-actions">
+                <button id="hero-detail" class="primary-button" type="button"><span>▶</span> Lihat Detail</button>
+                <button class="hero-secondary" type="button" data-page="popular">Jelajahi populer <span>↗</span></button>
+              </div>
             </div>
-            <a href="https://www.youtube.com/@MuseIndonesia"
-               target="_blank" rel="noopener">
-              YouTube ↗
-            </a>
-          </div>
+            <div id="hero-art" class="hero-art" aria-hidden="true"></div>
+            <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
+            <div class="hero-index"><b>01</b><span>/ FEATURED</span></div>
+          </section>
 
-          <div id="muse-list" class="muse-grid">
-            <p>Memuat video Muse Indonesia...</p>
-          </div>
+          <section id="muse-section" class="content-section">
+            <div class="section-heading">
+              <div><span class="eyebrow">OFFICIAL CHANNELS</span><h2>Video Terbaru</h2><p>Unggahan dari kanal resmi Muse Indonesia & Ani-One Indonesia</p></div>
+              <a class="text-link" href="https://www.youtube.com/@MuseIndonesia" target="_blank" rel="noopener">YouTube <span>↗</span></a>
+            </div>
+            <div id="muse-list" class="muse-grid"><p class="empty-message">Memuat video resmi...</p></div>
+          </section>
+
+          <section class="content-section">
+            <div class="section-heading">
+              <div><span class="eyebrow">THIS SEASON</span><h2>Season Anime</h2></div>
+              <button id="see-season" class="text-link" type="button">Lihat semua <span>→</span></button>
+            </div>
+            <div id="season-list" class="anime-grid"><p class="empty-message">Memuat anime...</p></div>
+          </section>
+
+          <section class="content-section">
+            <div class="section-heading">
+              <div><span class="eyebrow">COMMUNITY FAVORITES</span><h2>Anime Populer</h2></div>
+              <button id="see-popular" class="text-link" type="button">Lihat semua <span>→</span></button>
+            </div>
+            <div id="popular-list" class="anime-grid"><p class="empty-message">Memuat anime...</p></div>
+          </section>
+
+          <section class="content-section">
+            <div class="section-heading"><div><span class="eyebrow">FIND YOUR MOOD</span><h2>Jelajahi Genre</h2></div></div>
+            <div id="genre-list" class="genre-list"></div>
+          </section>
         </section>
 
-        <!-- CURRENT SEASON -->
-        <section class="content-section">
-          <div class="section-heading">
-            <h2>Season Anime</h2>
-            <button id="see-season">Lihat Semua</button>
-          </div>
-          <div id="season-list" class="anime-grid"></div>
+        <section id="page-search" class="page hidden">
+          <div class="page-title"><span class="eyebrow">ANIME DISCOVERY</span><h1>Cari Anime</h1><p>Temukan anime berdasarkan judul atau genre.</p></div>
+          <label class="search-field"><span>⌕</span><input id="search-input" type="search" placeholder="Cari judul anime..." autocomplete="off"><kbd>SEARCH</kbd></label>
+          <div id="search-results" class="anime-grid"></div>
         </section>
 
-        <!-- POPULAR -->
-        <section class="content-section">
-          <div class="section-heading">
-            <h2>Anime Populer</h2>
-            <button id="see-popular">Lihat Semua</button>
-          </div>
-          <div id="popular-list" class="anime-grid"></div>
+        <section id="page-season" class="page hidden">
+          <div class="page-title"><span class="eyebrow">NOW AIRING & UPCOMING</span><h1>Season Anime</h1><p>Anime pilihan dari season saat ini.</p></div>
+          <div id="season-full" class="anime-grid"></div>
         </section>
 
-        <!-- GENRES -->
-        <section class="content-section">
-          <h2>Jelajahi Genre</h2>
-          <div id="genre-list" class="genre-list"></div>
+        <section id="page-popular" class="page hidden">
+          <div class="page-title"><span class="eyebrow">TOP PICKS</span><h1>Anime Populer</h1><p>Anime dengan skor tinggi di AniList.</p></div>
+          <div id="popular-full" class="anime-grid"></div>
         </section>
 
-      </section>
-
-      <!-- SEARCH PAGE -->
-      <section id="page-search" class="page hidden">
-        <div class="page-heading">
-          <h1>Cari Anime</h1>
-        </div>
-        <input
-          id="search-input"
-          type="search"
-          placeholder="Cari judul anime..."
-          autocomplete="off"
-        >
-        <div id="search-results" class="anime-grid"></div>
-      </section>
-
-      <!-- SEASON PAGE -->
-      <section id="page-season" class="page hidden">
-        <h1>Season Anime</h1>
-        <div id="season-full" class="anime-grid"></div>
-      </section>
-
-      <!-- POPULAR PAGE -->
-      <section id="page-popular" class="page hidden">
-        <h1>Anime Populer</h1>
-        <div id="popular-full" class="anime-grid"></div>
-      </section>
-
-      <!-- WATCHLIST PAGE -->
-      <section id="page-list" class="page hidden">
-        <h1>Watchlist Saya</h1>
-        <div id="watchlist" class="anime-grid"></div>
-      </section>
-
-      <!-- DETAIL PAGE -->
-      <section id="page-detail" class="page hidden">
-        <button id="back-detail" class="back-button">← Kembali</button>
-
-        <div class="detail-layout">
-          <img id="detail-image" src="" alt="Poster anime">
-
-          <div class="detail-info">
-            <h1 id="detail-title"></h1>
-            <p id="detail-score"></p>
-            <p id="detail-status"></p>
-            <p id="detail-episodes"></p>
-            <p id="detail-synopsis"></p>
-
-            <button id="detail-watchlist" class="primary-button">
-              + Watchlist
-            </button>
-          </div>
-        </div>
-
-        <section class="content-section">
-          <h2>Daftar Episode</h2>
-          <div id="episode-list" class="episode-list"></div>
+        <section id="page-list" class="page hidden">
+          <div class="page-title"><span class="eyebrow">YOUR COLLECTION</span><h1>Watchlist Saya</h1><p>Daftar anime yang ingin kamu tonton.</p></div>
+          <div id="watchlist" class="anime-grid"></div>
         </section>
-      </section>
 
-      <!-- PLAYER PAGE -->
-      <section id="page-player" class="page hidden">
-        <button id="back-player" class="back-button">← Kembali</button>
-
-        <h1 id="player-title">Pemutar Video</h1>
-        <p id="player-episode"></p>
-
-        <div class="video-shell">
-
-          <video id="video-player"
-                 class="video-player hidden"
-                 controls
-                 playsinline>
-          </video>
-
-          <iframe
-            id="youtube-player"
-            class="youtube-player hidden"
-            src=""
-            title="Pemutar video YouTube Muse Indonesia"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen>
-          </iframe>
-
-          <div id="video-empty" class="video-empty">
-            <p>Video belum tersedia.</p>
+        <section id="page-detail" class="page hidden detail-page">
+          <button id="back-detail" class="back-button" type="button">← <span>Kembali</span></button>
+          <div class="detail-banner">
+            <div id="detail-banner-art" class="detail-banner-art"></div>
+            <div class="detail-banner-shade"></div>
           </div>
+          <div class="detail-layout">
+            <div class="detail-poster-wrap"><img id="detail-image" src="" alt="Poster anime"></div>
+            <div class="detail-info">
+              <span class="eyebrow">ANIME INFORMATION</span>
+              <h1 id="detail-title">-</h1>
+              <div class="detail-chips"><span id="detail-score" class="detail-chip score-chip">★ -</span><span id="detail-status" class="detail-chip">-</span><span id="detail-episodes" class="detail-chip">- episode</span></div>
+              <p id="detail-synopsis" class="synopsis">Memuat sinopsis...</p>
+              <div id="detail-genres" class="detail-genres"></div>
+              <button id="detail-watchlist" class="primary-button" type="button">＋ Tambah ke Watchlist</button>
+            </div>
+          </div>
+          <section class="content-section episode-section">
+            <div class="section-heading"><div><span class="eyebrow">EPISODE GUIDE</span><h2>Daftar Episode</h2></div></div>
+            <div id="episode-list" class="episode-list"></div>
+            <p class="muted-note">Daftar episode mengikuti jumlah episode yang tersedia di AniList. Ketersediaan video bergantung pada kanal resmi.</p>
+          </section>
+        </section>
 
-        </div>
-        <div id="video-source-list"></div>
-        <a id="youtube-link"
-           href="https://www.youtube.com/@MuseIndonesia"
-           target="_blank"
-           rel="noopener">
-          Buka Muse Indonesia di YouTube ↗
-        </a>
-      </section>
+        <section id="page-player" class="page hidden player-page">
+          <button id="back-player" class="back-button" type="button">← <span>Kembali ke detail</span></button>
+          <div class="page-title"><span class="eyebrow">NOW PLAYING</span><h1 id="player-title">Pemutar Video</h1><p id="player-episode">Pilih video dari sumber resmi.</p></div>
+          <div class="video-shell">
+            <video id="video-player" class="video-player hidden" controls playsinline></video>
+            <iframe id="youtube-player" class="youtube-player hidden" src="" title="Pemutar video YouTube resmi" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <div id="video-empty" class="video-empty"><div class="empty-play">▶</div><strong>Video belum tersedia</strong><p>Pilih sumber resmi jika tersedia di bawah.</p></div>
+          </div>
+          <div id="video-source-list" class="source-panel"></div>
+          <a id="youtube-link" class="official-link" href="https://www.youtube.com/@MuseIndonesia" target="_blank" rel="noopener">Buka kanal resmi di YouTube ↗</a>
+        </section>
 
-    </main>
+        <footer class="site-footer"><span>Ani<span>FoX</span></span><p>Katalog anime didukung AniList. Video diputar melalui kanal resmi masing-masing.</p></footer>
+      </main>
+    </div>
 
-    <!-- BOTTOM NAVIGATION -->
-    <nav id="bottom-nav" class="bottom-nav">
-      <button data-page="home" class="nav-item active">
-        <span>⌂</span>
-        <small>Home</small>
-      </button>
-
-      <button data-page="search" class="nav-item">
-        <span>⌕</span>
-        <small>Search</small>
-      </button>
-
-      <button data-page="list" class="nav-item">
-        <span>♡</span>
-        <small>Watchlist</small>
-      </button>
+    <nav id="bottom-nav" class="bottom-nav" aria-label="Navigasi bawah">
+      <button class="nav-item active" data-page="home" type="button"><span>⌂</span><small>Home</small></button>
+      <button class="nav-item" data-page="season" type="button"><span>▦</span><small>Season</small></button>
+      <button class="nav-item" data-page="search" type="button"><span>⌕</span><small>Cari</small></button>
+      <button class="nav-item" data-page="list" type="button"><span>♡</span><small>List</small></button>
     </nav>
-
-    <!-- TOAST -->
-    <div id="toast" class="toast"></div>
-
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
-
   <script src="app.js"></script>
 </body>
 </html>
