@@ -22,10 +22,15 @@ const state = {
   toastTimer: null,
   splashTimer: null,
 
-  // Genre AniLab
+  // Genre pagination
   currentGenre: '',
   genrePage: 1,
-  genreHasNextPage: false
+  genreHasNextPage: false,
+
+  // Search pagination
+  searchKeyword: '',
+  searchPage: 1,
+  searchHasNextPage: false
 };
 
 document.addEventListener('DOMContentLoaded', initializeApp);
@@ -282,10 +287,18 @@ async function getPopularAnime() {
   return data.Page.media || [];
 }
 
-async function searchAnime(keyword) {
+// ========================================
+// SEARCH API — PAGINATION
+// ========================================
+
+async function searchAnime(keyword, page = 1) {
   const query = `
-    query ($search: String) {
-      Page(perPage: 24) {
+    query ($search: String, $page: Int) {
+      Page(page: $page, perPage: 24) {
+        pageInfo {
+          currentPage
+          hasNextPage
+        }
         media(
           type: ANIME
           search: $search
@@ -298,8 +311,16 @@ async function searchAnime(keyword) {
     }
   `;
 
-  const data = await anilist(query, { search: keyword });
-  return data.Page.media || [];
+  const data = await anilist(query, {
+    search: keyword,
+    page
+  });
+
+  return {
+    items: data.Page.media || [],
+    page: data.Page.pageInfo.currentPage,
+    hasNextPage: data.Page.pageInfo.hasNextPage
+  };
 }
 
 async function getAnimeDetail(id) {
@@ -557,8 +578,12 @@ async function loadGenres() {
         const genre = button.dataset.genre;
 
         clearTimeout(state.searchTimer);
+
         state.currentGenre = genre;
         state.genrePage = 1;
+        state.searchKeyword = '';
+
+        state.searchRequest++;
 
         navigate('search');
 
@@ -669,18 +694,24 @@ async function loadGenreAnime(genre, page = 1) {
 }
 
 // ========================================
-// SEARCH
+// SEARCH — ANILIST + PAGINATION
 // ========================================
 
 function onSearchInput() {
   clearTimeout(state.searchTimer);
 
-  // Batalkan permintaan genre atau pencarian sebelumnya.
+  // Batalkan permintaan sebelumnya.
   state.searchRequest++;
+
+  // Keluar dari mode genre.
   state.currentGenre = '';
   state.genreHasNextPage = false;
 
   const keyword = $('search-input').value.trim();
+
+  state.searchKeyword = keyword;
+  state.searchPage = 1;
+  state.searchHasNextPage = false;
 
   if (!keyword) {
     $('search-results').innerHTML = '';
@@ -688,29 +719,40 @@ function onSearchInput() {
   }
 
   state.searchTimer = setTimeout(() => {
-    runSearch(keyword);
+    runSearch(keyword, 1);
   }, 450);
 }
 
-async function runSearch(keyword) {
+async function runSearch(keyword, page = 1) {
   const request = ++state.searchRequest;
 
+  state.searchKeyword = keyword;
+
   $('search-results').innerHTML = `
-    <div class="empty-message">Mencari anime...</div>
+    <div class="empty-message">
+      Mencari anime halaman ${page}...
+    </div>
   `;
 
   try {
-    const items = await searchAnime(keyword);
+    const result = await searchAnime(keyword, page);
 
     if (request !== state.searchRequest) return;
 
-    remember(items);
+    state.searchPage = result.page;
+    state.searchHasNextPage = result.hasNextPage;
+
+    remember(result.items);
 
     renderCards(
       'search-results',
-      items,
+      result.items,
       'Anime tidak ditemukan. Coba judul lain.'
     );
+
+    if (!result.items.length) return;
+
+    renderSearchPagination();
 
   } catch (error) {
     if (request !== state.searchRequest) return;
@@ -719,6 +761,49 @@ async function runSearch(keyword) {
       <div class="empty-message">${esc(error.message)}</div>
     `;
   }
+}
+
+function renderSearchPagination() {
+  const host = $('search-results');
+  if (!host) return;
+
+  const pagination = document.createElement('div');
+
+  pagination.className = 'genre-pagination';
+
+  pagination.innerHTML = `
+    <button
+      type="button"
+      id="search-prev"
+      ${state.searchPage <= 1 ? 'disabled' : ''}
+    >
+      ← Sebelumnya
+    </button>
+
+    <span>Halaman ${state.searchPage}</span>
+
+    <button
+      type="button"
+      id="search-next"
+      ${!state.searchHasNextPage ? 'disabled' : ''}
+    >
+      Berikutnya →
+    </button>
+  `;
+
+  host.appendChild(pagination);
+
+  $('search-prev')?.addEventListener('click', () => {
+    if (state.searchPage > 1 && state.searchKeyword) {
+      runSearch(state.searchKeyword, state.searchPage - 1);
+    }
+  });
+
+  $('search-next')?.addEventListener('click', () => {
+    if (state.searchHasNextPage && state.searchKeyword) {
+      runSearch(state.searchKeyword, state.searchPage + 1);
+    }
+  });
 }
 
 // ========================================
