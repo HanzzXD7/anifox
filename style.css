@@ -251,3 +251,35 @@ main { width: min(1440px, 100%); margin: auto; padding: 29px clamp(22px, 4vw, 58
   .site-footer { display: block; }
   .site-footer p { margin-top: 7px; text-align: left; }
 }
+/* ========================================
+   GENRE PAGINATION
+======================================== */
+
+.genre-pagination {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+
+.genre-pagination button {
+  padding: 10px 18px;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 10px;
+  background: #17264a;
+  color: white;
+  cursor: pointer;
+}
+
+.genre-pagination button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.genre-pagination span {
+  color: #b8c5df;
+  font-size: 14px;
+}
