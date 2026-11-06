@@ -30,7 +30,11 @@ const state = {
   // Search pagination
   searchKeyword: '',
   searchPage: 1,
-  searchHasNextPage: false
+  searchHasNextPage: false,
+
+  // Search filters
+  searchYear: '',
+  searchStatus: ''
 };
 
 document.addEventListener('DOMContentLoaded', initializeApp);
@@ -54,6 +58,7 @@ function bindEvents() {
   });
 
   $('search-input')?.addEventListener('input', onSearchInput);
+
   $('detail-watchlist')?.addEventListener('click', toggleWatchlist);
   $('back-detail')?.addEventListener('click', goBack);
   $('back-player')?.addEventListener('click', goBack);
@@ -76,6 +81,8 @@ function bindEvents() {
   });
 
   $('episode-list')?.addEventListener('click', handleEpisodeClick);
+
+  setupSearchFilters();
 }
 
 // ========================================
@@ -288,12 +295,17 @@ async function getPopularAnime() {
 }
 
 // ========================================
-// SEARCH API — PAGINATION
+// SEARCH API — FILTER + PAGINATION
 // ========================================
 
 async function searchAnime(keyword, page = 1) {
   const query = `
-    query ($search: String, $page: Int) {
+    query (
+      $search: String,
+      $page: Int,
+      $year: Int,
+      $status: MediaStatus
+    ) {
       Page(page: $page, perPage: 24) {
         pageInfo {
           currentPage
@@ -302,6 +314,8 @@ async function searchAnime(keyword, page = 1) {
         media(
           type: ANIME
           search: $search
+          seasonYear: $year
+          status: $status
           sort: SEARCH_MATCH
           isAdult: false
         ) {
@@ -313,7 +327,11 @@ async function searchAnime(keyword, page = 1) {
 
   const data = await anilist(query, {
     search: keyword,
-    page
+    page,
+    year: state.searchYear
+      ? Number(state.searchYear)
+      : null,
+    status: state.searchStatus || null
   });
 
   return {
@@ -437,7 +455,6 @@ async function loadHome() {
 
   if (season.status === 'fulfilled') {
     remember(season.value);
-
     renderCards('season-list', season.value.slice(0, 10));
   } else {
     $('season-list').innerHTML = `
@@ -449,9 +466,7 @@ async function loadHome() {
 
   if (popular.status === 'fulfilled') {
     remember(popular.value);
-
     renderCards('popular-list', popular.value.slice(0, 10));
-
     state.featured = popular.value[0] || null;
   } else {
     $('popular-list').innerHTML = `
@@ -501,7 +516,6 @@ async function loadSeason(full = false) {
     const items = await getSeasonAnime();
 
     remember(items);
-
     renderCards(target, full ? items : items.slice(0, 10));
 
   } catch (error) {
@@ -522,7 +536,6 @@ async function loadPopular(full = false) {
     const items = await getPopularAnime();
 
     remember(items);
-
     renderCards(target, full ? items : items.slice(0, 10));
 
   } catch (error) {
@@ -530,6 +543,85 @@ async function loadPopular(full = false) {
       <div class="empty-message">${esc(error.message)}</div>
     `;
   }
+}
+
+// ========================================
+// SEARCH FILTERS
+// ========================================
+
+function setupSearchFilters() {
+  const input = $('search-input');
+  if (!input || $('search-filters')) return;
+
+  const filters = document.createElement('div');
+  filters.id = 'search-filters';
+
+  filters.style.cssText = `
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:12px 0;
+  `;
+
+  const currentYear = new Date().getFullYear();
+
+  filters.innerHTML = `
+    <select
+      id="filter-year"
+      aria-label="Filter tahun rilis"
+      style="padding:10px;border-radius:10px;max-width:150px;"
+    >
+      <option value="">Semua Tahun</option>
+      ${Array.from({ length: 30 }, (_, i) => {
+        const year = currentYear - i;
+        return `<option value="${year}">${year}</option>`;
+      }).join('')}
+    </select>
+
+    <select
+      id="filter-status"
+      aria-label="Filter status anime"
+      style="padding:10px;border-radius:10px;max-width:170px;"
+    >
+      <option value="">Semua Status</option>
+      <option value="RELEASING">Ongoing</option>
+      <option value="FINISHED">Completed</option>
+      <option value="NOT_YET_RELEASED">Upcoming</option>
+      <option value="HIATUS">Hiatus</option>
+      <option value="CANCELLED">Cancelled</option>
+    </select>
+  `;
+
+  input.insertAdjacentElement('afterend', filters);
+
+  $('filter-year').addEventListener('change', event => {
+    state.searchYear = event.target.value;
+    applySearchFilters();
+  });
+
+  $('filter-status').addEventListener('change', event => {
+    state.searchStatus = event.target.value;
+    applySearchFilters();
+  });
+}
+
+function applySearchFilters() {
+  const keyword = $('search-input').value.trim();
+
+  state.currentGenre = '';
+  state.searchPage = 1;
+  state.searchHasNextPage = false;
+
+  if (!keyword) {
+    $('search-results').innerHTML = `
+      <div class="empty-message">
+        Masukkan judul anime terlebih dahulu.
+      </div>
+    `;
+    return;
+  }
+
+  runSearch(keyword, 1);
 }
 
 // ========================================
@@ -584,6 +676,10 @@ async function loadGenres() {
         state.searchKeyword = '';
 
         state.searchRequest++;
+
+        if ($('search-filters')) {
+          $('search-filters').style.display = 'none';
+        }
 
         navigate('search');
 
@@ -694,20 +790,22 @@ async function loadGenreAnime(genre, page = 1) {
 }
 
 // ========================================
-// SEARCH — ANILIST + PAGINATION
+// SEARCH — ANILIST + FILTER + PAGINATION
 // ========================================
 
 function onSearchInput() {
   clearTimeout(state.searchTimer);
 
-  // Batalkan permintaan sebelumnya.
   state.searchRequest++;
 
-  // Keluar dari mode genre.
   state.currentGenre = '';
   state.genreHasNextPage = false;
 
   const keyword = $('search-input').value.trim();
+
+  if ($('search-filters')) {
+    $('search-filters').style.display = 'flex';
+  }
 
   state.searchKeyword = keyword;
   state.searchPage = 1;
@@ -1150,5 +1248,5 @@ function stopBstation() {
 }
 
 // ========================================
-// START
+// END
 // ========================================
