@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#07152f">
-  <meta name="description" content="AniFoX — katalog anime dan video resmi">
+  <meta name="description" content="AniFoX — katalog anime dan pemutar Bstation">
   <title>AniFoX — Anime Streaming</title>
   <link rel="icon" type="image/png" href="anifox-logo.png">
   <link rel="preconnect" href="https://graphql.anilist.co">
@@ -38,7 +38,7 @@
       <div class="sidebar-note">
         <span class="note-icon">✧</span>
         <strong>Jelajahi anime</strong>
-        <p>Koleksi dan video resmi dalam satu tempat.</p>
+        <p>Temukan anime dan episode Bstation dalam satu tempat.</p>
         <button type="button" data-page="search">Mulai cari <span>→</span></button>
       </div>
       <div class="sidebar-footer">AniFoX <span>•</span> Anime discovery</div>
@@ -69,14 +69,6 @@
             <div id="hero-art" class="hero-art" aria-hidden="true"></div>
             <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
             <div class="hero-index"><b>01</b><span>/ FEATURED</span></div>
-          </section>
-
-          <section id="muse-section" class="content-section">
-            <div class="section-heading">
-              <div><span class="eyebrow">OFFICIAL CHANNELS</span><h2>Video Terbaru</h2><p>Unggahan dari kanal resmi Muse Indonesia & Ani-One Indonesia</p></div>
-              <a class="text-link" href="https://www.youtube.com/@MuseIndonesia" target="_blank" rel="noopener">YouTube <span>↗</span></a>
-            </div>
-            <div id="muse-list" class="muse-grid"><p class="empty-message">Memuat video resmi...</p></div>
           </section>
 
           <section class="content-section">
@@ -142,7 +134,7 @@
           <section class="content-section episode-section">
             <div class="section-heading"><div><span class="eyebrow">EPISODE GUIDE</span><h2>Daftar Episode</h2></div></div>
             <div id="episode-list" class="episode-list"></div>
-            <p class="muted-note">Daftar episode mengikuti jumlah episode yang tersedia di AniList. Ketersediaan video bergantung pada kanal resmi.</p>
+            <p class="muted-note">Daftar episode hanya menampilkan ID Bstation yang sudah diverifikasi.</p>
           </section>
         </section>
 
@@ -150,15 +142,13 @@
           <button id="back-player" class="back-button" type="button">← <span>Kembali ke detail</span></button>
           <div class="page-title"><span class="eyebrow">NOW PLAYING</span><h1 id="player-title">Pemutar Video</h1><p id="player-episode">Pilih video dari sumber resmi.</p></div>
           <div class="video-shell">
-            <video id="video-player" class="video-player hidden" controls playsinline></video>
-            <iframe id="youtube-player" class="youtube-player hidden" src="" title="Pemutar video YouTube resmi" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            <div id="video-empty" class="video-empty"><div class="empty-play">▶</div><strong>Video belum tersedia</strong><p>Pilih sumber resmi jika tersedia di bawah.</p></div>
+            <iframe id="bilibili-player" class="youtube-player hidden" src="" title="Pemutar episode Bstation" allow="fullscreen; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+            <div id="video-empty" class="video-empty"><div class="empty-play">▶</div><strong>Video belum tersedia</strong><p>Episode diputar melalui pemutar Bstation.</p></div>
           </div>
-          <div id="video-source-list" class="source-panel"></div>
-          <a id="youtube-link" class="official-link" href="https://www.youtube.com/@MuseIndonesia" target="_blank" rel="noopener">Buka kanal resmi di YouTube ↗</a>
+          <a id="bstation-link" class="official-link" href="https://www.bilibili.tv/anime" target="_blank" rel="noopener">Jelajahi anime di Bstation ↗</a>
         </section>
 
-        <footer class="site-footer"><span>Ani<span>FoX</span></span><p>Katalog anime didukung AniList. Video diputar melalui kanal resmi masing-masing.</p></footer>
+        <footer class="site-footer"><span>Ani<span>FoX</span></span><p>Katalog anime didukung AniList. Episode diputar melalui Bstation.</p></footer>
       </main>
     </div>
 
