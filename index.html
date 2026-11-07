@@ -27,29 +27,41 @@
         <img src="anifox-logo.png" alt="" onerror="this.style.display='none'">
         <span>Ani<span>FoX</span></span>
       </a>
+
       <p class="nav-caption">MENU UTAMA</p>
+
       <nav class="side-nav" aria-label="Navigasi utama">
         <button class="nav-item active" data-page="home"><span>⌂</span>Beranda</button>
         <button class="nav-item" data-page="season"><span>▦</span>Season Anime</button>
         <button class="nav-item" data-page="popular"><span>✦</span>Anime Populer</button>
-        <button class="nav-item" data-page="search"><span>⌕</span>Cari Anime</button>
         <button class="nav-item" data-page="list"><span>♡</span>Watchlist</button>
       </nav>
+
       <div class="sidebar-note">
         <span class="note-icon">✧</span>
         <strong>Jelajahi anime</strong>
         <p>Temukan anime dan episode Bstation dalam satu tempat.</p>
-        <button type="button" data-page="search">Mulai cari <span>→</span></button>
       </div>
+
       <div class="sidebar-footer">AniFoX <span>•</span> Anime discovery</div>
     </aside>
 
     <div class="main-shell">
       <header class="topbar">
         <div class="mobile-brand">Ani<span>FoX</span></div>
-        <div class="topbar-copy"><span class="eyebrow">WELCOME BACK</span><strong>Jelajahi dunia anime</strong></div>
-        <button id="search-button" class="top-search" type="button"><span>⌕</span><span>Cari anime favoritmu...</span><kbd>/</kbd></button>
-        <div class="top-avatar" aria-label="AniFoX">狐</div>
+
+        <div class="topbar-copy">
+          <span class="eyebrow">WELCOME BACK</span>
+          <strong>Jelajahi dunia anime</strong>
+        </div>
+
+        <button id="search-button" class="search-icon-button"
+          type="button" aria-label="Cari anime" title="Cari anime">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="10.8" cy="10.8" r="6.8"></circle>
+            <path d="m16 16 5 5"></path>
+          </svg>
+        </button>
       </header>
 
       <main>
@@ -62,12 +74,17 @@
               <h1 id="hero-title">Selamat datang di AniFoX</h1>
               <p id="hero-meta">Temukan anime favoritmu di sini.</p>
               <div class="hero-actions">
-                <button id="hero-detail" class="primary-button" type="button"><span>▶</span> Lihat Detail</button>
-                <button class="hero-secondary" type="button" data-page="popular">Jelajahi populer <span>↗</span></button>
+                <button id="hero-detail" class="primary-button" type="button">
+                  <span>▶</span> Lihat Detail
+                </button>
+                <button class="hero-secondary" type="button" data-page="popular">
+                  Jelajahi populer <span>↗</span>
+                </button>
               </div>
             </div>
             <div id="hero-art" class="hero-art" aria-hidden="true"></div>
-            <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
+            <div class="hero-orbit orbit-one"></div>
+            <div class="hero-orbit orbit-two"></div>
             <div class="hero-index"><b>01</b><span>/ FEATURED</span></div>
           </section>
 
@@ -76,7 +93,9 @@
               <div><span class="eyebrow">THIS SEASON</span><h2>Season Anime</h2></div>
               <button id="see-season" class="text-link" type="button">Lihat semua <span>→</span></button>
             </div>
-            <div id="season-list" class="anime-grid"><p class="empty-message">Memuat anime...</p></div>
+            <div id="season-list" class="anime-grid">
+              <p class="empty-message">Memuat anime...</p>
+            </div>
           </section>
 
           <section class="content-section">
@@ -84,33 +103,58 @@
               <div><span class="eyebrow">COMMUNITY FAVORITES</span><h2>Anime Populer</h2></div>
               <button id="see-popular" class="text-link" type="button">Lihat semua <span>→</span></button>
             </div>
-            <div id="popular-list" class="anime-grid"><p class="empty-message">Memuat anime...</p></div>
+            <div id="popular-list" class="anime-grid">
+              <p class="empty-message">Memuat anime...</p>
+            </div>
           </section>
 
           <section class="content-section">
-            <div class="section-heading"><div><span class="eyebrow">FIND YOUR MOOD</span><h2>Jelajahi Genre</h2></div></div>
+            <div class="section-heading">
+              <div><span class="eyebrow">FIND YOUR MOOD</span><h2>Jelajahi Genre</h2></div>
+            </div>
             <div id="genre-list" class="genre-list"></div>
           </section>
         </section>
 
         <section id="page-search" class="page hidden">
-          <div class="page-title"><span class="eyebrow">ANIME DISCOVERY</span><h1>Cari Anime</h1><p>Temukan anime berdasarkan judul atau genre.</p></div>
-          <label class="search-field"><span>⌕</span><input id="search-input" type="search" placeholder="Cari judul anime..." autocomplete="off"><kbd>SEARCH</kbd></label>
+          <div class="page-title">
+            <span class="eyebrow">ANIME DISCOVERY</span>
+            <h1>Cari Anime</h1>
+            <p>Temukan anime berdasarkan judul atau genre.</p>
+          </div>
+          <label class="search-field">
+            <span>⌕</span>
+            <input id="search-input" type="search"
+              placeholder="Cari judul anime..." autocomplete="off">
+            <kbd>SEARCH</kbd>
+          </label>
           <div id="search-results" class="anime-grid"></div>
         </section>
 
         <section id="page-season" class="page hidden">
-          <div class="page-title"><span class="eyebrow">NOW AIRING & UPCOMING</span><h1>Season Anime</h1><p>Anime pilihan dari season saat ini.</p></div>
+          <div class="page-title">
+            <span class="eyebrow">NOW AIRING & UPCOMING</span>
+            <h1>Season Anime</h1>
+            <p>Anime pilihan dari season saat ini.</p>
+          </div>
           <div id="season-full" class="anime-grid"></div>
         </section>
 
         <section id="page-popular" class="page hidden">
-          <div class="page-title"><span class="eyebrow">TOP PICKS</span><h1>Anime Populer</h1><p>Anime dengan skor tinggi di AniList.</p></div>
+          <div class="page-title">
+            <span class="eyebrow">TOP PICKS</span>
+            <h1>Anime Populer</h1>
+            <p>Anime dengan skor tinggi di AniList.</p>
+          </div>
           <div id="popular-full" class="anime-grid"></div>
         </section>
 
         <section id="page-list" class="page hidden">
-          <div class="page-title"><span class="eyebrow">YOUR COLLECTION</span><h1>Watchlist Saya</h1><p>Daftar anime yang ingin kamu tonton.</p></div>
+          <div class="page-title">
+            <span class="eyebrow">YOUR COLLECTION</span>
+            <h1>Watchlist Saya</h1>
+            <p>Daftar anime yang ingin kamu tonton.</p>
+          </div>
           <div id="watchlist" class="anime-grid"></div>
         </section>
 
@@ -121,45 +165,81 @@
             <div class="detail-banner-shade"></div>
           </div>
           <div class="detail-layout">
-            <div class="detail-poster-wrap"><img id="detail-image" src="" alt="Poster anime"></div>
+            <div class="detail-poster-wrap">
+              <img id="detail-image" src="" alt="Poster anime">
+            </div>
             <div class="detail-info">
               <span class="eyebrow">ANIME INFORMATION</span>
               <h1 id="detail-title">-</h1>
-              <div class="detail-chips"><span id="detail-score" class="detail-chip score-chip">★ -</span><span id="detail-status" class="detail-chip">-</span><span id="detail-episodes" class="detail-chip">- episode</span></div>
+              <div class="detail-chips">
+                <span id="detail-score" class="detail-chip score-chip">★ -</span>
+                <span id="detail-status" class="detail-chip">-</span>
+                <span id="detail-episodes" class="detail-chip">- episode</span>
+              </div>
               <p id="detail-synopsis" class="synopsis">Memuat sinopsis...</p>
               <div id="detail-genres" class="detail-genres"></div>
-              <button id="detail-watchlist" class="primary-button" type="button">＋ Tambah ke Watchlist</button>
+              <button id="detail-watchlist" class="primary-button" type="button">
+                ＋ Tambah ke Watchlist
+              </button>
             </div>
           </div>
           <section class="content-section episode-section">
-            <div class="section-heading"><div><span class="eyebrow">EPISODE GUIDE</span><h2>Daftar Episode</h2></div></div>
+            <div class="section-heading">
+              <div><span class="eyebrow">EPISODE GUIDE</span><h2>Daftar Episode</h2></div>
+            </div>
             <div id="episode-list" class="episode-list"></div>
             <p class="muted-note">Daftar episode hanya menampilkan ID Bstation yang sudah diverifikasi.</p>
           </section>
         </section>
 
         <section id="page-player" class="page hidden player-page">
-          <button id="back-player" class="back-button" type="button">← <span>Kembali ke detail</span></button>
-          <div class="page-title"><span class="eyebrow">NOW PLAYING</span><h1 id="player-title">Pemutar Video</h1><p id="player-episode">Pilih video dari sumber resmi.</p></div>
-          <div class="video-shell">
-            <iframe id="bilibili-player" class="youtube-player hidden" src="" title="Pemutar episode Bstation" allow="fullscreen; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-            <div id="video-empty" class="video-empty"><div class="empty-play">▶</div><strong>Video belum tersedia</strong><p>Episode diputar melalui pemutar Bstation.</p></div>
+          <button id="back-player" class="back-button" type="button">
+            ← <span>Kembali ke detail</span>
+          </button>
+          <div class="page-title">
+            <span class="eyebrow">NOW PLAYING</span>
+            <h1 id="player-title">Pemutar Video</h1>
+            <p id="player-episode">Pilih video dari sumber resmi.</p>
           </div>
-          <a id="bstation-link" class="official-link" href="https://www.bilibili.tv/anime" target="_blank" rel="noopener">Jelajahi anime di Bstation ↗</a>
+          <div class="video-shell">
+            <iframe id="bilibili-player" class="youtube-player hidden"
+              src="" title="Pemutar episode Bstation"
+              allow="fullscreen; autoplay; encrypted-media; picture-in-picture"
+              allowfullscreen></iframe>
+            <div id="video-empty" class="video-empty">
+              <div class="empty-play">▶</div>
+              <strong>Video belum tersedia</strong>
+              <p>Episode diputar melalui pemutar Bstation.</p>
+            </div>
+          </div>
+          <a id="bstation-link" class="official-link"
+            href="https://www.bilibili.tv/anime" target="_blank" rel="noopener">
+            Jelajahi anime di Bstation ↗
+          </a>
         </section>
 
-        <footer class="site-footer"><span>Ani<span>FoX</span></span><p>Katalog anime didukung AniList. Episode diputar melalui Bstation.</p></footer>
+        <footer class="site-footer">
+          <span>Ani<span>FoX</span></span>
+          <p>Katalog anime didukung AniList. Episode diputar melalui Bstation.</p>
+        </footer>
       </main>
     </div>
 
     <nav id="bottom-nav" class="bottom-nav" aria-label="Navigasi bawah">
-      <button class="nav-item active" data-page="home" type="button"><span>⌂</span><small>Home</small></button>
-      <button class="nav-item" data-page="season" type="button"><span>▦</span><small>Season</small></button>
-      <button class="nav-item" data-page="search" type="button"><span>⌕</span><small>Cari</small></button>
-      <button class="nav-item" data-page="list" type="button"><span>♡</span><small>List</small></button>
+      <button class="nav-item active" data-page="home" type="button">
+        <span>⌂</span><small>Home</small>
+      </button>
+      <button class="nav-item" data-page="season" type="button">
+        <span>▦</span><small>Season</small>
+      </button>
+      <button class="nav-item" data-page="list" type="button">
+        <span>♡</span><small>List</small>
+      </button>
     </nav>
+
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
+
   <script src="app.js"></script>
 </body>
 </html>
