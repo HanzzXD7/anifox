@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 /* ========================================
@@ -1412,5 +1411,286 @@ input:focus-visible {
     scroll-behavior: auto !important;
     animation-duration: .01ms !important;
     transition-duration: .01ms !important;
+  }
+}
+
+/* ============================================
+   AniFoX — PREMIUM INTERACTION PACK
+   Minimal Dark + Electric Blue
+============================================ */
+
+/* TAP HIGHLIGHT */
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================
+   1. PRIMARY BUTTON
+============================================ */
+
+.primary-button {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 43px;
+  padding: 12px 20px;
+  border: 1px solid rgba(125,195,255,.3);
+  border-radius: 12px;
+  background: linear-gradient(135deg,#2589ed,#45b8f5);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow:
+    0 5px 16px rgba(30,137,235,.2),
+    inset 0 1px rgba(255,255,255,.2);
+  transition: transform .2s ease, box-shadow .2s ease,
+              filter .2s ease;
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(30,137,235,.3);
+  filter: brightness(1.08);
+}
+
+.primary-button:active {
+  transform: scale(.96);
+  filter: brightness(.92);
+}
+
+/* ============================================
+   2. SECONDARY BUTTON
+============================================ */
+
+.hero-secondary {
+  min-height: 42px;
+  padding: 10px 15px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: rgba(255,255,255,.035);
+  color: #b8cce0;
+  transition: .2s ease;
+}
+
+.hero-secondary:hover {
+  border-color: var(--line-hot);
+  background: rgba(85,186,255,.09);
+  color: var(--cyan);
+}
+
+.hero-secondary:active {
+  transform: scale(.96);
+}
+
+/* ============================================
+   3. BACK BUTTON
+============================================ */
+
+.back-button {
+  min-height: 40px;
+  padding: 10px 15px;
+  border: 1px solid rgba(85,186,255,.2);
+  border-radius: 11px;
+  background: linear-gradient(135deg,#102b49,#0c1d32);
+  color: #8ed8ff;
+  font-weight: 700;
+  transition: .2s ease;
+}
+
+.back-button:hover {
+  border-color: var(--blue);
+  background: #153858;
+}
+
+.back-button:active {
+  transform: scale(.96);
+}
+
+/* ============================================
+   4. EPISODE BUTTON
+============================================ */
+
+.episode-button {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #101f33;
+  color: #c4d9ed;
+  font-weight: 600;
+  transition: .2s ease;
+}
+
+.episode-button:hover {
+  border-color: var(--blue);
+  background: #142f4c;
+  color: var(--cyan);
+  box-shadow: 0 4px 14px #2589ed18;
+}
+
+.episode-button:active {
+  transform: scale(.96);
+}
+
+/* ============================================
+   5. GENRE BUTTON
+============================================ */
+
+.genre-chip {
+  border: 1px solid rgba(130,180,220,.13);
+  background: rgba(255,255,255,.035);
+  transition: .2s ease;
+}
+
+.genre-chip:hover {
+  border-color: var(--blue);
+  background: rgba(85,186,255,.12);
+  color: var(--cyan);
+  transform: translateY(-2px);
+}
+
+.genre-chip:active {
+  transform: scale(.95);
+}
+
+/* ============================================
+   6. PAGINATION BUTTON
+============================================ */
+
+.genre-pagination button {
+  border: 1px solid rgba(85,186,255,.2);
+  border-radius: 11px;
+  background: #102944;
+  color: #c8e8ff;
+  font-weight: 700;
+  transition: .2s ease;
+}
+
+.genre-pagination button:not(:disabled):hover {
+  border-color: var(--blue);
+  background: #17416a;
+  box-shadow: 0 4px 14px #2589ed20;
+}
+
+.genre-pagination button:not(:disabled):active {
+  transform: scale(.95);
+}
+
+/* ============================================
+   7. TEXT LINK
+============================================ */
+
+.text-link {
+  border-radius: 8px;
+  transition: .2s ease;
+}
+
+.text-link:hover {
+  color: #fff;
+  text-shadow: 0 0 12px #55baff70;
+}
+
+/* ============================================
+   8. ANIME CARD TOUCH
+============================================ */
+
+.anime-card,
+.muse-card {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.anime-card:active,
+.muse-card:active {
+  transform: scale(.975);
+  border-color: var(--blue);
+}
+
+/* ============================================
+   9. KEYBOARD FOCUS
+============================================ */
+
+button:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+/* ============================================
+   10. MOBILE BOTTOM NAVIGATION
+============================================ */
+
+@media (max-width:760px) {
+
+  .bottom-nav {
+    padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .bottom-nav .nav-item {
+    min-width: 64px;
+    min-height: 49px;
+    gap: 4px;
+    border-radius: 10px;
+    transition: transform .15s ease,
+                background .2s ease,
+                color .2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .bottom-nav .nav-item > span {
+    width: auto;
+    font-size: 22px;
+    transition: transform .15s ease;
+  }
+
+  .bottom-nav .nav-item small {
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  /* Active navigation */
+  .bottom-nav .nav-item.active {
+    background: #2583f51c;
+    color: #65b5ff;
+    box-shadow: none;
+  }
+
+  .bottom-nav .nav-item.active > span {
+    color: #65b5ff;
+  }
+
+  /* Tap animation */
+  .bottom-nav .nav-item:active {
+    transform: scale(.91);
+    background: #2583f52b;
+    color: #65b5ff;
+  }
+
+  .bottom-nav .nav-item:active > span {
+    transform: scale(.88);
+  }
+
+  /* Mobile button sizes */
+  .primary-button {
+    min-height: 45px;
+    padding: 12px 17px;
+    border-radius: 12px;
+  }
+
+  .back-button,
+  .episode-button {
+    min-height: 44px;
+  }
+}
+
+/* ============================================
+   11. REDUCED MOTION
+============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  button,
+  .anime-card,
+  .muse-card {
+    transition: none !important;
   }
 }
