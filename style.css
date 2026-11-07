@@ -1694,3 +1694,54 @@ button:focus-visible {
     transition: none !important;
   }
 }
+
+/* ========================================
+   AniFoX — SINGLE SEARCH BUTTON
+======================================== */
+
+.search-icon-button {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  margin-left: auto;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  color: var(--blue-light);
+  transition: .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.search-icon-button svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.search-icon-button:hover {
+  border-color: var(--blue);
+  background: #2583f51a;
+  color: #fff;
+}
+
+.search-icon-button:active {
+  transform: scale(.92);
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    justify-content: space-between;
+  }
+
+  .search-icon-button {
+    width: 39px;
+    height: 39px;
+    margin-left: auto;
+  }
+}
