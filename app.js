@@ -323,7 +323,7 @@ async function searchAnime(keyword, page = 1) {
           type: ANIME
           search: $search
           sort: SEARCH_MATCH
-          isAdult: false
+          
         ) {
           ${MEDIA_FIELDS}
         }
