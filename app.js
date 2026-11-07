@@ -2,6 +2,7 @@
 
 // ========================================
 // AniFoX — AniList + AniLab + Bstation
+// + Supabase + Google Login
 // ========================================
 
 const ANILIST_API = 'https://graphql.anilist.co';
@@ -9,6 +10,7 @@ const ANILAB_API = 'https://anilab-beta.vercel.app/api';
 
 const $ = id => document.getElementById(id);
 const WATCH_KEY = 'anifox_watchlist_v3';
+const ONBOARDING_KEY = 'anifox_onboarding_seen_v1';
 
 const state = {
   anime: new Map(),
@@ -31,17 +33,75 @@ const state = {
   searchHasNextPage: false
 };
 
-document.addEventListener('DOMContentLoaded', initializeApp);
+// ========================================
+// SUPABASE STATE
+// ========================================
+
+let supabaseClient = null;
+let authSession = null;
+let appStarted = false;
+let splashFinished = false;
 
 // ========================================
 // INITIALIZATION
 // ========================================
 
-function initializeApp() {
+document.addEventListener('DOMContentLoaded', initializeApp);
+
+async function initializeApp() {
   state.watchlist = getWatchlist().filter(isAllowedAnime);
+
   bindEvents();
+  initializeSupabase();
+
+  if (supabaseClient) {
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      authSession = session;
+
+      if (event === 'SIGNED_IN' && splashFinished) {
+        showMainApp();
+      }
+
+      if (event === 'SIGNED_OUT' && splashFinished) {
+        appStarted = false;
+        showOnboarding(true);
+      }
+    });
+
+    const { data, error } =
+      await supabaseClient.auth.getSession();
+
+    if (error) {
+      console.error('Supabase session error:', error.message);
+    }
+
+    authSession = data?.session || null;
+  }
+
   showSplash();
 }
+
+function initializeSupabase() {
+  if (!window.supabase?.createClient) {
+    console.error('Supabase JS belum berhasil dimuat.');
+    return;
+  }
+
+  const SUPABASE_URL =
+    'https://oomkaubthpchrsozhsma.supabase.co';
+
+  const SUPABASE_PUBLIC_KEY =
+    'sb_publishable_BALnAwlkzVGciyVl5nTScQ_ER1PidyH';
+
+  supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLIC_KEY
+  );
+}
+
+// ========================================
+// EVENT LISTENERS
+// ========================================
 
 function bindEvents() {
   $('skip-loading')?.addEventListener('click', enterApp);
@@ -71,6 +131,15 @@ function bindEvents() {
     loadPopular(true);
   });
 
+  $('google-login')?.addEventListener('click', loginWithGoogle);
+
+  $('onboarding-scroll')?.addEventListener(
+    'scroll',
+    updateOnboardingProgress
+  );
+
+  $('episode-list')?.addEventListener('click', handleEpisodeClick);
+
   document.querySelectorAll('[data-page]').forEach(button => {
     button.addEventListener('click', event => {
       event.preventDefault();
@@ -78,11 +147,11 @@ function bindEvents() {
     });
   });
 
-  $('episode-list')?.addEventListener('click', handleEpisodeClick);
+  $('logout-button')?.addEventListener('click', logoutAniFoX);
 }
 
 // ========================================
-// SPLASH SCREEN
+// SPLASH + ONBOARDING + APP ROUTING
 // ========================================
 
 function showSplash() {
@@ -92,28 +161,208 @@ function showSplash() {
   state.splashTimer = setInterval(() => {
     progress = Math.min(100, progress + 12);
 
-    if (bar) bar.style.width = `${progress}%`;
+    if (bar) {
+      bar.style.width = `${progress}%`;
+    }
 
     if (progress >= 100) {
-      clearInterval(state.splashTimer);
-      enterApp();
+      finishSplash();
     }
   }, 65);
 }
 
-let appStarted = false;
-
 function enterApp() {
-  if (appStarted) return;
+  finishSplash();
+}
 
-  appStarted = true;
+function finishSplash() {
+  if (splashFinished) return;
+
+  splashFinished = true;
   clearInterval(state.splashTimer);
 
   $('splash')?.classList.add('fade-out');
+
+  if (authSession) {
+    showMainApp();
+    return;
+  }
+
+  const onboardingSeen =
+    localStorage.getItem(ONBOARDING_KEY) === 'true';
+
+  showOnboarding(onboardingSeen);
+}
+
+function showOnboarding(finalOnly = false) {
+  const onboarding = $('onboarding');
+  const app = $('app');
+  const scroll = $('onboarding-scroll');
+
+  if (!onboarding || !scroll) return;
+
+  app?.classList.add('hidden');
+  onboarding.classList.remove('hidden');
+
+  const pages = onboarding.querySelectorAll('.onboarding-page');
+  const dots = onboarding.querySelectorAll('.onboarding-dot');
+
+  pages.forEach((page, index) => {
+    page.style.display =
+      finalOnly && index < 2 ? 'none' : 'flex';
+  });
+
+  dots.forEach((dot, index) => {
+    dot.style.display =
+      finalOnly && index < 2 ? 'none' : 'block';
+
+    dot.classList.toggle(
+      'active',
+      finalOnly ? index === 2 : index === 0
+    );
+  });
+
+  scroll.scrollTop = 0;
+
+  const hint = onboarding.querySelector('.onboarding-hint');
+
+  if (hint) {
+    hint.textContent = finalOnly
+      ? 'Masuk untuk melanjutkan ke AniFoX'
+      : 'Geser ke bawah untuk melanjutkan';
+  }
+
+  const message = $('login-message');
+
+  if (message) {
+    message.textContent = '';
+  }
+}
+
+function updateOnboardingProgress() {
+  const scroll = $('onboarding-scroll');
+  const onboarding = $('onboarding');
+
+  if (!scroll || !onboarding) return;
+
+  const pages = Array.from(
+    onboarding.querySelectorAll('.onboarding-page')
+  ).filter(page => page.style.display !== 'none');
+
+  const dots = Array.from(
+    onboarding.querySelectorAll('.onboarding-dot')
+  ).filter(dot => dot.style.display !== 'none');
+
+  if (!pages.length) return;
+
+  const pageHeight = scroll.clientHeight || 1;
+
+  const currentIndex = Math.min(
+    pages.length - 1,
+    Math.round(scroll.scrollTop / pageHeight)
+  );
+
+  dots.forEach((dot, index) => {
+    dot.classList.toggle('active', index === currentIndex);
+  });
+
+  if (pages.length === 3 && currentIndex === 2) {
+    localStorage.setItem(ONBOARDING_KEY, 'true');
+  }
+}
+
+function showMainApp() {
+  if (!authSession) return;
+
+  $('splash')?.classList.add('fade-out');
+  $('onboarding')?.classList.add('hidden');
   $('app')?.classList.remove('hidden');
 
-  loadHome();
+  if (!appStarted) {
+    appStarted = true;
+    loadHome();
+  }
 }
+
+// ========================================
+// GOOGLE LOGIN
+// ========================================
+
+async function loginWithGoogle() {
+  if (!supabaseClient) {
+    $('login-message').textContent =
+      'Layanan login belum siap. Coba muat ulang halaman.';
+    return;
+  }
+
+  const button = $('google-login');
+  const message = $('login-message');
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Menghubungkan ke Google...';
+  }
+
+  if (message) {
+    message.textContent = '';
+  }
+
+  try {
+    const { error } =
+      await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+
+    if (error) throw error;
+
+  } catch (error) {
+    console.error('Google login error:', error);
+
+    if (message) {
+      message.textContent =
+        error.message || 'Login Google gagal. Silakan coba lagi.';
+    }
+
+    if (button) {
+      button.disabled = false;
+      button.innerHTML =
+        '<span>G</span> Login dengan Google';
+    }
+  }
+}
+
+// ========================================
+// LOGOUT
+// ========================================
+
+async function logoutAniFoX() {
+  if (!supabaseClient) {
+    toast('Layanan akun belum siap.');
+    return;
+  }
+
+  const { error } = await supabaseClient.auth.signOut();
+
+  if (error) {
+    console.error('Logout error:', error);
+    toast('Logout gagal. Silakan coba lagi.');
+    return;
+  }
+
+  localStorage.setItem(ONBOARDING_KEY, 'true');
+
+  authSession = null;
+  appStarted = false;
+
+  showOnboarding(true);
+}
+
+// ========================================
+// NAVIGATION
+// ========================================
 
 function navigate(page) {
   const target = $('page-' + page);
@@ -269,7 +518,6 @@ async function getSeasonAnime() {
           season: $season
           seasonYear: $year
           sort: POPULARITY_DESC
-          
         ) {
           ${MEDIA_FIELDS}
         }
@@ -323,7 +571,6 @@ async function searchAnime(keyword, page = 1) {
           type: ANIME
           search: $search
           sort: SEARCH_MATCH
-          
         ) {
           ${MEDIA_FIELDS}
         }
