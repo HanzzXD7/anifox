@@ -1745,3 +1745,236 @@ button:focus-visible {
     margin-left: auto;
   }
 }
+
+/* =====================================
+   AniFoX ONBOARDING
+===================================== */
+
+.onboarding {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(37, 131, 245, 0.13),
+      transparent 55%
+    ),
+    #07152f;
+  color: #e8edf5;
+}
+
+.onboarding.hidden {
+  display: none !important;
+}
+
+.onboarding-scroll {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior-y: contain;
+  scrollbar-width: none;
+}
+
+.onboarding-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.onboarding-page {
+  min-height: 100%;
+  min-height: 100svh;
+  padding: 90px 28px 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.onboarding-content {
+  width: 100%;
+  max-width: 460px;
+  margin: auto;
+  animation: onboarding-enter 0.6s ease both;
+}
+
+.onboarding-label {
+  display: inline-block;
+  margin-bottom: 22px;
+  color: #65b5ff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 3px;
+}
+
+.onboarding-content h1 {
+  margin: 0 0 20px;
+  font-size: clamp(46px, 12vw, 76px);
+  line-height: 1.05;
+  font-weight: 850;
+  letter-spacing: -3px;
+}
+
+.onboarding-content h1 span {
+  color: #2583f5;
+}
+
+.onboarding-content h2 {
+  margin: 0 0 20px;
+  font-size: clamp(32px, 8vw, 48px);
+  line-height: 1.15;
+  letter-spacing: -1.5px;
+}
+
+.onboarding-description {
+  max-width: 390px;
+  color: #a7b7cc;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.onboarding-info {
+  margin: 28px 0 0;
+  padding-left: 20px;
+  color: #b7c7dc;
+  font-size: 14px;
+  line-height: 2;
+}
+
+.onboarding-info li {
+  padding-left: 5px;
+  margin-bottom: 10px;
+}
+
+.onboarding-info li::marker {
+  color: #2583f5;
+}
+
+.onboarding-indicators {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.onboarding-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 20px;
+  background: #40516b;
+  transition: 0.25s ease;
+}
+
+.onboarding-dot.active {
+  height: 25px;
+  background: #2583f5;
+  box-shadow: 0 0 12px rgba(37, 131, 245, 0.5);
+}
+
+.onboarding-page-number {
+  display: block;
+  margin-top: 45px;
+  color: #60748f;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.onboarding-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  color: #7186a2;
+  font-size: 11px;
+  pointer-events: none;
+}
+
+.google-login-button {
+  width: 100%;
+  min-height: 54px;
+  margin-top: 25px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  border: 1px solid #314b6e;
+  border-radius: 12px;
+  background: #f5f7fb;
+  color: #17263c;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.google-login-button span {
+  font-size: 20px;
+  font-weight: 850;
+  color: #4285f4;
+}
+
+.google-login-button:active {
+  transform: scale(0.98);
+}
+
+.login-message {
+  min-height: 20px;
+  margin-top: 14px;
+  color: #ffb6b6;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@keyframes onboarding-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .onboarding-page {
+    padding: 75px 30px 90px;
+  }
+
+  .onboarding-content h1 {
+    letter-spacing: -2px;
+  }
+
+  .onboarding-description {
+    font-size: 14px;
+  }
+
+  .onboarding-indicators {
+    right: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-content {
+    animation: none;
+  }
+
+  .onboarding-dot,
+  .google-login-button {
+    transition: none;
+  }
+}
