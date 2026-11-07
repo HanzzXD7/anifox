@@ -1978,3 +1978,397 @@ button:focus-visible {
     transition: none;
   }
 }
+
+/* ========================================
+   ANIFOX PROFILE
+======================================== */
+
+.profile-page {
+  padding-bottom: 40px;
+}
+
+.profile-card,
+.profile-settings-card {
+  background: #0b1b38;
+  border: 1px solid rgba(110, 160, 230, 0.13);
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 24px;
+}
+
+.profile-user {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  min-width: 0;
+}
+
+.profile-avatar-wrap {
+  width: 76px;
+  height: 76px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, #48a9ff, #153d75);
+  overflow: hidden;
+}
+
+.profile-avatar-wrap img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #07152f;
+}
+
+.profile-user-info {
+  min-width: 0;
+}
+
+.profile-user-info h2 {
+  font-size: 19px;
+  margin: 0 0 5px;
+  color: #f2f7ff;
+  overflow-wrap: anywhere;
+}
+
+.profile-user-info p {
+  font-size: 12px;
+  color: #91a5c4;
+  margin: 0 0 9px;
+  overflow-wrap: anywhere;
+}
+
+.profile-role {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: rgba(65, 155, 255, 0.13);
+  color: #70baff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.profile-divider {
+  height: 1px;
+  background: rgba(150, 180, 230, 0.12);
+  margin: 20px 0;
+}
+
+.profile-id-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profile-id-row > div {
+  min-width: 0;
+}
+
+.profile-label,
+.profile-input-label {
+  display: block;
+  color: #8298b9;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 7px;
+}
+
+.profile-id-row strong {
+  color: #e5efff;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.profile-copy-button {
+  background: rgba(65, 155, 255, 0.12);
+  border: 1px solid rgba(65, 155, 255, 0.25);
+  color: #83c1ff;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ========================================
+   PROFILE RANK
+======================================== */
+
+.profile-level-section {
+  margin-bottom: 26px;
+}
+
+.rank-card {
+  --rank-color: #777f8d;
+  --rank-glow: rgba(120, 130, 145, 0.15);
+
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  min-height: 112px;
+  padding: 19px;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--rank-color) 35%, transparent);
+  background: linear-gradient(
+    110deg,
+    color-mix(in srgb, var(--rank-color) 17%, #07152f),
+    #09172d 75%
+  );
+  box-shadow: inset 0 0 25px var(--rank-glow);
+}
+
+/* Rotating glow around the frame */
+.rank-card::before {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  inset: -100%;
+  background: conic-gradient(
+    transparent 0deg,
+    transparent 240deg,
+    var(--rank-color) 290deg,
+    transparent 330deg
+  );
+  animation: rank-frame-spin 4s linear infinite;
+}
+
+.rank-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 2px;
+  border-radius: 14px;
+  background: linear-gradient(
+    110deg,
+    color-mix(in srgb, var(--rank-color) 17%, #07152f),
+    #09172d 75%
+  );
+  box-shadow: inset 0 0 22px var(--rank-glow);
+}
+
+@keyframes rank-frame-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rank-icon-wrap {
+  width: 66px;
+  height: 66px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: var(--rank-glow);
+  box-shadow: 0 0 20px var(--rank-glow);
+}
+
+.rank-icon-wrap img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.rank-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.rank-info > strong {
+  color: #f3f8ff;
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  text-shadow: 0 0 12px var(--rank-glow);
+}
+
+.rank-info > span {
+  color: var(--rank-color);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.rank-exp-track {
+  height: 5px;
+  width: 100%;
+  margin-top: 5px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.rank-exp-track > div {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--rank-color);
+  box-shadow: 0 0 10px var(--rank-color);
+  transition: width 0.5s ease;
+}
+
+.rank-info small {
+  color: #91a5c4;
+  font-size: 10px;
+}
+
+/* RANK COLORS */
+
+.rank-coal {
+  --rank-color: #9299a5;
+  --rank-glow: rgba(120, 130, 145, 0.15);
+}
+
+.rank-copper {
+  --rank-color: #e58b50;
+  --rank-glow: rgba(229, 139, 80, 0.2);
+}
+
+.rank-iron {
+  --rank-color: #bdc7d2;
+  --rank-glow: rgba(189, 199, 210, 0.18);
+}
+
+.rank-gold {
+  --rank-color: #ffd34e;
+  --rank-glow: rgba(255, 211, 78, 0.2);
+}
+
+.rank-emerald {
+  --rank-color: #36e879;
+  --rank-glow: rgba(30, 255, 105, 0.3);
+  animation: emerald-pulse 2.5s ease-in-out infinite;
+}
+
+.rank-diamond {
+  --rank-color: #42dfff;
+  --rank-glow: rgba(66, 223, 255, 0.3);
+}
+
+.rank-nether-star {
+  --rank-color: #b9d9ff;
+  --rank-glow: rgba(185, 217, 255, 0.3);
+}
+
+.rank-golden-apple {
+  --rank-color: #ffd34e;
+  --rank-glow: rgba(255, 211, 78, 0.3);
+}
+
+.rank-lava {
+  --rank-color: #ff6538;
+  --rank-glow: rgba(255, 75, 35, 0.3);
+}
+
+.rank-elytra {
+  --rank-color: #b78aff;
+  --rank-glow: rgba(183, 138, 255, 0.35);
+}
+
+@keyframes emerald-pulse {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.16);
+  }
+}
+
+/* ========================================
+   PROFILE EDIT
+======================================== */
+
+.profile-settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 13px;
+  color: #edf5ff;
+  background: #07152f;
+  border: 1px solid rgba(110, 160, 230, 0.2);
+  border-radius: 9px;
+  outline: none;
+  font: inherit;
+  font-size: 13px;
+}
+
+.profile-input:focus {
+  border-color: #399cff;
+  box-shadow: 0 0 0 3px rgba(57, 156, 255, 0.1);
+}
+
+.profile-save-button {
+  margin-top: 10px;
+  width: 100%;
+  justify-content: center;
+}
+
+.profile-logout-button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  color: #ff8888;
+  background: rgba(255, 70, 70, 0.07);
+  border: 1px solid rgba(255, 90, 90, 0.2);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+  .profile-card,
+  .profile-settings-card {
+    padding: 17px;
+  }
+
+  .profile-avatar-wrap {
+    width: 65px;
+    height: 65px;
+  }
+
+  .rank-card {
+    padding: 15px;
+    gap: 13px;
+  }
+
+  .rank-icon-wrap {
+    width: 57px;
+    height: 57px;
+  }
+
+  .rank-icon-wrap img {
+    width: 42px;
+    height: 42px;
+  }
+
+  .rank-info > strong {
+    font-size: 21px;
+  }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .rank-card::before,
+  .rank-emerald {
+    animation: none;
+  }
+}
