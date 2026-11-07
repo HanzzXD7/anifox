@@ -269,7 +269,7 @@ async function getSeasonAnime() {
           season: $season
           seasonYear: $year
           sort: POPULARITY_DESC
-          isAdult: false
+          
         ) {
           ${MEDIA_FIELDS}
         }
