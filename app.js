@@ -1,4 +1,3 @@
-
 'use strict';
 
 // ========================================
@@ -23,12 +22,10 @@ const state = {
   toastTimer: null,
   splashTimer: null,
 
-  // Genre pagination
   currentGenre: '',
   genrePage: 1,
   genreHasNextPage: false,
 
-  // Search pagination
   searchKeyword: '',
   searchPage: 1,
   searchHasNextPage: false
@@ -36,8 +33,12 @@ const state = {
 
 document.addEventListener('DOMContentLoaded', initializeApp);
 
+// ========================================
+// INITIALIZATION
+// ========================================
+
 function initializeApp() {
-  state.watchlist = getWatchlist();
+  state.watchlist = getWatchlist().filter(isAllowedAnime);
   bindEvents();
   showSplash();
 }
@@ -169,7 +170,8 @@ function toast(message) {
 
 function imageOf(anime) {
   return anime?.coverImage?.extraLarge ||
-    anime?.coverImage?.large || '';
+    anime?.coverImage?.large ||
+    '';
 }
 
 function titleOf(anime) {
@@ -179,9 +181,22 @@ function titleOf(anime) {
     'Untitled';
 }
 
+// Hentai disaring, Ecchi tetap diperbolehkan.
+function isAllowedAnime(anime) {
+  const genres = Array.isArray(anime?.genres)
+    ? anime.genres
+    : [];
+
+  return !genres.some(genre =>
+    String(genre).trim().toLowerCase() === 'hentai'
+  );
+}
+
 function remember(items) {
   (items || []).forEach(anime => {
-    if (anime?.id) state.anime.set(anime.id, anime);
+    if (anime?.id && isAllowedAnime(anime)) {
+      state.anime.set(Number(anime.id), anime);
+    }
   });
 }
 
@@ -267,30 +282,33 @@ async function getSeasonAnime() {
     year: new Date().getFullYear()
   });
 
-  return data.Page.media || [];
-}
-
-async function getPopularAnime() {
-  const query = `
-    query {
-      Page(perPage: 18) {
-        media(
-          type: ANIME
-          sort: SCORE_DESC
-          isAdult: false
-        ) {
-          ${MEDIA_FIELDS}
-        }
-      }
-    }
-  `;
-
-  const data = await anilist(query);
-  return data.Page.media || [];
+  return (data.Page.media || []).filter(isAllowedAnime);
 }
 
 // ========================================
-// SEARCH API — ANILIST + PAGINATION
+// ANILAB CATALOG API
+// ========================================
+
+async function getPopularAnime(page = 1) {
+  const response = await fetch(
+    `${ANILAB_API}/catalog?page=${page}`
+  );
+
+  if (!response.ok) {
+    throw new Error('AniLab gagal mengambil katalog populer.');
+  }
+
+  const result = await response.json();
+
+  if (!result.status || !Array.isArray(result.data)) {
+    throw new Error('Respons katalog AniLab tidak valid.');
+  }
+
+  return result.data.filter(isAllowedAnime);
+}
+
+// ========================================
+// SEARCH API — ANILIST
 // ========================================
 
 async function searchAnime(keyword, page = 1) {
@@ -319,7 +337,7 @@ async function searchAnime(keyword, page = 1) {
   });
 
   return {
-    items: data.Page.media || [],
+    items: (data.Page.media || []).filter(isAllowedAnime),
     page: data.Page.pageInfo.currentPage,
     hasNextPage: data.Page.pageInfo.hasNextPage
   };
@@ -386,18 +404,24 @@ function cardHTML(anime) {
   `;
 }
 
-function renderCards(target, items, emptyMessage = 'Anime belum tersedia.') {
+function renderCards(
+  target,
+  items,
+  emptyMessage = 'Anime belum tersedia.'
+) {
   const element = $(target);
   if (!element) return;
 
-  if (!items?.length) {
+  const safeItems = (items || []).filter(isAllowedAnime);
+
+  if (!safeItems.length) {
     element.innerHTML = `
       <div class="empty-message">${esc(emptyMessage)}</div>
     `;
     return;
   }
 
-  element.innerHTML = items.map(cardHTML).join('');
+  element.innerHTML = safeItems.map(cardHTML).join('');
 
   element.querySelectorAll('.anime-card').forEach(card => {
     const open = () => {
@@ -481,7 +505,6 @@ async function loadHome() {
 
   } else {
     $('hero-title').textContent = 'Temukan anime favoritmu';
-
     $('hero-meta').textContent =
       'Katalog sedang tidak dapat dimuat. Coba lagi nanti.';
   }
@@ -530,7 +553,7 @@ async function loadPopular(full = false) {
 }
 
 // ========================================
-// GENRE — ANILAB API
+// GENRE — ANILAB
 // ========================================
 
 async function loadGenres() {
@@ -554,10 +577,8 @@ async function loadGenres() {
       throw new Error('Data genre tidak valid.');
     }
 
-    const excluded = ['Ecchi', 'Hentai'];
-
     const genres = result.data.filter(genre =>
-      !excluded.includes(genre)
+      String(genre).trim().toLowerCase() !== 'hentai'
     );
 
     host.innerHTML = genres.map(genre => `
@@ -579,7 +600,6 @@ async function loadGenres() {
         state.currentGenre = genre;
         state.genrePage = 1;
         state.searchKeyword = '';
-
         state.searchRequest++;
 
         navigate('search');
@@ -600,6 +620,13 @@ async function loadGenres() {
 async function loadGenreAnime(genre, page = 1) {
   const host = $('search-results');
   if (!host) return;
+
+  if (String(genre).trim().toLowerCase() === 'hentai') {
+    host.innerHTML = `
+      <div class="empty-message">Genre tidak tersedia.</div>
+    `;
+    return;
+  }
 
   const request = ++state.searchRequest;
 
@@ -631,7 +658,7 @@ async function loadGenreAnime(genre, page = 1) {
     state.genrePage = result.page;
     state.genreHasNextPage = result.hasNextPage;
 
-    const items = result.data || [];
+    const items = (result.data || []).filter(isAllowedAnime);
 
     remember(items);
 
@@ -644,7 +671,6 @@ async function loadGenreAnime(genre, page = 1) {
     if (!items.length) return;
 
     const pagination = document.createElement('div');
-
     pagination.className = 'genre-pagination';
 
     pagination.innerHTML = `
@@ -691,7 +717,7 @@ async function loadGenreAnime(genre, page = 1) {
 }
 
 // ========================================
-// SEARCH — ANILIST + PAGINATION
+// SEARCH — ANILIST
 // ========================================
 
 function onSearchInput() {
@@ -763,7 +789,6 @@ function renderSearchPagination() {
   if (!host) return;
 
   const pagination = document.createElement('div');
-
   pagination.className = 'genre-pagination';
 
   pagination.innerHTML = `
@@ -806,6 +831,11 @@ function renderSearchPagination() {
 // ========================================
 
 async function openDetail(anime) {
+  if (!isAllowedAnime(anime)) {
+    toast('Anime ini tidak tersedia di AniFoX.');
+    return;
+  }
+
   state.previousPage =
     document.querySelector('.page.active')?.id.replace('page-', '') ||
     'home';
@@ -854,6 +884,13 @@ async function openDetail(anime) {
     const detail = await getAnimeDetail(anime.id);
 
     if (state.current?.id !== anime.id) return;
+
+    if (!isAllowedAnime(detail)) {
+      state.current = null;
+      toast('Anime ini tidak tersedia di AniFoX.');
+      goBack();
+      return;
+    }
 
     state.current = detail;
     state.anime.set(detail.id, detail);
@@ -905,7 +942,6 @@ function normalizeTitle(value = '') {
     .replace(/[^a-z0-9]/g, '');
 }
 
-// Hanya ID episode resmi yang sudah diverifikasi.
 const BSTATION_SERIES = [
   {
     aliases: [
@@ -1033,7 +1069,7 @@ function updateWatchButton() {
 }
 
 function toggleWatchlist() {
-  if (!state.current) return;
+  if (!state.current || !isAllowedAnime(state.current)) return;
 
   const id = state.current.id;
 
@@ -1046,7 +1082,6 @@ function toggleWatchlist() {
 
   } else {
     state.watchlist.unshift(state.current);
-
     toast('Berhasil disimpan ke watchlist!');
   }
 
@@ -1055,6 +1090,8 @@ function toggleWatchlist() {
 }
 
 function renderWatchlist() {
+  state.watchlist = state.watchlist.filter(isAllowedAnime);
+
   state.watchlist.forEach(anime => {
     state.anime.set(anime.id, anime);
   });
@@ -1067,7 +1104,7 @@ function renderWatchlist() {
 }
 
 // ========================================
-// VIDEO PLAYER
+// VIDEO PLAYER — BSTATION
 // ========================================
 
 function openPlayer(episode = 1) {
