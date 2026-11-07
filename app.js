@@ -1,14 +1,25 @@
+
 'use strict';
 
 // ========================================
 // AniFoX — AniList + AniLab + Bstation
-// + Supabase + Google Login
+// + Supabase + Google Login + User Profile
 // ========================================
 
 const ANILIST_API = 'https://graphql.anilist.co';
 const ANILAB_API = 'https://anilab-beta.vercel.app/api';
 
+const SUPABASE_URL =
+  'https://oomkaubthpchrsozhsma.supabase.co';
+
+const SUPABASE_PUBLIC_KEY =
+  'sb_publishable_BALnAwlkzVGciyVl5nTScQ_ER1PidyH';
+
+const AVATAR_BUCKET = 'avatars';
+const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
+
 const $ = id => document.getElementById(id);
+
 const WATCH_KEY = 'anifox_watchlist_v3';
 const ONBOARDING_KEY = 'anifox_onboarding_seen_v1';
 
@@ -42,6 +53,9 @@ let authSession = null;
 let appStarted = false;
 let splashFinished = false;
 
+let profileData = null;
+let profilePublicId = null;
+
 // ========================================
 // INITIALIZATION
 // ========================================
@@ -64,6 +78,8 @@ async function initializeApp() {
 
       if (event === 'SIGNED_OUT' && splashFinished) {
         appStarted = false;
+        profileData = null;
+        profilePublicId = null;
         showOnboarding(true);
       }
     });
@@ -86,12 +102,6 @@ function initializeSupabase() {
     console.error('Supabase JS belum berhasil dimuat.');
     return;
   }
-
-  const SUPABASE_URL =
-    'https://oomkaubthpchrsozhsma.supabase.co';
-
-  const SUPABASE_PUBLIC_KEY =
-    'sb_publishable_BALnAwlkzVGciyVl5nTScQ_ER1PidyH';
 
   supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
@@ -148,6 +158,21 @@ function bindEvents() {
   });
 
   $('logout-button')?.addEventListener('click', logoutAniFoX);
+
+  $('copy-profile-id')?.addEventListener(
+    'click',
+    copyProfileId
+  );
+
+  $('save-profile')?.addEventListener(
+    'click',
+    saveProfile
+  );
+
+  $('edit-avatar')?.addEventListener(
+    'change',
+    previewProfileAvatar
+  );
 }
 
 // ========================================
@@ -289,14 +314,17 @@ function showMainApp() {
 // ========================================
 
 async function loginWithGoogle() {
+  const message = $('login-message');
+
   if (!supabaseClient) {
-    $('login-message').textContent =
-      'Layanan login belum siap. Coba muat ulang halaman.';
+    if (message) {
+      message.textContent =
+        'Layanan login belum siap. Coba muat ulang halaman.';
+    }
     return;
   }
 
   const button = $('google-login');
-  const message = $('login-message');
 
   if (button) {
     button.disabled = true;
@@ -328,8 +356,7 @@ async function loginWithGoogle() {
 
     if (button) {
       button.disabled = false;
-      button.innerHTML =
-        '<span>G</span> Login dengan Google';
+      button.innerHTML = '<span>G</span> Login dengan Google';
     }
   }
 }
@@ -344,11 +371,24 @@ async function logoutAniFoX() {
     return;
   }
 
+  const button = $('logout-button');
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Keluar...';
+  }
+
   const { error } = await supabaseClient.auth.signOut();
 
   if (error) {
     console.error('Logout error:', error);
     toast('Logout gagal. Silakan coba lagi.');
+
+    if (button) {
+      button.disabled = false;
+      button.textContent = 'Keluar dari Akun';
+    }
+
     return;
   }
 
@@ -356,6 +396,7 @@ async function logoutAniFoX() {
 
   authSession = null;
   appStarted = false;
+  profileData = null;
 
   showOnboarding(true);
 }
@@ -377,10 +418,19 @@ function navigate(page) {
   target.classList.add('active');
 
   document.querySelectorAll('[data-page].nav-item').forEach(button => {
-    button.classList.toggle('active', button.dataset.page === page);
+    button.classList.toggle(
+      'active',
+      button.dataset.page === page
+    );
   });
 
-  if (page === 'list') renderWatchlist();
+  if (page === 'list') {
+    renderWatchlist();
+  }
+
+  if (page === 'profile') {
+    loadProfile();
+  }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -457,6 +507,427 @@ function seasonNow() {
   if (month <= 9) return 'SUMMER';
 
   return 'FALL';
+}
+
+// ========================================
+// USER PROFILE — SUPABASE
+// ========================================
+
+function getGoogleAvatar(user) {
+  const metadata = user?.user_metadata || {};
+
+  return metadata.avatar_url ||
+    metadata.picture ||
+    '';
+}
+
+function makePublicProfileId(userId) {
+  const compactId = String(userId || '')
+    .replace(/-/g, '')
+    .slice(0, 8)
+    .toUpperCase();
+
+  return `FOX-${compactId || 'UNKNOWN'}`;
+}
+
+function getRank(level, role) {
+  if (role === 'DEV') {
+    return {
+      name: 'Elytra',
+      className: 'rank-elytra',
+      icon: 'elytra',
+      level: 999999
+    };
+  }
+
+  const ranks = [
+    { min: 150000, name: 'Elytra', className: 'rank-elytra', icon: 'elytra' },
+    { min: 75000, name: 'Lava', className: 'rank-lava', icon: 'lava' },
+    { min: 25000, name: 'Golden Apple', className: 'rank-golden-apple', icon: 'golden-apple' },
+    { min: 10000, name: 'Nether Star', className: 'rank-nether-star', icon: 'nether-star' },
+    { min: 5500, name: 'Diamond', className: 'rank-diamond', icon: 'diamond' },
+    { min: 1500, name: 'Emerald', className: 'rank-emerald', icon: 'emerald' },
+    { min: 500, name: 'Gold', className: 'rank-gold', icon: 'gold' },
+    { min: 100, name: 'Iron', className: 'rank-iron', icon: 'iron' },
+    { min: 50, name: 'Copper', className: 'rank-copper', icon: 'copper' },
+    { min: 1, name: 'Coal', className: 'rank-coal', icon: 'coal' }
+  ];
+
+  return ranks.find(rank => level >= rank.min) || ranks[ranks.length - 1];
+}
+
+async function loadProfile() {
+  if (!supabaseClient || !authSession?.user) {
+    toast('Silakan login terlebih dahulu.');
+    return;
+  }
+
+  const user = authSession.user;
+  const message = $('profile-message');
+
+  if (message) {
+    message.textContent = 'Memuat profil...';
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('profiles')
+      .select('id, username, avatar_url, role, level, exp')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (!data) {
+      profileData = null;
+      profilePublicId = makePublicProfileId(user.id);
+
+      renderProfileFallback(user);
+
+      if (message) {
+        message.textContent =
+          'Data profil belum tersedia. Perlu pemeriksaan tabel profil Supabase.';
+      }
+
+      return;
+    }
+
+    profileData = data;
+    profilePublicId = makePublicProfileId(data.id);
+
+    renderProfile(data, user);
+
+    if (message) {
+      message.textContent = '';
+    }
+
+  } catch (error) {
+    console.error('Profile load error:', error);
+
+    if (message) {
+      message.textContent = 'Profil gagal dimuat. Coba lagi.';
+    }
+
+    renderProfileFallback(user);
+  }
+}
+
+function renderProfileFallback(user) {
+  const metadata = user?.user_metadata || {};
+
+  if ($('profile-name')) {
+    $('profile-name').textContent =
+      metadata.full_name ||
+      metadata.name ||
+      'Pengguna AniFoX';
+  }
+
+  if ($('profile-email')) {
+    $('profile-email').textContent = user?.email || '-';
+  }
+
+  if ($('profile-avatar')) {
+    $('profile-avatar').src =
+      getGoogleAvatar(user) || 'anifox-logo.png';
+  }
+
+  if ($('profile-role')) {
+    $('profile-role').textContent = 'USER';
+  }
+
+  if ($('profile-id')) {
+    $('profile-id').textContent =
+      profilePublicId || makePublicProfileId(user?.id);
+  }
+
+  renderRank(1, 0, 'USER');
+}
+
+function renderProfile(data, user) {
+  const metadata = user?.user_metadata || {};
+
+  const username =
+    data.username ||
+    metadata.full_name ||
+    metadata.name ||
+    'Pengguna AniFoX';
+
+  const avatar =
+    data.avatar_url ||
+    getGoogleAvatar(user) ||
+    'anifox-logo.png';
+
+  if ($('profile-name')) {
+    $('profile-name').textContent = username;
+  }
+
+  if ($('profile-email')) {
+    $('profile-email').textContent = user?.email || '-';
+  }
+
+  if ($('profile-avatar')) {
+    $('profile-avatar').src = avatar;
+  }
+
+  if ($('profile-role')) {
+    $('profile-role').textContent =
+      data.role === 'DEV' ? 'DEV' : 'USER';
+  }
+
+  if ($('profile-id')) {
+    $('profile-id').textContent = profilePublicId;
+  }
+
+  if ($('edit-username')) {
+    $('edit-username').value = data.username || '';
+  }
+
+  renderRank(
+    Number(data.level) || 1,
+    Number(data.exp) || 0,
+    data.role
+  );
+}
+
+function renderRank(level, exp, role) {
+  const rank = getRank(level, role);
+
+  const card = $('profile-rank-card');
+  const icon = $('profile-rank-icon');
+  const levelText = $('profile-level');
+  const rankName = $('profile-rank-name');
+  const expProgress = $('profile-exp-progress');
+  const expText = $('profile-exp-text');
+
+  if (card) {
+    card.className = `rank-card ${rank.className}`;
+  }
+
+  if (icon) {
+    icon.src = `assets/ranks/${rank.icon}.png`;
+    icon.alt = `${rank.name} emblem`;
+
+    icon.onerror = () => {
+      icon.style.opacity = '0';
+    };
+  }
+
+  if (levelText) {
+    levelText.textContent = `Lv. ${rank.level}`;
+  }
+
+  // Nama rank sengaja disembunyikan:
+  // desain hanya menampilkan emblem dan level.
+  if (rankName) {
+    rankName.style.display = 'none';
+  }
+
+  if (expProgress) {
+    // Rumus progres level belum ditetapkan.
+    // Jangan menampilkan progres palsu.
+    expProgress.style.width = '0%';
+  }
+
+  if (expText) {
+    expText.textContent =
+      role === 'DEV'
+        ? 'DEVELOPER'
+        : `${exp.toLocaleString('id-ID')} EXP`;
+  }
+}
+
+async function copyProfileId() {
+  if (!profilePublicId) {
+    toast('ID profil belum tersedia.');
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(profilePublicId);
+    toast('ID AniFoX berhasil disalin.');
+  } catch {
+    toast('Tidak bisa menyalin ID di perangkat ini.');
+  }
+}
+
+function previewProfileAvatar(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    toast('Pilih file gambar.');
+    event.target.value = '';
+    return;
+  }
+
+  if (file.size > MAX_AVATAR_SIZE) {
+    toast('Ukuran foto maksimal 2 MB.');
+    event.target.value = '';
+    return;
+  }
+
+  const preview = $('profile-avatar');
+
+  if (preview) {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      preview.src = reader.result;
+    };
+
+    reader.readAsDataURL(file);
+  }
+}
+
+async function uploadProfileAvatar(file, userId) {
+  if (!file || !userId) return null;
+
+  if (!file.type.startsWith('image/')) {
+    throw new Error('File harus berupa gambar.');
+  }
+
+  if (file.size > MAX_AVATAR_SIZE) {
+    throw new Error('Ukuran foto maksimal 2 MB.');
+  }
+
+  const extensionMap = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp'
+  };
+
+  const extension = extensionMap[file.type];
+
+  if (!extension) {
+    throw new Error('Format foto harus JPG, PNG, atau WEBP.');
+  }
+
+  const filePath =
+    `${userId}/${Date.now()}.${extension}`;
+
+  const { error: uploadError } =
+    await supabaseClient.storage
+      .from(AVATAR_BUCKET)
+      .upload(filePath, file, {
+        contentType: file.type,
+        cacheControl: '3600',
+        upsert: false
+      });
+
+  if (uploadError) throw uploadError;
+
+  const { data } =
+    supabaseClient.storage
+      .from(AVATAR_BUCKET)
+      .getPublicUrl(filePath);
+
+  return data.publicUrl;
+}
+
+async function saveProfile() {
+  if (!supabaseClient || !authSession?.user) {
+    toast('Silakan login terlebih dahulu.');
+    return;
+  }
+
+  if (!profileData) {
+    toast('Data profil belum tersedia.');
+    return;
+  }
+
+  const usernameInput = $('edit-username');
+  const avatarInput = $('edit-avatar');
+  const button = $('save-profile');
+  const message = $('profile-message');
+
+  const username = usernameInput?.value.trim() || '';
+
+  if (username.length < 3) {
+    if (message) {
+      message.textContent =
+        'Username minimal 3 karakter.';
+    }
+    return;
+  }
+
+  if (username.length > 24) {
+    if (message) {
+      message.textContent =
+        'Username maksimal 24 karakter.';
+    }
+    return;
+  }
+
+  if (!/^[a-zA-Z0-9_ ]+$/.test(username)) {
+    if (message) {
+      message.textContent =
+        'Gunakan huruf, angka, spasi, atau garis bawah.';
+    }
+    return;
+  }
+
+  const file = avatarInput?.files?.[0];
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Menyimpan...';
+  }
+
+  if (message) {
+    message.textContent = '';
+  }
+
+  try {
+    let avatarUrl = profileData.avatar_url || null;
+
+    if (file) {
+      avatarUrl = await uploadProfileAvatar(
+        file,
+        authSession.user.id
+      );
+    }
+
+    const { data, error } = await supabaseClient
+      .from('profiles')
+      .update({
+        username,
+        avatar_url: avatarUrl
+      })
+      .eq('id', authSession.user.id)
+      .select('id, username, avatar_url, role, level, exp')
+      .single();
+
+    if (error) throw error;
+
+    profileData = data;
+
+    renderProfile(data, authSession.user);
+
+    if (avatarInput) {
+      avatarInput.value = '';
+    }
+
+    if (message) {
+      message.textContent = 'Profil berhasil diperbarui.';
+    }
+
+    toast('Profil AniFoX berhasil disimpan.');
+
+  } catch (error) {
+    console.error('Save profile error:', error);
+
+    if (message) {
+      message.textContent =
+        error.message ||
+        'Gagal menyimpan profil. Periksa pengaturan penyimpanan foto.';
+    }
+
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = 'Simpan Perubahan';
+    }
+  }
 }
 
 // ========================================
