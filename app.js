@@ -546,15 +546,6 @@ function getGoogleAvatar(user) {
     '';
 }
 
-function makePublicProfileId(userId) {
-  const compactId = String(userId || '')
-    .replace(/-/g, '')
-    .slice(0, 8)
-    .toUpperCase();
-
-  return `FOX-${compactId || 'UNKNOWN'}`;
-}
-
 function getRank(level, role) {
   if (role === 'DEV') {
     return {
@@ -601,7 +592,7 @@ async function loadProfile(options = {}) {
   try {
     const { data, error } = await supabaseClient
       .from('profiles')
-      .select('id, username, avatar_url, role, level, exp')
+      .select('id, public_number, username, avatar_url, role, level, exp')
       .eq('id', user.id)
       .maybeSingle();
 
@@ -609,7 +600,7 @@ async function loadProfile(options = {}) {
 
     if (!data) {
       profileData = null;
-      profilePublicId = makePublicProfileId(user.id);
+      profilePublicId = null;
 
       renderProfileFallback(user);
 
@@ -622,7 +613,9 @@ async function loadProfile(options = {}) {
     }
 
     profileData = data;
-    profilePublicId = makePublicProfileId(data.id);
+    profilePublicId = data.public_number != null
+      ? `#${data.public_number}`
+      : null;
 
     renderProfile(data, user);
 
@@ -632,6 +625,7 @@ async function loadProfile(options = {}) {
 
   } catch (error) {
     console.error('Profile load error:', error);
+    profilePublicId = null;
 
     if (message && !silent) {
       message.textContent = 'Profil gagal dimuat. Coba lagi.';
@@ -665,8 +659,7 @@ function renderProfileFallback(user) {
   }
 
   if ($('profile-id')) {
-    $('profile-id').textContent =
-      profilePublicId || makePublicProfileId(user?.id);
+    $('profile-id').textContent = profilePublicId || '#—';
   }
 
   renderRank(1, 0, 'USER');
@@ -745,6 +738,7 @@ function renderHomeProfile(data, user) {
   const card = $('home-profile-card');
   const avatarElement = $('home-profile-avatar');
   const nameElement = $('home-profile-name');
+  const publicIdElement = $('home-profile-id');
   const levelElement = $('home-profile-level');
 
   if (avatarElement) {
@@ -759,6 +753,10 @@ function renderHomeProfile(data, user) {
 
   if (nameElement) {
     nameElement.textContent = username;
+  }
+
+  if (publicIdElement) {
+    publicIdElement.textContent = profilePublicId || '#—';
   }
 
   if (levelElement) {
@@ -990,7 +988,7 @@ async function saveProfile() {
         avatar_url: avatarUrl
       })
       .eq('id', authSession.user.id)
-      .select('id, username, avatar_url, role, level, exp')
+      .select('id, public_number, username, avatar_url, role, level, exp')
       .single();
 
     if (error) throw error;
