@@ -2134,6 +2134,18 @@ button:focus-visible {
     var(--rank-color) 290deg,
     transparent 330deg
   );
+  opacity: 0;
+  animation: none;
+}
+
+/* Only Emerald and higher ranks get the rotating frame */
+.rank-card.rank-emerald::before,
+.rank-card.rank-diamond::before,
+.rank-card.rank-nether-star::before,
+.rank-card.rank-golden-apple::before,
+.rank-card.rank-lava::before,
+.rank-card.rank-elytra::before {
+  opacity: 1;
   animation: rank-frame-spin 4s linear infinite;
 }
 
@@ -2365,10 +2377,25 @@ button:focus-visible {
 }
 
 /* Respect reduced motion preferences */
+/* Lower animation cost on devices with limited resources */
+.rank-effects-lite .rank-card.rank-emerald::before,
+.rank-effects-lite .rank-card.rank-diamond::before,
+.rank-effects-lite .rank-card.rank-nether-star::before,
+.rank-effects-lite .rank-card.rank-golden-apple::before,
+.rank-effects-lite .rank-card.rank-lava::before,
+.rank-effects-lite .rank-card.rank-elytra::before {
+  animation-duration: 9s;
+}
+
+.rank-effects-lite .rank-emerald {
+  animation-duration: 5s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rank-card::before,
-  .rank-emerald {
-    animation: none;
+  .rank-emerald,
+  .home-profile-rank-wrap {
+    animation: none !important;
   }
 }
 
