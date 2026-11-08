@@ -157,6 +157,10 @@ function bindEvents() {
     });
   });
 
+  $('home-profile-card')?.addEventListener('click', () => {
+    navigate('profile');
+  });
+
   $('logout-button')?.addEventListener('click', logoutAniFoX);
 
   $('copy-profile-id')?.addEventListener(
@@ -252,15 +256,23 @@ function showOnboarding(finalOnly = false) {
   const hint = onboarding.querySelector('.onboarding-hint');
 
   if (hint) {
-    hint.textContent = finalOnly
+    const hintText = hint.querySelector('.onboarding-hint-text');
+
+    const message = finalOnly
       ? 'Masuk untuk melanjutkan ke AniFoX'
-      : 'Geser ke bawah untuk melanjutkan';
+      : 'Geser ke atas untuk melanjutkan';
+
+    if (hintText) {
+      hintText.textContent = message;
+    } else {
+      hint.textContent = message;
+    }
   }
 
-  const message = $('login-message');
+  const loginMessage = $('login-message');
 
-  if (message) {
-    message.textContent = '';
+  if (loginMessage) {
+    loginMessage.textContent = '';
   }
 }
 
@@ -325,10 +337,16 @@ async function loginWithGoogle() {
   }
 
   const button = $('google-login');
+  const label = button?.querySelector('.google-button-label');
 
   if (button) {
     button.disabled = true;
-    button.textContent = 'Menghubungkan ke Google...';
+
+    if (label) {
+      label.textContent = 'Menghubungkan ke Google...';
+    } else {
+      button.textContent = 'Menghubungkan ke Google...';
+    }
   }
 
   if (message) {
@@ -356,7 +374,12 @@ async function loginWithGoogle() {
 
     if (button) {
       button.disabled = false;
-      button.innerHTML = '<span>G</span> Login dengan Google';
+
+      if (label) {
+        label.textContent = 'Login dengan Google';
+      } else {
+        button.textContent = 'Login dengan Google';
+      }
     }
   }
 }
@@ -397,6 +420,7 @@ async function logoutAniFoX() {
   authSession = null;
   appStarted = false;
   profileData = null;
+  profilePublicId = null;
 
   showOnboarding(true);
 }
@@ -556,16 +580,20 @@ function getRank(level, role) {
   return ranks.find(rank => level >= rank.min) || ranks[ranks.length - 1];
 }
 
-async function loadProfile() {
+async function loadProfile(options = {}) {
+  const silent = options.silent === true;
+
   if (!supabaseClient || !authSession?.user) {
-    toast('Silakan login terlebih dahulu.');
+    if (!silent) {
+      toast('Silakan login terlebih dahulu.');
+    }
     return;
   }
 
   const user = authSession.user;
   const message = $('profile-message');
 
-  if (message) {
+  if (message && !silent) {
     message.textContent = 'Memuat profil...';
   }
 
@@ -584,7 +612,7 @@ async function loadProfile() {
 
       renderProfileFallback(user);
 
-      if (message) {
+      if (message && !silent) {
         message.textContent =
           'Data profil belum tersedia. Perlu pemeriksaan tabel profil Supabase.';
       }
@@ -597,14 +625,14 @@ async function loadProfile() {
 
     renderProfile(data, user);
 
-    if (message) {
+    if (message && !silent) {
       message.textContent = '';
     }
 
   } catch (error) {
     console.error('Profile load error:', error);
 
-    if (message) {
+    if (message && !silent) {
       message.textContent = 'Profil gagal dimuat. Coba lagi.';
     }
 
@@ -641,6 +669,7 @@ function renderProfileFallback(user) {
   }
 
   renderRank(1, 0, 'USER');
+  renderHomeProfile(null, user);
 }
 
 function renderProfile(data, user) {
@@ -687,6 +716,73 @@ function renderProfile(data, user) {
     Number(data.exp) || 0,
     data.role
   );
+
+  renderHomeProfile(data, user);
+}
+
+function renderHomeProfile(data, user) {
+  const metadata = user?.user_metadata || {};
+
+  const username =
+    data?.username ||
+    metadata.full_name ||
+    metadata.name ||
+    'Pengguna AniFoX';
+
+  const avatar =
+    data?.avatar_url ||
+    getGoogleAvatar(user);
+
+  const role = data?.role || 'USER';
+
+  const level = role === 'DEV'
+    ? 999999
+    : Math.max(1, Number(data?.level) || 1);
+
+  const rank = getRank(level, role);
+
+  const card = $('home-profile-card');
+  const avatarElement = $('home-profile-avatar');
+  const nameElement = $('home-profile-name');
+  const levelElement = $('home-profile-level');
+
+  if (avatarElement) {
+    if (avatar) {
+      avatarElement.src = avatar;
+    } else {
+      avatarElement.removeAttribute('src');
+    }
+
+    avatarElement.alt = `Foto profil ${username}`;
+  }
+
+  if (nameElement) {
+    nameElement.textContent = username;
+  }
+
+  if (levelElement) {
+    levelElement.textContent =
+      `Lv. ${level.toLocaleString('id-ID')}`;
+  }
+
+  if (card) {
+    card.classList.add('home-profile-card');
+
+    card.classList.remove(
+      'rank-coal',
+      'rank-copper',
+      'rank-iron',
+      'rank-gold',
+      'rank-emerald',
+      'rank-diamond',
+      'rank-nether-star',
+      'rank-golden-apple',
+      'rank-lava',
+      'rank-elytra'
+    );
+
+    card.classList.add(rank.className);
+  }
 }
 
 function renderRank(level, exp, role) {
@@ -713,18 +809,19 @@ function renderRank(level, exp, role) {
   }
 
   if (levelText) {
-    levelText.textContent = `Lv. ${rank.level}`;
+    const displayLevel = role === 'DEV'
+      ? 999999
+      : Math.max(1, Number(level) || 1);
+
+    levelText.textContent =
+      `Lv. ${displayLevel.toLocaleString('id-ID')}`;
   }
 
-  // Nama rank sengaja disembunyikan:
-  // desain hanya menampilkan emblem dan level.
   if (rankName) {
     rankName.style.display = 'none';
   }
 
   if (expProgress) {
-    // Rumus progres level belum ditetapkan.
-    // Jangan menampilkan progres palsu.
     expProgress.style.width = '0%';
   }
 
@@ -844,16 +941,14 @@ async function saveProfile() {
 
   if (username.length < 3) {
     if (message) {
-      message.textContent =
-        'Username minimal 3 karakter.';
+      message.textContent = 'Username minimal 3 karakter.';
     }
     return;
   }
 
   if (username.length > 24) {
     if (message) {
-      message.textContent =
-        'Username maksimal 24 karakter.';
+      message.textContent = 'Username maksimal 24 karakter.';
     }
     return;
   }
@@ -933,7 +1028,6 @@ async function saveProfile() {
 // ========================================
 // ANILIST API
 // ========================================
-
 async function anilist(query, variables = {}) {
   const response = await fetch(ANILIST_API, {
     method: 'POST',
@@ -953,7 +1047,6 @@ async function anilist(query, variables = {}) {
   if (result.errors?.length) {
     throw new Error(result.errors[0].message || 'Kesalahan AniList.');
   }
-
   return result.data;
 }
 
@@ -1113,7 +1206,6 @@ function cardHTML(anime) {
       </div>
 
       <h3 class="poster-title">${title}</h3>
-
       <p class="poster-meta">
         ${esc(anime.seasonYear || anime.format || 'Anime')}
         · ${anime.episodes ?? '?'} eps
@@ -1163,6 +1255,10 @@ function renderCards(
 // ========================================
 
 async function loadHome() {
+  if (authSession?.user) {
+    loadProfile({ silent: true });
+  }
+
   $('season-list').innerHTML = `
     <div class="empty-message">Memuat season anime...</div>
   `;
@@ -1220,7 +1316,6 @@ async function loadHome() {
 
     $('hero-art').style.backgroundImage =
       art ? `url("${art}")` : '';
-
   } else {
     $('hero-title').textContent = 'Temukan anime favoritmu';
     $('hero-meta').textContent =
@@ -1242,7 +1337,6 @@ async function loadSeason(full = false) {
 
     remember(items);
     renderCards(target, full ? items : items.slice(0, 10));
-
   } catch (error) {
     $(target).innerHTML = `
       <div class="empty-message">${esc(error.message)}</div>
@@ -1262,7 +1356,6 @@ async function loadPopular(full = false) {
 
     remember(items);
     renderCards(target, full ? items : items.slice(0, 10));
-
   } catch (error) {
     $(target).innerHTML = `
       <div class="empty-message">${esc(error.message)}</div>
@@ -1314,7 +1407,6 @@ async function loadGenres() {
         const genre = button.dataset.genre;
 
         clearTimeout(state.searchTimer);
-
         state.currentGenre = genre;
         state.genrePage = 1;
         state.searchKeyword = '';
