@@ -17,7 +17,7 @@ const SUPABASE_PUBLIC_KEY =
 const AVATAR_BUCKET = 'avatars';
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
 const MC_ITEM_SPRITE_BASE =
-  'https://mcasset.cloud/1.21.4/assets/minecraft/textures/item';
+  'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.21.4/assets/minecraft/textures/item';
 
 const RANK_ITEM_SPRITES = {
   coal: 'coal.png',
