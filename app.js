@@ -1,4 +1,3 @@
-
 'use strict';
 
 // ========================================
@@ -2299,7 +2298,11 @@ async function searchSocialUser() {
       { p_public_number: publicNumber }
     );
 
-    if (error) throw error;
+    if (error) {
+  console.error('RPC ERROR DETAIL:', error);
+  console.error('PUBLIC NUMBER:', publicNumber);
+  throw error;
+    }
 
     const profile = Array.isArray(data) ? data[0] : null;
 
