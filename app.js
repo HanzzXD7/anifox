@@ -784,7 +784,12 @@ function renderHomeProfile(data, user) {
   const nameElement = $('home-profile-name');
   const publicIdElement = $('home-profile-id');
   const levelElement = $('home-profile-level');
+  const rankPanel = $('home-profile-rank-panel');
+  const rankNameElement = $('home-profile-rank-name');
+  const rankExpProgress = $('home-profile-exp-progress');
+  const rankExpText = $('home-profile-exp-text');
   const rankIconElement = $('home-profile-rank-icon');
+  const exp = Math.max(0, Number(data?.exp) || 0);
 
   if (avatarElement) {
     if (avatar) {
@@ -806,7 +811,25 @@ function renderHomeProfile(data, user) {
 
   if (levelElement) {
     levelElement.textContent =
-      level.toLocaleString('id-ID');
+      `Lv. ${level.toLocaleString('id-ID')}`;
+  }
+
+  if (rankPanel) {
+    rankPanel.className = `home-profile-rank-panel ${rank.className}`;
+  }
+
+  if (rankNameElement) {
+    rankNameElement.textContent = rank.name;
+  }
+
+  if (rankExpProgress) {
+    rankExpProgress.style.width = '0%';
+  }
+
+  if (rankExpText) {
+    rankExpText.textContent = role === 'DEV'
+      ? 'DEVELOPER'
+      : `${exp.toLocaleString('id-ID')} EXP`;
   }
 
   if (rankIconElement) {
