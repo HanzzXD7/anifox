@@ -2632,39 +2632,154 @@ button:focus-visible {
 }
 
 .home-profile-level {
-  display: inline-flex;
-  align-items: center;
-  color: #8bcaff;
-  font: 700 11px "DM Mono", monospace;
+  display: block;
+  color: var(--rank-color, #8bcaff);
+  font: 800 12px "DM Mono", monospace;
   line-height: 1.2;
 }
 
-.home-profile-rank-wrap {
-  display: inline-grid;
-  place-items: center;
-  width: 25px;
-  height: 25px;
-  margin-left: 3px;
-  border-radius: 7px;
-  background: color-mix(in srgb, var(--rank-color, #8bcaff) 13%, transparent);
-  box-shadow: 0 0 10px var(--rank-glow, transparent);
+.home-profile-rank-panel {
+  --rank-color: #9299a5;
+  --rank-glow: rgba(120, 130, 145, 0.15);
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 245px);
+  min-width: 0;
+  margin-top: 3px;
+  padding: 8px 11px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--rank-color) 45%, transparent);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--rank-color) 10%, #09172d);
+  box-shadow: inset 0 0 16px var(--rank-glow);
 }
 
-.home-profile-rank-wrap img {
+.home-profile-rank-panel::before {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  inset: -150%;
+  background: conic-gradient(
+    transparent 0deg,
+    transparent 245deg,
+    var(--rank-color) 295deg,
+    transparent 335deg
+  );
+  opacity: 0;
+  animation: none;
+}
+
+.home-profile-rank-panel::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 1px;
+  border-radius: 10px;
+  background: linear-gradient(110deg,
+    color-mix(in srgb, var(--rank-color) 12%, #07152f),
+    #09172d 78%);
+}
+
+.home-profile-rank-panel.rank-emerald::before,
+.home-profile-rank-panel.rank-diamond::before,
+.home-profile-rank-panel.rank-nether-star::before,
+.home-profile-rank-panel.rank-golden-apple::before,
+.home-profile-rank-panel.rank-lava::before,
+.home-profile-rank-panel.rank-elytra::before {
+  opacity: 1;
+  animation: rank-frame-spin 4.5s linear infinite;
+}
+
+.home-profile-rank-icon-wrap {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  flex: 0 0 39px;
+  width: 39px;
+  height: 39px;
+  border-radius: 8px;
+  background: var(--rank-glow);
+  box-shadow: 0 0 13px var(--rank-glow);
+}
+
+.home-profile-rank-icon-wrap img {
   display: block;
-  width: 21px;
-  height: 21px;
+  width: 31px;
+  height: 31px;
   object-fit: contain;
   image-rendering: pixelated;
 }
 
-.home-profile-card.rank-emerald .home-profile-rank-wrap,
-.home-profile-card.rank-diamond .home-profile-rank-wrap,
-.home-profile-card.rank-nether-star .home-profile-rank-wrap,
-.home-profile-card.rank-golden-apple .home-profile-rank-wrap,
-.home-profile-card.rank-lava .home-profile-rank-wrap,
-.home-profile-card.rank-elytra .home-profile-rank-wrap {
-  animation: rank-badge-pulse 2.8s ease-in-out infinite;
+.home-profile-rank-details {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.home-profile-rank-details > strong {
+  color: var(--rank-color);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .35px;
+  text-shadow: 0 0 9px var(--rank-glow);
+}
+
+.home-profile-exp-track {
+  display: block;
+  width: 100%;
+  height: 4px;
+  margin-top: 2px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(255,255,255,.12);
+}
+
+.home-profile-exp-track > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--rank-color);
+  box-shadow: 0 0 8px var(--rank-color);
+  transition: width .5s ease;
+}
+
+.home-profile-rank-details > small {
+  color: #91a5c4;
+  font-size: 9px;
+  line-height: 1.2;
+}
+
+.home-profile-rank-panel.rank-coal { --rank-color:#9299a5; --rank-glow:rgba(120,130,145,.15); }
+.home-profile-rank-panel.rank-copper { --rank-color:#e58b50; --rank-glow:rgba(229,139,80,.2); }
+.home-profile-rank-panel.rank-iron { --rank-color:#bdc7d2; --rank-glow:rgba(189,199,210,.18); }
+.home-profile-rank-panel.rank-gold { --rank-color:#ffd34e; --rank-glow:rgba(255,211,78,.2); }
+.home-profile-rank-panel.rank-emerald { --rank-color:#36e879; --rank-glow:rgba(30,255,105,.3); }
+.home-profile-rank-panel.rank-diamond { --rank-color:#42dfff; --rank-glow:rgba(66,223,255,.3); }
+.home-profile-rank-panel.rank-nether-star { --rank-color:#b9d9ff; --rank-glow:rgba(185,217,255,.3); }
+.home-profile-rank-panel.rank-golden-apple { --rank-color:#ffd34e; --rank-glow:rgba(255,211,78,.3); }
+.home-profile-rank-panel.rank-lava { --rank-color:#ff6538; --rank-glow:rgba(255,75,35,.3); }
+.home-profile-rank-panel.rank-elytra { --rank-color:#b78aff; --rank-glow:rgba(183,138,255,.35); }
+
+.rank-effects-lite .home-profile-rank-panel.rank-emerald::before,
+.rank-effects-lite .home-profile-rank-panel.rank-diamond::before,
+.rank-effects-lite .home-profile-rank-panel.rank-nether-star::before,
+.rank-effects-lite .home-profile-rank-panel.rank-golden-apple::before,
+.rank-effects-lite .home-profile-rank-panel.rank-lava::before,
+.rank-effects-lite .home-profile-rank-panel.rank-elytra::before {
+  animation-duration: 9s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-profile-rank-panel::before { animation: none !important; }
 }
 
 @keyframes rank-badge-pulse {
