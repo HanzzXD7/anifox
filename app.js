@@ -17,6 +17,22 @@ const SUPABASE_PUBLIC_KEY =
 const AVATAR_BUCKET = 'avatars';
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
 
+/* Keep rank animations lighter on devices with limited resources */
+(() => {
+  const lowMemory =
+    typeof navigator.deviceMemory === 'number' &&
+    navigator.deviceMemory <= 4;
+  const lowCpu =
+    typeof navigator.hardwareConcurrency === 'number' &&
+    navigator.hardwareConcurrency <= 4;
+  const reducedMotion =
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+  if (lowMemory || lowCpu || reducedMotion) {
+    document.documentElement.classList.add('rank-effects-lite');
+  }
+})();
+
 const $ = id => document.getElementById(id);
 
 const WATCH_KEY = 'anifox_watchlist_v3';
