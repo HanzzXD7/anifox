@@ -768,6 +768,7 @@ function renderHomeProfile(data, user) {
   const nameElement = $('home-profile-name');
   const publicIdElement = $('home-profile-id');
   const levelElement = $('home-profile-level');
+  const rankIconElement = $('home-profile-rank-icon');
 
   if (avatarElement) {
     if (avatar) {
@@ -790,6 +791,11 @@ function renderHomeProfile(data, user) {
   if (levelElement) {
     levelElement.textContent =
       level.toLocaleString('id-ID');
+  }
+
+  if (rankIconElement) {
+    rankIconElement.src = `assets/ranks/${rank.icon}.svg`;
+    rankIconElement.alt = `${rank.name} material`;
   }
 
   if (card) {
@@ -827,7 +833,7 @@ function renderRank(level, exp, role) {
   }
 
   if (icon) {
-    icon.src = `assets/ranks/${rank.icon}.png`;
+    icon.src = `assets/ranks/${rank.icon}.svg`;
     icon.alt = `${rank.name} emblem`;
 
     icon.onerror = () => {
