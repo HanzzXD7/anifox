@@ -763,7 +763,7 @@ function renderHomeProfile(data, user) {
 
   if (levelElement) {
     levelElement.textContent =
-      `Lv. ${level.toLocaleString('id-ID')}`;
+      level.toLocaleString('id-ID');
   }
 
   if (card) {
