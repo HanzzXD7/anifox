@@ -41,7 +41,11 @@ const state = {
 
   searchKeyword: '',
   searchPage: 1,
-  searchHasNextPage: false
+  searchHasNextPage: false,
+
+  socialConnections: [],
+  socialSearchResult: null,
+  socialPanelMode: ''
 };
 
 // ========================================
@@ -178,6 +182,27 @@ function bindEvents() {
     'change',
     previewProfileAvatar
   );
+
+  $('social-fab')?.addEventListener('click', toggleSocialMenu);
+  $('social-open-friends')?.addEventListener('click', () => {
+    openSocialPanel('friends');
+  });
+  $('social-open-add')?.addEventListener('click', () => {
+    openSocialPanel('add');
+  });
+  $('social-panel-close')?.addEventListener('click', closeSocialPanel);
+  $('social-refresh')?.addEventListener('click', loadSocialLine);
+  $('social-comment-submit')?.addEventListener('click', submitEpisodeComment);
+
+  $('social-panel-content')?.addEventListener('click', event => {
+    const actionButton = event.target.closest('[data-social-action]');
+    if (!actionButton) return;
+
+    handleSocialRequestAction(
+      actionButton.dataset.socialAction,
+      actionButton.dataset.requestId
+    );
+  });
 }
 
 // ========================================
@@ -455,6 +480,10 @@ function navigate(page) {
 
   if (page === 'profile') {
     loadProfile();
+  }
+
+  if (page === 'social') {
+    loadSocialLine();
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1832,7 +1861,14 @@ function handleEpisodeClick(event) {
 
   if (!button || !state.current) return;
 
-  openPlayer(Number(button.dataset.episode));
+  state.currentEpisode = Number(button.dataset.episode) || 1;
+
+  const episodeInput = $('social-comment-episode');
+  if (episodeInput) {
+    episodeInput.value = String(state.currentEpisode);
+  }
+
+  openPlayer(state.currentEpisode);
 }
 
 // ========================================
@@ -1987,6 +2023,458 @@ function stopBstation() {
 
   if ($('video-empty')) {
     $('video-empty').style.display = 'flex';
+  }
+}
+
+// ========================================
+// SOCIAL LINE — FRIENDS & ACTIVITY
+// ========================================
+
+function toggleSocialMenu() {
+  const menu = $('social-action-menu');
+  const button = $('social-fab');
+
+  if (!menu || !button) return;
+
+  const opening = menu.classList.contains('hidden');
+  menu.classList.toggle('hidden', !opening);
+  button.setAttribute('aria-expanded', String(opening));
+}
+
+function closeSocialMenu() {
+  $('social-action-menu')?.classList.add('hidden');
+  $('social-fab')?.setAttribute('aria-expanded', 'false');
+}
+
+function closeSocialPanel() {
+  $('social-panel')?.classList.add('hidden');
+  state.socialPanelMode = '';
+}
+
+function openSocialPanel(mode) {
+  if (!authSession?.user) {
+    toast('Silakan login terlebih dahulu.');
+    return;
+  }
+
+  closeSocialMenu();
+
+  const panel = $('social-panel');
+  const title = $('social-panel-title');
+  const content = $('social-panel-content');
+
+  if (!panel || !title || !content) return;
+
+  state.socialPanelMode = mode;
+  panel.classList.remove('hidden');
+
+  if (mode === 'friends') {
+    title.textContent = 'Daftar Teman';
+    content.innerHTML = '<div class="empty-message">Memuat daftar teman...</div>';
+    loadSocialConnections().then(renderSocialFriendsPanel);
+    return;
+  }
+
+  title.textContent = 'Tambah Teman';
+  content.innerHTML = `
+    <div class="social-search-form">
+      <label class="social-input-label" for="social-search-input">
+        Cari menggunakan ID publik
+      </label>
+      <div class="social-search-row">
+        <input id="social-search-input"
+          class="social-text-input"
+          type="search"
+          inputmode="numeric"
+          maxlength="16"
+          placeholder="#123"
+          autocomplete="off">
+        <button id="social-search-submit"
+          class="primary-button" type="button">Cari</button>
+      </div>
+      <p id="social-search-message" class="social-panel-message">
+        Masukkan ID publik teman, misalnya #123.
+      </p>
+      <div id="social-search-result"></div>
+    </div>
+  `;
+
+  $('social-search-submit')?.addEventListener('click', searchSocialUser);
+  $('social-search-input')?.addEventListener('keydown', event => {
+    if (event.key === 'Enter') searchSocialUser();
+  });
+}
+
+async function loadSocialConnections() {
+  if (!supabaseClient || !authSession?.user) {
+    throw new Error('Silakan login terlebih dahulu.');
+  }
+
+  const { data, error } = await supabaseClient.rpc(
+    'get_my_social_connections'
+  );
+
+  if (error) throw error;
+
+  state.socialConnections = Array.isArray(data) ? data : [];
+  return state.socialConnections;
+}
+
+async function loadSocialLine() {
+  const feed = $('social-feed');
+  if (!feed) return;
+
+  if (!supabaseClient || !authSession?.user) {
+    feed.innerHTML = '<div class="empty-message">Silakan login untuk menggunakan Social Line.</div>';
+    return;
+  }
+
+  feed.innerHTML = '<div class="empty-message">Memuat aktivitas teman...</div>';
+
+  try {
+    const [activityResult, connectionResult] = await Promise.all([
+      supabaseClient.rpc('get_social_activity_v1'),
+      loadSocialConnections()
+    ]);
+
+    if (activityResult.error) throw activityResult.error;
+
+    const activities = Array.isArray(activityResult.data)
+      ? activityResult.data
+      : [];
+
+    renderSocialActivity(activities);
+
+  } catch (error) {
+    console.error('Social Line load error:', error);
+    feed.innerHTML = `
+      <div class="empty-message">
+        Social Line gagal dimuat. ${esc(error.message || 'Coba lagi.')}
+      </div>
+    `;
+  }
+}
+
+function renderSocialActivity(items) {
+  const feed = $('social-feed');
+  if (!feed) return;
+
+  if (!items.length) {
+    feed.innerHTML = `
+      <div class="social-empty-state">
+        <div class="social-empty-icon">◎</div>
+        <strong>Belum ada aktivitas teman</strong>
+        <p>Tambahkan teman dan tunggu komentar episode mereka muncul di sini.</p>
+      </div>
+    `;
+    return;
+  }
+
+  feed.innerHTML = items.map(item => {
+    const username = esc(item.username || 'Pengguna AniFoX');
+    const avatar = esc(item.avatar_url || 'anifox-logo.png');
+    const animeTitle = esc(item.anime_title || 'Anime');
+    const animeCover = esc(item.anime_cover || '');
+    const episode = Number(item.episode_number) || 1;
+    const comment = esc(item.comment || '');
+    const publicNumber = item.public_number != null
+      ? '#' + esc(item.public_number)
+      : '#—';
+
+    const date = item.created_at
+      ? new Date(item.created_at).toLocaleString('id-ID', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        })
+      : '';
+
+    return `
+      <article class="social-activity-card">
+        <div class="social-activity-top">
+          <img class="social-avatar" src="${avatar}"
+            alt="" loading="lazy"
+            onerror="this.src='anifox-logo.png'">
+          <div class="social-activity-user">
+            <strong>${username}</strong>
+            <span>${publicNumber} · ${esc(date)}</span>
+          </div>
+        </div>
+        <div class="social-activity-anime">
+          ${animeCover ? `<img src="${animeCover}" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
+          <div>
+            <strong>${animeTitle}</strong>
+            <span>Episode ${episode}</span>
+          </div>
+        </div>
+        <p class="social-activity-comment">${comment}</p>
+      </article>
+    `;
+  }).join('');
+}
+
+function renderSocialFriendsPanel() {
+  const content = $('social-panel-content');
+  if (!content) return;
+
+  const friends = state.socialConnections.filter(item =>
+    item.status === 'accepted'
+  );
+  const incoming = state.socialConnections.filter(item =>
+    item.status === 'pending' && item.direction === 'incoming'
+  );
+  const outgoing = state.socialConnections.filter(item =>
+    item.status === 'pending' && item.direction === 'outgoing'
+  );
+
+  const personRow = item => `
+    <div class="social-person-row">
+      <img class="social-avatar" src="${esc(item.avatar_url || 'anifox-logo.png')}"
+        alt="" onerror="this.src='anifox-logo.png'">
+      <div class="social-person-info">
+        <strong>${esc(item.username || 'Pengguna AniFoX')}</strong>
+        <span>#${esc(item.public_number ?? '—')}</span>
+      </div>
+      ${item.status === 'pending' && item.direction === 'incoming' ? `
+        <div class="social-row-actions">
+          <button type="button" data-social-action="accept"
+            data-request-id="${esc(item.request_id)}">Terima</button>
+          <button type="button" data-social-action="reject"
+            data-request-id="${esc(item.request_id)}">Tolak</button>
+        </div>
+      ` : ''}
+      ${item.status === 'pending' && item.direction === 'outgoing' ? `
+        <button class="social-subtle-action" type="button"
+          data-social-action="cancel"
+          data-request-id="${esc(item.request_id)}">Batalkan</button>
+      ` : ''}
+    </div>
+  `;
+
+  content.innerHTML = `
+    <section class="social-list-section">
+      <h3>Teman (${friends.length})</h3>
+      ${friends.length
+        ? friends.map(personRow).join('')
+        : '<p class="social-panel-message">Belum ada teman. Coba tambahkan teman menggunakan ID publik.</p>'}
+    </section>
+    <section class="social-list-section">
+      <h3>Permintaan masuk (${incoming.length})</h3>
+      ${incoming.length
+        ? incoming.map(personRow).join('')
+        : '<p class="social-panel-message">Tidak ada permintaan masuk.</p>'}
+    </section>
+    <section class="social-list-section">
+      <h3>Permintaan terkirim (${outgoing.length})</h3>
+      ${outgoing.length
+        ? outgoing.map(personRow).join('')
+        : '<p class="social-panel-message">Tidak ada permintaan terkirim.</p>'}
+    </section>
+  `;
+}
+
+async function searchSocialUser() {
+  const input = $('social-search-input');
+  const message = $('social-search-message');
+  const resultHost = $('social-search-result');
+
+  if (!input || !message || !resultHost) return;
+
+  const publicNumber = Number(
+    input.value.trim().replace(/^#/, '')
+  );
+
+  if (!Number.isSafeInteger(publicNumber) || publicNumber < 1) {
+    message.textContent = 'Masukkan ID angka yang valid, misalnya #123.';
+    resultHost.innerHTML = '';
+    return;
+  }
+
+  message.textContent = 'Mencari akun...';
+  resultHost.innerHTML = '';
+  state.socialSearchResult = null;
+
+  try {
+    const { data, error } = await supabaseClient.rpc(
+      'search_profile_by_number',
+      { p_public_number: publicNumber }
+    );
+
+    if (error) throw error;
+
+    const profile = Array.isArray(data) ? data[0] : null;
+
+    if (!profile) {
+      message.textContent = 'Akun dengan ID tersebut tidak ditemukan.';
+      return;
+    }
+
+    state.socialSearchResult = profile;
+    const existing = state.socialConnections.find(item =>
+      item.user_id === profile.id
+    );
+
+    message.textContent = '';
+
+    resultHost.innerHTML = `
+      <div class="social-search-result">
+        <img class="social-avatar"
+          src="${esc(profile.avatar_url || 'anifox-logo.png')}"
+          alt="" onerror="this.src='anifox-logo.png'">
+        <div class="social-person-info">
+          <strong>${esc(profile.username || 'Pengguna AniFoX')}</strong>
+          <span>#${esc(profile.public_number)}</span>
+        </div>
+        ${existing
+          ? `<span class="social-existing-status">${existing.status === 'accepted' ? 'Sudah berteman' : existing.direction === 'incoming' ? 'Menunggu responsmu' : 'Permintaan terkirim'}</span>`
+          : '<button id="social-send-request" class="primary-button" type="button">Tambah</button>'}
+      </div>
+    `;
+
+    $('social-send-request')?.addEventListener('click', sendSocialFriendRequest);
+
+  } catch (error) {
+    console.error('Social search error:', error);
+    message.textContent = error.message || 'Pencarian gagal. Coba lagi.';
+  }
+}
+
+async function sendSocialFriendRequest() {
+  const profile = state.socialSearchResult;
+
+  if (!profile || !authSession?.user) return;
+
+  const button = $('social-send-request');
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Mengirim...';
+  }
+
+  try {
+    const { error } = await supabaseClient
+      .from('friend_requests')
+      .insert({
+        sender_id: authSession.user.id,
+        receiver_id: profile.id
+      });
+
+    if (error) throw error;
+
+    toast('Permintaan pertemanan berhasil dikirim.');
+    await loadSocialConnections();
+    await searchSocialUser();
+
+  } catch (error) {
+    console.error('Send friend request error:', error);
+    toast(error.message || 'Permintaan gagal dikirim.');
+    if (button) {
+      button.disabled = false;
+      button.textContent = 'Tambah';
+    }
+  }
+}
+
+async function handleSocialRequestAction(action, requestId) {
+  if (!requestId || !authSession?.user) return;
+
+  try {
+    let result;
+
+    if (action === 'accept' || action === 'reject') {
+      result = await supabaseClient
+        .from('friend_requests')
+        .update({
+          status: action === 'accept' ? 'accepted' : 'rejected'
+        })
+        .eq('id', requestId)
+        .eq('receiver_id', authSession.user.id)
+        .eq('status', 'pending');
+    } else if (action === 'cancel') {
+      result = await supabaseClient
+        .from('friend_requests')
+        .delete()
+        .eq('id', requestId)
+        .eq('sender_id', authSession.user.id)
+        .eq('status', 'pending');
+    } else {
+      return;
+    }
+
+    if (result.error) throw result.error;
+
+    toast(
+      action === 'accept' ? 'Permintaan diterima.' :
+      action === 'reject' ? 'Permintaan ditolak.' :
+      'Permintaan dibatalkan.'
+    );
+
+    await loadSocialConnections();
+    renderSocialFriendsPanel();
+    await loadSocialLine();
+
+  } catch (error) {
+    console.error('Friend request action error:', error);
+    toast(error.message || 'Aksi pertemanan gagal.');
+  }
+}
+
+async function submitEpisodeComment() {
+  if (!supabaseClient || !authSession?.user) {
+    toast('Silakan login untuk mengirim komentar.');
+    return;
+  }
+
+  if (!state.current || !isAllowedAnime(state.current)) {
+    toast('Pilih anime terlebih dahulu.');
+    return;
+  }
+
+  const input = $('social-comment-text');
+  const episodeInput = $('social-comment-episode');
+  const comment = input?.value.trim() || '';
+  const episode = Number(episodeInput?.value || state.currentEpisode || 1);
+
+  if (!comment || comment.length > 1000) {
+    toast('Komentar harus berisi 1–1000 karakter.');
+    return;
+  }
+
+  if (!Number.isInteger(episode) || episode < 1 || episode > 9999) {
+    toast('Nomor episode tidak valid.');
+    return;
+  }
+
+  const button = $('social-comment-submit');
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Mengirim...';
+  }
+
+  try {
+    const { error } = await supabaseClient
+      .from('episode_comments')
+      .insert({
+        user_id: authSession.user.id,
+        anime_id: Number(state.current.id),
+        anime_title: titleOf(state.current),
+        anime_cover: imageOf(state.current) || null,
+        episode_number: episode,
+        comment
+      });
+
+    if (error) throw error;
+
+    input.value = '';
+    state.currentEpisode = episode;
+    toast('Komentar berhasil dikirim. Temanmu bisa melihatnya di Social Line.');
+
+  } catch (error) {
+    console.error('Episode comment error:', error);
+    toast(error.message || 'Komentar gagal dikirim.');
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = 'Kirim Komentar';
+    }
   }
 }
 
