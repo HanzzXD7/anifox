@@ -785,7 +785,6 @@ function renderHomeProfile(data, user) {
   const publicIdElement = $('home-profile-id');
   const levelElement = $('home-profile-level');
   const rankPanel = $('home-profile-rank-panel');
-  const rankNameElement = $('home-profile-rank-name');
   const rankExpProgress = $('home-profile-exp-progress');
   const rankExpText = $('home-profile-exp-text');
   const rankIconElement = $('home-profile-rank-icon');
@@ -816,10 +815,6 @@ function renderHomeProfile(data, user) {
 
   if (rankPanel) {
     rankPanel.className = `home-profile-rank-panel ${rank.className}`;
-  }
-
-  if (rankNameElement) {
-    rankNameElement.textContent = rank.name;
   }
 
   if (rankExpProgress) {
