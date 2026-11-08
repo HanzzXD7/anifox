@@ -2634,7 +2634,7 @@ button:focus-visible {
 .home-profile-level {
   display: block;
   color: var(--rank-color, #8bcaff);
-  font: 800 12px "DM Mono", monospace;
+  font: 800 10px "DM Mono", monospace;
   line-height: 1.2;
 }
 
@@ -2645,11 +2645,12 @@ button:focus-visible {
   isolation: isolate;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  width: min(100%, 245px);
+  gap: 6px;
+  width: fit-content;
+  max-width: 132px;
   min-width: 0;
-  margin-top: 3px;
-  padding: 8px 11px;
+  margin-top: 2px;
+  padding: 5px 7px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--rank-color) 45%, transparent);
   border-radius: 11px;
@@ -2698,18 +2699,18 @@ button:focus-visible {
   z-index: 1;
   display: grid;
   place-items: center;
-  flex: 0 0 39px;
-  width: 39px;
-  height: 39px;
-  border-radius: 8px;
+  flex: 0 0 25px;
+  width: 25px;
+  height: 25px;
+  border-radius: 6px;
   background: var(--rank-glow);
   box-shadow: 0 0 13px var(--rank-glow);
 }
 
 .home-profile-rank-icon-wrap img {
   display: block;
-  width: 31px;
-  height: 31px;
+  width: 20px;
+  height: 20px;
   object-fit: contain;
   image-rendering: pixelated;
 }
