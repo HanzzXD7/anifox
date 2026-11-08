@@ -2025,11 +2025,28 @@ button:focus-visible {
   min-width: 0;
 }
 
-.profile-user-info h2 {
-  font-size: 19px;
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
   margin: 0 0 5px;
+}
+
+.profile-name-row h2 {
+  min-width: 0;
+  margin: 0;
   color: #f2f7ff;
+  font-size: 19px;
   overflow-wrap: anywhere;
+}
+
+.profile-user-id {
+  flex: 0 0 auto;
+  color: #7ebfff;
+  font: 700 11px "DM Mono", monospace;
+  white-space: nowrap;
 }
 
 .profile-user-info p {
@@ -2050,23 +2067,6 @@ button:focus-visible {
   letter-spacing: 1px;
 }
 
-.profile-divider {
-  height: 1px;
-  background: rgba(150, 180, 230, 0.12);
-  margin: 20px 0;
-}
-
-.profile-id-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.profile-id-row > div {
-  min-width: 0;
-}
-
 .profile-label,
 .profile-input-label {
   display: block;
@@ -2077,20 +2077,19 @@ button:focus-visible {
   margin-bottom: 7px;
 }
 
-.profile-id-row strong {
-  color: #e5efff;
-  font-size: 13px;
-  overflow-wrap: anywhere;
-}
-
 .profile-copy-button {
-  background: rgba(65, 155, 255, 0.12);
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  padding: 0;
   border: 1px solid rgba(65, 155, 255, 0.25);
+  border-radius: 7px;
+  background: rgba(65, 155, 255, 0.12);
   color: #83c1ff;
-  border-radius: 8px;
-  padding: 9px 12px;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
 }
 
 /* ========================================
