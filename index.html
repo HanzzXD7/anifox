@@ -153,6 +153,17 @@
           <span>♡</span>Watchlist
         </button>
 
+        <button class="nav-item" data-page="social">
+          <span class="social-nav-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-5 4v-4.4A2.5 2.5 0 0 1 4 13.5z"></path>
+              <circle cx="9" cy="9.5" r="1"></circle>
+              <circle cx="12" cy="9.5" r="1"></circle>
+              <circle cx="15" cy="9.5" r="1"></circle>
+            </svg>
+          </span>Social Line
+        </button>
+
       </nav>
 
       <div class="sidebar-note">
@@ -376,6 +387,62 @@
 
         </section>
 
+        <!-- SOCIAL LINE -->
+        <section id="page-social" class="page hidden social-page">
+
+          <div class="page-title">
+            <span class="eyebrow">YOUR ANIME CIRCLE</span>
+            <h1>Social Line</h1>
+            <p>Aktivitas terbaru dari teman-teman AniFoX.</p>
+          </div>
+
+          <div class="social-feed-heading">
+            <div>
+              <span class="eyebrow">FRIENDS ACTIVITY</span>
+              <h2>Aktivitas Teman</h2>
+            </div>
+            <button id="social-refresh" class="social-refresh-button"
+              type="button" aria-label="Muat ulang aktivitas">
+              ↻
+            </button>
+          </div>
+
+          <div id="social-feed" class="social-feed">
+            <div class="empty-message">Memuat aktivitas teman...</div>
+          </div>
+
+          <button id="social-fab" class="social-fab"
+            type="button" aria-label="Buka menu Social Line"
+            aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-5 4v-4.4A2.5 2.5 0 0 1 4 13.5z"></path>
+              <circle cx="9" cy="9.5" r="1"></circle>
+              <circle cx="12" cy="9.5" r="1"></circle>
+              <circle cx="15" cy="9.5" r="1"></circle>
+            </svg>
+          </button>
+
+          <div id="social-action-menu" class="social-action-menu hidden">
+            <button id="social-open-friends" type="button">
+              Daftar Teman
+            </button>
+            <button id="social-open-add" type="button">
+              Tambah Teman
+            </button>
+          </div>
+
+          <section id="social-panel" class="social-panel hidden"
+            aria-label="Panel Social Line">
+            <div class="social-panel-header">
+              <h2 id="social-panel-title">Social Line</h2>
+              <button id="social-panel-close" type="button"
+                aria-label="Tutup panel">×</button>
+            </div>
+            <div id="social-panel-content"></div>
+          </section>
+
+        </section>
+
         <!-- PROFILE -->
         <section id="page-profile"
           class="page hidden profile-page">
@@ -565,6 +632,36 @@
               yang sudah diverifikasi.
             </p>
 
+            <div class="episode-comment-box">
+              <div class="section-heading">
+                <div>
+                  <span class="eyebrow">SHARE YOUR THOUGHTS</span>
+                  <h2>Komentar Episode</h2>
+                </div>
+              </div>
+
+              <label class="social-input-label"
+                for="social-comment-episode">Nomor episode</label>
+              <input id="social-comment-episode"
+                class="social-text-input"
+                type="number" min="1" max="9999" value="1">
+
+              <label class="social-input-label"
+                for="social-comment-text">Komentar kamu</label>
+              <textarea id="social-comment-text"
+                class="social-textarea"
+                maxlength="1000" rows="3"
+                placeholder="Bagikan pendapatmu tentang episode ini..."></textarea>
+
+              <button id="social-comment-submit"
+                class="primary-button" type="button">
+                Kirim Komentar
+              </button>
+              <p class="muted-note">
+                Komentar akan muncul di Social Line teman yang sudah menerima pertemananmu.
+              </p>
+            </div>
+
           </section>
 
         </section>
@@ -625,7 +722,7 @@
 
     </div>
 
-    <!-- BOTTOM NAVIGATION: 3 BUTTONS -->
+    <!-- BOTTOM NAVIGATION: 4 BUTTONS -->
     <nav id="bottom-nav"
       class="bottom-nav" aria-label="Navigasi bawah">
 
@@ -645,6 +742,19 @@
         data-page="list" type="button">
         <span>♡</span>
         <small>Watchlist</small>
+      </button>
+
+      <button class="nav-item"
+        data-page="social" type="button">
+        <span class="social-nav-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-5 4v-4.4A2.5 2.5 0 0 1 4 13.5z"></path>
+            <circle cx="9" cy="9.5" r="1"></circle>
+            <circle cx="12" cy="9.5" r="1"></circle>
+            <circle cx="15" cy="9.5" r="1"></circle>
+          </svg>
+        </span>
+        <small>Social Line</small>
       </button>
 
     </nav>
