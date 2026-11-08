@@ -2732,31 +2732,8 @@ button:focus-visible {
   text-shadow: 0 0 9px var(--rank-glow);
 }
 
-.home-profile-exp-track {
-  display: block;
-  width: 100%;
-  height: 4px;
-  margin-top: 2px;
-  overflow: hidden;
-  border-radius: 8px;
-  background: rgba(255,255,255,.12);
-}
 
-.home-profile-exp-track > span {
-  display: block;
-  width: 0;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--rank-color);
-  box-shadow: 0 0 8px var(--rank-color);
-  transition: width .5s ease;
-}
 
-.home-profile-rank-details > small {
-  color: #91a5c4;
-  font-size: 9px;
-  line-height: 1.2;
-}
 
 .home-profile-rank-panel.rank-coal { --rank-color:#9299a5; --rank-glow:rgba(120,130,145,.15); }
 .home-profile-rank-panel.rank-copper { --rank-color:#e58b50; --rank-glow:rgba(229,139,80,.2); }
