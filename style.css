@@ -2372,3 +2372,339 @@ button:focus-visible {
     animation: none;
   }
 }
+
+/* ========================================
+   AniFoX — ONBOARDING & HOME PROFILE UPDATE
+   ======================================== */
+
+/* Fix missing variables */
+:root {
+  --line-hot: #315477;
+  --cyan: #65b5ff;
+}
+
+/* ========================================
+   1. ONBOARDING PAGE SEPARATORS
+   ======================================== */
+
+.onboarding-page {
+  position: relative;
+  min-height: 100svh;
+  padding-bottom: 115px;
+  border-bottom: 1px solid rgba(101, 181, 255, 0.18);
+}
+
+.onboarding-page:last-child {
+  border-bottom: 0;
+}
+
+.onboarding-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Subtle page number decoration */
+.onboarding-page-number {
+  padding-top: 15px;
+  border-top: 1px solid rgba(101, 181, 255, 0.15);
+  width: fit-content;
+}
+
+/* ========================================
+   2. ONBOARDING SWIPE HINT
+   ======================================== */
+
+.onboarding-hint {
+  position: fixed;
+  z-index: 20;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  color: #91a9c8;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.onboarding-hint::before {
+  content: "↑";
+  display: block;
+  color: #65b5ff;
+  font-size: 23px;
+  line-height: 1;
+  animation: onboarding-arrow-up 1.25s ease-in-out infinite;
+}
+
+@keyframes onboarding-arrow-up {
+  0%, 100% {
+    opacity: 0.55;
+    transform: translateY(5px);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+/* Keep onboarding content clear of the hint */
+.onboarding-page {
+  padding-bottom: 125px;
+}
+
+/* ========================================
+   3. GOOGLE LOGIN BUTTON
+   ======================================== */
+
+.google-login-button {
+  margin-top: 34px;
+  min-height: 56px;
+  padding: 0 20px;
+  gap: 12px;
+  border: 1px solid #d9e0e9;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #263445;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.google-login-button:hover {
+  background: #f1f5fa;
+  transform: translateY(-1px);
+}
+
+.google-login-button:active {
+  transform: scale(0.98);
+}
+
+.google-login-button .google-logo {
+  display: block;
+  width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  object-fit: contain;
+}
+
+.google-login-button .google-button-label {
+  color: #263445;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* Remove the old blue G styling */
+.google-login-button > span {
+  color: inherit;
+  font-size: inherit;
+}
+
+/* ========================================
+   4. HOME PROFILE SHORTCUT
+   ======================================== */
+
+.home-profile-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+  margin: 0 0 25px;
+  padding: 15px 16px;
+  overflow: hidden;
+  border: 1px solid rgba(101, 181, 255, 0.16);
+  border-radius: 14px;
+  background:
+    linear-gradient(
+      110deg,
+      rgba(37, 131, 245, 0.12),
+      rgba(20, 28, 40, 0.96) 65%
+    );
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.home-profile-card:hover {
+  border-color: rgba(101, 181, 255, 0.42);
+  background:
+    linear-gradient(
+      110deg,
+      rgba(37, 131, 245, 0.17),
+      rgba(20, 28, 40, 0.98) 65%
+    );
+}
+
+.home-profile-card:active {
+  transform: scale(0.985);
+}
+
+.home-profile-avatar {
+  width: 49px;
+  height: 49px;
+  flex: 0 0 49px;
+  overflow: hidden;
+  border: 2px solid rgba(101, 181, 255, 0.55);
+  border-radius: 50%;
+  background: #17283e;
+  object-fit: cover;
+}
+
+.home-profile-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.home-profile-name {
+  overflow: hidden;
+  color: #edf5ff;
+  font-size: 13px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-profile-level {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px 8px;
+  overflow: hidden;
+  border: 1px solid rgba(101, 181, 255, 0.18);
+  border-radius: 6px;
+  background: rgba(37, 131, 245, 0.10);
+  color: #8bcaff;
+  font: 700 10px "DM Mono", monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-profile-arrow {
+  flex: 0 0 auto;
+  color: #7ebfff;
+  font-size: 20px;
+  transition: transform 0.2s ease;
+}
+
+.home-profile-card:hover .home-profile-arrow {
+  transform: translateX(3px);
+}
+
+/* ========================================
+   5. RANK CARD — LOW TIERS WITHOUT GLOW
+   ======================================== */
+
+.rank-coal,
+.rank-copper,
+.rank-iron,
+.rank-gold {
+  animation: none;
+}
+
+.rank-coal::before,
+.rank-copper::before,
+.rank-iron::before,
+.rank-gold::before {
+  display: none;
+}
+
+/* Emerald and above receive animated frames */
+.rank-emerald::before,
+.rank-diamond::before,
+.rank-nether-star::before,
+.rank-golden-apple::before,
+.rank-lava::before,
+.rank-elytra::before {
+  display: block;
+}
+
+/* Special DEV / Elytra visual */
+.rank-elytra {
+  --rank-color: #bd9aff;
+  --rank-glow: rgba(183, 138, 255, 0.42);
+  animation: elytra-pulse 2.4s ease-in-out infinite;
+}
+
+.rank-elytra::before {
+  animation-duration: 2.2s;
+}
+
+@keyframes elytra-pulse {
+  0%, 100% {
+    filter: brightness(1);
+  }
+
+  50% {
+    filter: brightness(1.22);
+  }
+}
+
+/* ========================================
+   6. MOBILE ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 600px) {
+  .home-profile-card {
+    gap: 12px;
+    padding: 13px;
+    margin-bottom: 21px;
+    border-radius: 12px;
+  }
+
+  .home-profile-avatar {
+    width: 45px;
+    height: 45px;
+    flex-basis: 45px;
+  }
+
+  .home-profile-name {
+    font-size: 12px;
+  }
+
+  .home-profile-level {
+    font-size: 9px;
+  }
+
+  .onboarding-hint {
+    bottom: calc(15px + env(safe-area-inset-bottom));
+    font-size: 10px;
+  }
+
+  .google-login-button {
+    margin-top: 30px;
+    min-height: 53px;
+  }
+}
+
+/* ========================================
+   7. ACCESSIBILITY
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-hint::before,
+  .rank-elytra {
+    animation: none !important;
+  }
+
+  .home-profile-card,
+  .home-profile-arrow {
+    transition: none !important;
+  }
+}
