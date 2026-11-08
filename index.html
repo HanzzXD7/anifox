@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -91,8 +92,14 @@
 
           <button id="google-login"
             class="google-login-button" type="button">
-            <span>G</span>
-            Login dengan Google
+            <img
+              class="google-logo"
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt=""
+              aria-hidden="true">
+            <span class="google-button-label">
+              Login dengan Google
+            </span>
           </button>
 
           <p id="login-message" class="login-message"></p>
@@ -103,9 +110,13 @@
 
     </div>
 
-    <p class="onboarding-hint">
-      Geser ke bawah untuk melanjutkan
-    </p>
+    <!-- PETUNJUK SWIPE DI BAWAH -->
+    <div class="onboarding-hint" aria-live="polite">
+      <span class="onboarding-hint-arrow" aria-hidden="true">↑</span>
+      <span class="onboarding-hint-text">
+        Geser ke atas untuk melanjutkan
+      </span>
+    </div>
 
   </section>
 
@@ -140,11 +151,6 @@
 
         <button class="nav-item" data-page="list">
           <span>♡</span>Watchlist
-        </button>
-
-        <!-- PROFILE NAVIGATION -->
-        <button class="nav-item" data-page="profile" type="button">
-          <span>♙</span>Profil Saya
         </button>
 
       </nav>
@@ -190,6 +196,32 @@
 
         <!-- HOME -->
         <section id="page-home" class="page active">
+
+          <!-- HOME PROFILE CARD -->
+          <button id="home-profile-card"
+            class="home-profile-card"
+            type="button"
+            aria-label="Buka profil AniFoX">
+
+            <span class="home-profile-avatar-wrap">
+              <img id="home-profile-avatar"
+                src="https://www.gravatar.com/avatar/?d=mp&s=96"
+                alt="Foto profil">
+            </span>
+
+            <span class="home-profile-copy">
+              <small>PROFIL ANIFOX</small>
+              <strong id="home-profile-name">
+                Pengguna AniFoX
+              </strong>
+              <span id="home-profile-level">Lv. 1</span>
+            </span>
+
+            <span class="home-profile-arrow" aria-hidden="true">
+              ›
+            </span>
+
+          </button>
 
           <section class="hero">
             <div class="hero-glow"></div>
@@ -345,7 +377,8 @@
         </section>
 
         <!-- PROFILE -->
-        <section id="page-profile" class="page hidden profile-page">
+        <section id="page-profile"
+          class="page hidden profile-page">
 
           <div class="page-title">
             <span class="eyebrow">YOUR ACCOUNT</span>
@@ -353,7 +386,6 @@
             <p>Identitas dan perjalananmu di AniFoX.</p>
           </div>
 
-          <!-- PROFILE INFORMATION -->
           <div class="profile-card">
 
             <div class="profile-user">
@@ -411,9 +443,7 @@
               </div>
 
               <div class="rank-info">
-
                 <strong id="profile-level">Lv. 1</strong>
-
                 <span id="profile-rank-name">Coal</span>
 
                 <div class="rank-exp-track">
@@ -421,7 +451,6 @@
                 </div>
 
                 <small id="profile-exp-text">0 EXP</small>
-
               </div>
 
             </div>
@@ -469,7 +498,6 @@
 
           </div>
 
-          <!-- LOGOUT -->
           <button id="logout-button"
             class="profile-logout-button"
             type="button">
@@ -604,14 +632,14 @@
 
     </div>
 
-    <!-- BOTTOM NAVIGATION -->
+    <!-- BOTTOM NAVIGATION: 3 BUTTONS -->
     <nav id="bottom-nav"
       class="bottom-nav" aria-label="Navigasi bawah">
 
       <button class="nav-item active"
         data-page="home" type="button">
         <span>⌂</span>
-        <small>Home</small>
+        <small>Beranda</small>
       </button>
 
       <button class="nav-item"
@@ -623,13 +651,7 @@
       <button class="nav-item"
         data-page="list" type="button">
         <span>♡</span>
-        <small>List</small>
-      </button>
-
-      <button class="nav-item"
-        data-page="profile" type="button">
-        <span>♙</span>
-        <small>Profil</small>
+        <small>Watchlist</small>
       </button>
 
     </nav>
