@@ -16,6 +16,27 @@ const SUPABASE_PUBLIC_KEY =
 
 const AVATAR_BUCKET = 'avatars';
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
+const MC_ITEM_SPRITE_BASE =
+  'https://mcasset.cloud/1.21.4/assets/minecraft/textures/item';
+
+const RANK_ITEM_SPRITES = {
+  coal: 'coal.png',
+  copper: 'copper_ingot.png',
+  iron: 'iron_ingot.png',
+  gold: 'gold_ingot.png',
+  emerald: 'emerald.png',
+  diamond: 'diamond.png',
+  'nether-star': 'nether_star.png',
+  'golden-apple': 'golden_apple.png',
+  lava: 'lava_bucket.png',
+  elytra: 'elytra.png'
+};
+
+function rankSpriteUrl(rankIcon) {
+  const file = RANK_ITEM_SPRITES[rankIcon] || RANK_ITEM_SPRITES.coal;
+  return `${MC_ITEM_SPRITE_BASE}/${file}`;
+}
+
 
 /* Keep rank animations lighter on devices with limited resources */
 (() => {
@@ -815,7 +836,7 @@ function renderHomeProfile(data, user) {
   }
 
   if (rankIconElement) {
-    rankIconElement.src = `assets/ranks/${rank.icon}.svg`;
+    rankIconElement.src = rankSpriteUrl(rank.icon);
     rankIconElement.alt = `${rank.name} material`;
   }
 
@@ -854,7 +875,7 @@ function renderRank(level, exp, role) {
   }
 
   if (icon) {
-    icon.src = `assets/ranks/${rank.icon}.svg`;
+    icon.src = rankSpriteUrl(rank.icon);
     icon.alt = `${rank.name} emblem`;
 
     icon.onerror = () => {
