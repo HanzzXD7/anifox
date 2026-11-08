@@ -80,7 +80,8 @@ async function initializeApp() {
         appStarted = false;
         profileData = null;
         profilePublicId = null;
-        showOnboarding(true);
+        localStorage.removeItem(ONBOARDING_KEY);
+        showOnboarding(false);
       }
     });
 
@@ -415,14 +416,14 @@ async function logoutAniFoX() {
     return;
   }
 
-  localStorage.setItem(ONBOARDING_KEY, 'true');
+  localStorage.removeItem(ONBOARDING_KEY);
 
   authSession = null;
   appStarted = false;
   profileData = null;
   profilePublicId = null;
 
-  showOnboarding(true);
+  showOnboarding(false);
 }
 
 // ========================================
