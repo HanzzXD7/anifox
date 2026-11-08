@@ -2612,6 +2612,43 @@ button:focus-visible {
   line-height: 1.2;
 }
 
+.home-profile-rank-wrap {
+  display: inline-grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  margin-left: 3px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--rank-color, #8bcaff) 13%, transparent);
+  box-shadow: 0 0 10px var(--rank-glow, transparent);
+}
+
+.home-profile-rank-wrap img {
+  display: block;
+  width: 21px;
+  height: 21px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.home-profile-card.rank-emerald .home-profile-rank-wrap,
+.home-profile-card.rank-diamond .home-profile-rank-wrap,
+.home-profile-card.rank-nether-star .home-profile-rank-wrap,
+.home-profile-card.rank-golden-apple .home-profile-rank-wrap,
+.home-profile-card.rank-lava .home-profile-rank-wrap,
+.home-profile-card.rank-elytra .home-profile-rank-wrap {
+  animation: rank-badge-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes rank-badge-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.28); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-profile-rank-wrap { animation: none !important; }
+}
+
 .home-profile-arrow {
   flex: 0 0 auto;
   color: #7ebfff;
