@@ -867,7 +867,8 @@ function renderRank(level, exp, role) {
   }
 
   if (rankName) {
-    rankName.style.display = 'none';
+    rankName.textContent = rank.name;
+    rankName.style.display = 'inline-flex';
   }
 
   if (expProgress) {
