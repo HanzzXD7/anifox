@@ -96,6 +96,7 @@ const state = {
   featured: null,
   watchlist: [],
   currentEpisode: 1,
+  detailRequestId: 0,
   previousPage: 'home',
   searchTimer: null,
   searchRequest: 0,
@@ -664,6 +665,42 @@ function normalizeAnimeList(records, providerId) {
     .map(record => normalizeAnimeRecord(record, providerId))
     .filter(Boolean)
     .filter(isAllowedAnime);
+}
+
+// Normalize the full AniList detail response before it reaches the UI.
+function normalizeAnimeDetail(record, providerId = 'anilist') {
+  const anime = normalizeAnimeRecord(record, providerId);
+  if (!anime) return null;
+
+  const streamingEpisodes = (Array.isArray(record.streamingEpisodes)
+    ? record.streamingEpisodes
+    : []
+  ).map(item => {
+    if (!item || typeof item !== 'object') return null;
+
+    try {
+      const url = new URL(item.url);
+      if (url.protocol !== 'https:') return null;
+
+      return {
+        title: String(item.title || 'Tonton episode'),
+        site: String(item.site || 'Layanan resmi'),
+        thumbnail: String(item.thumbnail || ''),
+        url: url.href
+      };
+    } catch {
+      return null;
+    }
+  }).filter(Boolean);
+
+  return {
+    ...anime,
+    streamingEpisodes,
+    tags: Array.isArray(record.tags) ? record.tags : [],
+    studios: record.studios && typeof record.studios === 'object'
+      ? record.studios
+      : { nodes: [] }
+  };
 }
 
 // Hentai disaring, Ecchi tetap diperbolehkan.
@@ -1424,7 +1461,13 @@ async function getAnimeDetail(id) {
   `;
 
   const data = await anilist(query, { id: Number(id) });
-  return data.Media;
+  const detail = normalizeAnimeDetail(data?.Media, 'anilist');
+
+  if (!detail) {
+    throw new Error('Detail anime tidak ditemukan atau datanya tidak valid.');
+  }
+
+  return detail;
 }
 
 // ========================================
@@ -1902,6 +1945,7 @@ async function openDetail(anime) {
     document.querySelector('.page.active')?.id.replace('page-', '') ||
     'home';
 
+  const requestId = ++state.detailRequestId;
   state.current = anime;
 
   navigate('detail');
@@ -1946,7 +1990,7 @@ async function openDetail(anime) {
   try {
     const detail = await getAnimeDetail(anime.id);
 
-    if (state.current?.id !== anime.id) return;
+    if (requestId !== state.detailRequestId) return;
 
     if (!isAllowedAnime(detail)) {
       state.current = null;
@@ -1987,11 +2031,14 @@ async function openDetail(anime) {
     renderOfficialStreamingLinks(detail.streamingEpisodes || []);
     updateWatchButton();
 
-  } catch {
+  } catch (error) {
+    if (requestId !== state.detailRequestId) return;
+
     $('detail-synopsis').textContent =
-      'Sinopsis belum berhasil dimuat.';
+      error?.message || 'Sinopsis belum berhasil dimuat.';
 
     renderEpisodes(anime);
+    renderOfficialStreamingLinks([]);
   }
 }
 
@@ -2053,7 +2100,25 @@ const ANIFOX_EPISODE_SOURCES = {};
 const ANIFOX_EMBED_HOSTS = [];
 
 function getEpisodeSource(anime, episode) {
-  return ANIFOX_EPISODE_SOURCES[`${anime?.id}:${episode}`] || null;
+  const source = ANIFOX_EPISODE_SOURCES[`${anime?.id}:${episode}`];
+  if (!source || typeof source !== 'object') return null;
+
+  const type = String(source.type || '').toLowerCase();
+  if (!['hls', 'mp4', 'embed'].includes(type)) return null;
+
+  try {
+    const url = new URL(source.url);
+    if (url.protocol !== 'https:') return null;
+
+    return {
+      ...source,
+      type,
+      url: url.href,
+      label: String(source.label || '')
+    };
+  } catch {
+    return null;
+  }
 }
 
 function getAllowedAniFoXEmbedUrl(rawUrl) {
