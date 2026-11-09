@@ -925,6 +925,7 @@ function renderRank(level, exp, role) {
   const icon = $('profile-rank-icon');
   const levelText = $('profile-level');
   const profileLevelBadge = $('profile-level-role');
+  const profileHeroCard = $('profile-hero-card');
   const profileLevelIcon = $('profile-level-icon');
   const rankName = $('profile-rank-name');
 
@@ -935,6 +936,15 @@ function renderRank(level, exp, role) {
       'rank-golden-apple', 'rank-lava', 'rank-elytra'
     );
     profileLevelBadge.classList.add(rank.className);
+  }
+
+  if (profileHeroCard) {
+    profileHeroCard.classList.remove(
+      'rank-coal', 'rank-copper', 'rank-iron', 'rank-gold',
+      'rank-emerald', 'rank-diamond', 'rank-nether-star',
+      'rank-golden-apple', 'rank-lava', 'rank-elytra'
+    );
+    profileHeroCard.classList.add(rank.className);
   }
 
   if (profileLevelIcon) {
