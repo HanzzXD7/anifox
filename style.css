@@ -3787,6 +3787,20 @@ button:focus-visible {
   .profile-hero-card { animation: none !important; }
 }
 
+/* Last watched episode marker */
+.episode-list .episode-button.episode-last-watched {
+  border-color: rgba(71, 211, 174, .62);
+  background: linear-gradient(105deg, rgba(13, 66, 66, .96), rgba(10, 39, 53, .98));
+  box-shadow: inset 3px 0 0 #48d7ae, 0 0 16px rgba(57, 211, 174, .10);
+}
+.episode-list .episode-button.episode-last-watched span {
+  color: #b8ffeb;
+}
+.episode-list .episode-button.episode-last-watched small {
+  color: #65e8c2;
+  font-weight: 800;
+}
+
 /* EPISODE LIST — vertical full-width rows */
 .episode-list {
   display: flex;
