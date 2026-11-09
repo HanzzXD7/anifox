@@ -1,7 +1,7 @@
 'use strict';
 
 // ========================================
-// AniFoX — AniList + AniLab + Bstation
+// AniFoX — AniList + AniLab + AniFoX Player
 // + Supabase + Google Login + User Profile
 // ========================================
 
@@ -1905,103 +1905,52 @@ async function openDetail(anime) {
 }
 
 // ========================================
-// BSTATION
+// EPISODE CATALOG
 // ========================================
 
-function normalizeTitle(value = '') {
-  return String(value).toLowerCase()
-    .replace(/\([^)]*\)/g, ' ')
-    .replace(/\[[^\]]*\]/g, ' ')
-    .replace(/[^a-z0-9]/g, '');
-}
+// Add only video URLs that AniFoX is authorized to play.
+const ANIFOX_EPISODE_SOURCES = {};
 
-const BSTATION_SERIES = [
-  {
-    aliases: [
-      'frierenbeyondjourneysend',
-      'sousounofrieren'
-    ],
-
-    seasonId: '2090295',
-
-    episodes: {
-      1: '12975044'
-    }
-  }
-];
-
-function getBstationSeries(anime) {
-  const titles = [
-    anime?.title?.english,
-    anime?.title?.romaji,
-    anime?.title?.native
-  ]
-    .filter(Boolean)
-    .map(normalizeTitle);
-
-  return BSTATION_SERIES.find(series =>
-    series.aliases.some(alias =>
-      titles.some(title =>
-        title.includes(alias) || alias.includes(title)
-      )
-    )
-  ) || null;
+function getEpisodeSource(anime, episode) {
+  return ANIFOX_EPISODE_SOURCES[`${anime?.id}:${episode}`] || null;
 }
 
 function renderEpisodes(anime) {
   const host = $('episode-list');
   if (!host) return;
 
-  const series = getBstationSeries(anime);
+  const total = Math.max(0, Math.min(500, Number(anime?.episodes) || 0));
 
-  if (!series) {
+  if (!total) {
     host.innerHTML = `
       <div class="empty-message">
-        Belum ada episode Bstation yang ID resminya
-        terverifikasi untuk anime ini.
+        Jumlah episode belum tersedia dari katalog anime.
       </div>
     `;
     return;
   }
 
-  const available = Object.entries(series.episodes)
-    .map(([number, episodeId]) => ({
-      number: Number(number),
-      episodeId
-    }))
-    .sort((a, b) => a.number - b.number);
-
-  if (!available.length) {
-    host.innerHTML = `
-      <div class="empty-message">
-        Belum ada episode Bstation yang terdaftar.
-      </div>
+  host.innerHTML = Array.from({ length: total }, (_, index) => {
+    const number = index + 1;
+    const source = getEpisodeSource(anime, number);
+    return `
+      <button type="button" class="episode-button"
+        data-episode="${number}" aria-label="Buka episode ${number}">
+        <span>Episode ${number}</span>
+        <small>${source ? 'Tersedia' : 'Sumber belum tersedia'}</small>
+      </button>
     `;
-    return;
-  }
-
-  host.innerHTML = available.map(item => `
-    <button
-      type="button"
-      data-episode="${item.number}"
-      class="episode-button"
-    >
-      Episode ${item.number} · Bstation
-    </button>
-  `).join('');
+  }).join('');
 }
 
 function handleEpisodeClick(event) {
   const button = event.target.closest('[data-episode]');
-
   if (!button || !state.current) return;
 
   state.currentEpisode = Number(button.dataset.episode) || 1;
 
   const episodeInput = $('social-comment-episode');
-  if (episodeInput) {
-    episodeInput.value = String(state.currentEpisode);
-  }
+  if (episodeInput) episodeInput.value = String(state.currentEpisode);
 
   openPlayer(state.currentEpisode);
 }
@@ -2155,82 +2104,59 @@ function renderWatchHistory() {
 }
 
 // ========================================
-// VIDEO PLAYER — BSTATION
+// ANIFOX VIDEO PLAYER
 // ========================================
 
 function openPlayer(episode = 1) {
   if (!state.current) return;
 
-  const series = getBstationSeries(state.current);
-  const episodeId = series?.episodes?.[episode];
-
   state.previousPage = 'detail';
   state.currentEpisode = episode;
-
   $('player-title').textContent = titleOf(state.current);
-
-  $('player-episode').textContent =
-    `Episode ${episode} · Bstation`;
-
+  $('player-episode').textContent = `Episode ${episode}`;
   navigate('player');
 
-  stopBstation();
-
+  const video = $('anifox-video');
   const empty = $('video-empty');
+  const source = getEpisodeSource(state.current, episode);
 
-  if (!series || !episodeId) {
-    empty.style.display = 'flex';
+  if (video) {
+    video.pause();
+    video.removeAttribute('src');
+    video.load();
+    video.classList.add('hidden');
+  }
 
+  empty.style.display = 'flex';
+
+  if (!source?.url) {
     empty.innerHTML = `
       <div class="empty-play">▶</div>
-      <strong>Episode belum tersedia</strong>
-      <p>
-        Belum ada ID episode Bstation yang terverifikasi
-        untuk episode ini.
-      </p>
+      <strong>Sumber video belum tersedia</strong>
+      <p>Episode ini sudah masuk daftar AniFoX. Pemutar akan aktif setelah sumber video yang diizinkan ditambahkan.</p>
     `;
-
-    $('bstation-link').href =
-      'https://www.bilibili.tv/anime';
-
-    $('bstation-link').textContent =
-      'Jelajahi anime di Bstation ↗';
-
+    $('player-source-note').textContent =
+      'Belum ada sumber video untuk episode ini.';
     return;
   }
 
-  const iframe = $('bilibili-player');
-
-  iframe.src =
-    `https://player.bilibili.com/player.html?seasonId=${
-      encodeURIComponent(series.seasonId)
-    }&episodeId=${
-      encodeURIComponent(episodeId)
-    }&autoplay=0&danmaku=0`;
-
-  iframe.classList.remove('hidden');
-
+  if (!video) return;
+  video.src = source.url;
+  video.classList.remove('hidden');
   empty.style.display = 'none';
+  $('player-source-note').textContent =
+    source.label || 'Diputar melalui pemutar AniFoX.';
+  video.load();
   saveWatchHistoryEntry(state.current, episode);
-
-  $('bstation-link').href =
-    `https://www.bilibili.tv/play/${series.seasonId}/${episodeId}`;
-
-  $('bstation-link').textContent =
-    'Buka episode resmi di Bstation ↗';
 }
 
-function stopBstation() {
-  const iframe = $('bilibili-player');
-
-  if (iframe) {
-    iframe.src = '';
-    iframe.classList.add('hidden');
-  }
-
-  if ($('video-empty')) {
-    $('video-empty').style.display = 'flex';
-  }
+function stopAniFoXPlayer() {
+  const video = $('anifox-video');
+  if (!video) return;
+  video.pause();
+  video.removeAttribute('src');
+  video.load();
+  video.classList.add('hidden');
 }
 
 // ========================================
