@@ -203,6 +203,8 @@ function bindEvents() {
     navigate('profile');
   });
 
+  $('profile-back-button')?.addEventListener('click', () => navigate('home'));
+
   $('logout-button')?.addEventListener('click', logoutAniFoX);
   $('profile-edit-toggle')?.addEventListener('click', () => $('profile-edit-panel')?.classList.toggle('hidden'));
   document.querySelectorAll('[data-profile-tab]').forEach(button => button.addEventListener('click', () => renderProfileTab(button.dataset.profileTab)));
