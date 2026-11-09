@@ -3689,3 +3689,10 @@ button:focus-visible {
   #app.profile-focus main{padding:24px 28px}
   #app.profile-focus .profile-page{padding-left:0;padding-right:0}
 }
+
+
+.profile-back-button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:42px;margin:0 0 16px;padding:0 15px;border:1px solid rgba(112,183,255,.22);border-radius:13px;background:linear-gradient(135deg,rgba(21,57,98,.82),rgba(8,27,52,.9));color:#d9edff;font-size:13px;font-weight:750;cursor:pointer;box-shadow:0 7px 20px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.04);transition:transform .18s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease}
+.profile-back-button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease}
+.profile-back-button:hover{border-color:rgba(91,190,255,.6);background:linear-gradient(135deg,rgba(28,77,128,.95),rgba(9,35,66,.96));box-shadow:0 8px 24px rgba(31,139,225,.16)}
+.profile-back-button:hover svg{transform:translateX(-3px)}
+.profile-back-button:active{transform:scale(.96);box-shadow:0 0 0 4px rgba(65,174,255,.12)}
