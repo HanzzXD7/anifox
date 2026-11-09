@@ -1914,6 +1914,13 @@ function getEpisodeSource(anime, episode) {
   return ANIFOX_EPISODE_SOURCES[`${anime?.id}:${episode}`] || null;
 }
 
+function getLastWatchedEpisode(animeId) {
+  const latest = getWatchHistory().find(item =>
+    Number(item.animeId) === Number(animeId)
+  );
+  return latest ? Number(latest.episode) || 1 : null;
+}
+
 function renderEpisodes(anime) {
   const host = $('episode-list');
   if (!host) return;
@@ -1929,14 +1936,19 @@ function renderEpisodes(anime) {
     return;
   }
 
+  const lastWatched = getLastWatchedEpisode(anime.id);
+
   host.innerHTML = Array.from({ length: total }, (_, index) => {
     const number = index + 1;
     const source = getEpisodeSource(anime, number);
+    const isLastWatched = number === lastWatched;
     return `
-      <button type="button" class="episode-button"
-        data-episode="${number}" aria-label="Buka episode ${number}">
+      <button type="button"
+        class="episode-button${isLastWatched ? ' episode-last-watched' : ''}"
+        data-episode="${number}"
+        aria-label="Buka episode ${number}${isLastWatched ? ', terakhir ditonton' : ''}">
         <span>Episode ${number}</span>
-        <small>${source ? 'Tersedia' : 'Sumber belum tersedia'}</small>
+        <small>${isLastWatched ? 'Terakhir ditonton' : source ? 'Tersedia' : 'Sumber belum tersedia'}</small>
       </button>
     `;
   }).join('');
@@ -2057,6 +2069,7 @@ function saveWatchHistoryEntry(anime, episode) {
   });
   try {
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 100)));
+    renderEpisodes(anime);
   } catch {
     toast('Riwayat belum bisa disimpan di perangkat ini.');
   }
