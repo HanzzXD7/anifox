@@ -172,6 +172,8 @@ function bindEvents() {
   $('detail-watchlist')?.addEventListener('click', toggleWatchlist);
   $('back-detail')?.addEventListener('click', goBack);
   $('back-player')?.addEventListener('click', goBack);
+  $('player-previous-episode')?.addEventListener('click', () => changePlayerEpisode(-1));
+  $('player-next-episode')?.addEventListener('click', () => changePlayerEpisode(1));
   $('player-demo-test')?.addEventListener('click', playDemoStream);
 
   $('see-season')?.addEventListener('click', () => {
@@ -2283,11 +2285,30 @@ function showPlayerError(message) {
   if (note) note.textContent = 'Periksa sumber video atau coba lagi nanti.';
 }
 
+function updatePlayerEpisodeNavigation() {
+  const previous = $('player-previous-episode');
+  const next = $('player-next-episode');
+  const total = Math.max(0, Number(state.current?.episodes) || 0);
+  const current = Number(state.currentEpisode) || 1;
+
+  if (previous) previous.disabled = !state.current || current <= 1;
+  if (next) next.disabled = !state.current || !total || current >= total;
+}
+
+function changePlayerEpisode(offset) {
+  if (!state.current) return;
+  const total = Math.max(0, Number(state.current.episodes) || 0);
+  const target = (Number(state.currentEpisode) || 1) + offset;
+  if (target < 1 || target > total) return;
+  openPlayer(target);
+}
+
 function openPlayer(episode = 1) {
   if (!state.current) return;
 
   state.previousPage = 'detail';
   state.currentEpisode = episode;
+  updatePlayerEpisodeNavigation();
   $('player-title').textContent = titleOf(state.current);
   $('player-episode').textContent = `Episode ${episode}`;
   navigate('player');
@@ -2373,6 +2394,8 @@ function playDemoStream() {
   state.previousPage = 'player';
   $('player-title').textContent = 'Tes Pemutar AniFoX';
   $('player-episode').textContent = 'Video demo HLS — bukan episode anime';
+  if ($('player-previous-episode')) $('player-previous-episode').disabled = true;
+  if ($('player-next-episode')) $('player-next-episode').disabled = true;
 
   resetAniFoXVideo();
   empty.style.display = 'none';
