@@ -3324,3 +3324,179 @@ button:focus-visible {
     transition: none;
   }
 }
+
+
+/* ========================================
+   ANIFOX REFERENCE REDESIGN — HOME / PROFILE
+======================================== */
+
+.home-profile-card {
+  border-radius: 18px;
+  background: linear-gradient(115deg, rgba(12,42,58,.96), rgba(8,20,31,.96));
+  border: 1px solid rgba(48,190,218,.18);
+  box-shadow: 0 12px 34px rgba(0,0,0,.18);
+}
+
+.hero {
+  min-height: 390px;
+  border-radius: 22px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0a2639, #071522 58%, #101b38);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(4,14,23,.92), rgba(4,14,23,.46) 58%, rgba(4,14,23,.08));
+}
+
+.hero-content { position: relative; z-index: 2; }
+.hero-art { opacity: .92; }
+.content-section { margin-top: 30px; }
+.section-heading h2 { letter-spacing: -.035em; }
+
+.profile-page .page-title { display: none; }
+.profile-card {
+  position: relative;
+  min-height: 270px;
+  padding: 34px 24px 25px;
+  border-radius: 22px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(37,174,210,.16), transparent 42%),
+    linear-gradient(160deg, #102b3b, #07151d 65%);
+  border: 1px solid rgba(72,183,210,.16);
+}
+.profile-user {
+  min-height: 195px;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  gap: 13px;
+}
+.profile-avatar-wrap {
+  width: 112px;
+  height: 112px;
+  border: 3px solid #e5f5ff;
+  box-shadow: 0 0 0 5px rgba(40,188,218,.12), 0 10px 28px rgba(0,0,0,.3);
+}
+.profile-user-info { align-items: center; }
+.profile-name-row { justify-content: center; flex-wrap: wrap; }
+.profile-name-row h2 { font-size: clamp(22px, 5vw, 28px); }
+.profile-user-info p { display: none; }
+.profile-level-section { margin-top: 20px; }
+.profile-level-section .section-heading { margin-bottom: 12px; }
+.profile-settings-card { border-radius: 18px; }
+
+/* Schedule and subscribed collection */
+#page-season .anime-grid,
+#page-list .anime-grid {
+  gap: 16px;
+}
+#page-list .anime-card {
+  border-radius: 15px;
+  overflow: hidden;
+}
+#page-list .anime-card img {
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+}
+
+/* Watch history */
+.watch-history-list {
+  display: grid;
+  gap: 14px;
+  max-width: 900px;
+}
+.watch-history-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 13px;
+  border: 1px solid rgba(111,151,190,.13);
+  border-left: 4px solid #25b8d0;
+  border-radius: 17px;
+  background: linear-gradient(110deg, #142337, #0c1927);
+}
+.watch-history-item > img {
+  width: 76px;
+  height: 104px;
+  flex: 0 0 auto;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.watch-history-info { min-width: 0; flex: 1; display: grid; gap: 8px; }
+.watch-history-info strong { color: #f1f7ff; font-size: 15px; line-height: 1.35; }
+.watch-history-info span { color: #91a4ba; font-size: 12px; }
+.watch-history-track {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #26384b;
+}
+.watch-history-track i {
+  display: block;
+  width: 82%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22b9d1, #3e8bff);
+}
+.history-empty-state {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  border: 1px dashed rgba(119,160,195,.22);
+  border-radius: 20px;
+  background: rgba(15,31,46,.55);
+  padding: 25px;
+}
+.history-empty-icon { font-size: 42px; color: #6f91b3; }
+.history-empty-state strong { color: #e8f2ff; font-size: 16px; }
+.history-empty-state p { max-width: 300px; color: #8499b1; font-size: 13px; }
+
+/* Social Line activity cards */
+.social-activity-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 17px;
+  background: linear-gradient(115deg, rgba(20,39,60,.97), rgba(8,20,32,.97));
+  border: 1px solid rgba(105,151,190,.13);
+  box-shadow: 0 10px 26px rgba(0,0,0,.16);
+}
+.social-activity-top { padding-bottom: 12px; }
+.social-activity-user strong { font-size: 14px; }
+.social-activity-anime {
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(4,13,23,.5);
+}
+.social-activity-comment { color: #d9e7f4; }
+
+@media (max-width: 760px) {
+  .hero {
+    min-height: 310px;
+    border-radius: 18px;
+    padding: 22px 18px;
+  }
+  .hero-content { width: 84%; }
+  .profile-card { padding: 28px 16px 20px; }
+  .profile-user { min-height: 180px; }
+  .profile-avatar-wrap { width: 104px; height: 104px; }
+  .bottom-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+    padding: 7px 5px calc(7px + env(safe-area-inset-bottom));
+  }
+  .bottom-nav .nav-item { min-width: 0; }
+  .bottom-nav .nav-item small { font-size: 9px; white-space: nowrap; }
+  .bottom-nav .nav-item > span { font-size: 19px; }
+  .watch-history-item { gap: 11px; padding: 10px; }
+  .watch-history-item > img { width: 66px; height: 91px; }
+  .watch-history-info strong { font-size: 13px; }
+}
