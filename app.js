@@ -207,6 +207,12 @@ function bindEvents() {
   $('player-next-episode')?.addEventListener('click', () => changePlayerEpisode(1));
   $('player-demo-test')?.addEventListener('click', playDemoStream);
 
+  $('anifox-video')?.addEventListener('error', () => {
+    const video = $('anifox-video');
+    if (!video || video.classList.contains('hidden')) return;
+    showPlayerError('Browser tidak dapat memutar sumber video ini. Coba periksa koneksi atau gunakan tautan layanan resmi.');
+  });
+
   $('see-season')?.addEventListener('click', () => {
     navigate('season');
     loadSeason(true);
@@ -2068,12 +2074,21 @@ function renderOfficialStreamingLinks(items = []) {
     })
     .filter(Boolean);
 
-  if (!links.length) {
-    host.innerHTML = '<p class="empty-message">Belum ada tautan layanan resmi yang tercatat untuk anime ini.</p>';
+  const uniqueLinks = links.filter((item, index, all) =>
+    all.findIndex(candidate => candidate.url === item.url) === index
+  );
+
+  if (!uniqueLinks.length) {
+    host.innerHTML = `
+      <div class="source-empty-state">
+        <strong>Belum ada tautan resmi yang tercatat</strong>
+        <p>Data layanan streaming untuk judul ini belum tersedia di AniList.</p>
+      </div>
+    `;
     return;
   }
 
-  host.innerHTML = links.map(item => `
+  host.innerHTML = uniqueLinks.map(item => `
     <a class="official-streaming-link"
       href="${esc(item.url)}"
       target="_blank"
@@ -2159,21 +2174,38 @@ function renderEpisodes(anime) {
   }
 
   const lastWatched = getLastWatchedEpisode(anime.id);
+  let availableCount = 0;
 
   host.innerHTML = Array.from({ length: total }, (_, index) => {
     const number = index + 1;
     const source = getEpisodeSource(anime, number);
     const isLastWatched = number === lastWatched;
+    if (source) availableCount += 1;
+
+    const status = source ? 'Sumber tersedia' : 'Belum ada sumber';
+    const classes = [
+      'episode-button',
+      source ? 'episode-source-available' : 'episode-source-missing',
+      isLastWatched ? 'episode-last-watched' : ''
+    ].filter(Boolean).join(' ');
+
     return `
       <button type="button"
-        class="episode-button${isLastWatched ? ' episode-last-watched' : ''}"
+        class="${classes}"
         data-episode="${number}"
-        aria-label="Buka episode ${number}${isLastWatched ? ', terakhir ditonton' : ''}">
+        aria-label="Buka episode ${number}, ${status}${isLastWatched ? ', terakhir ditonton' : ''}">
         <span>Episode ${number}</span>
-        <small>${isLastWatched ? 'Terakhir ditonton' : source ? 'Tersedia' : 'Sumber belum tersedia'}</small>
+        <small>${isLastWatched ? 'Terakhir ditonton' : source ? 'Sumber tersedia' : 'Belum ada sumber'}</small>
       </button>
     `;
   }).join('');
+
+  const summary = $('episode-source-summary');
+  if (summary) {
+    summary.textContent = availableCount
+      ? `${availableCount} dari ${total} episode memiliki sumber yang diizinkan.`
+      : `0 dari ${total} episode memiliki sumber video. Tautan layanan resmi ditampilkan di atas jika tersedia.`;
+  }
 }
 
 function handleEpisodeClick(event) {
@@ -2422,7 +2454,7 @@ function showPlayerError(message) {
     empty.innerHTML = `
       <div class="empty-play">!</div>
       <strong>Video tidak dapat diputar</strong>
-      <p>${message}</p>
+      <p>${esc(message)}</p>
     `;
     empty.style.display = 'flex';
   }
