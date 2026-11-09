@@ -5,8 +5,38 @@
 // + Supabase + Google Login + User Profile
 // ========================================
 
-const ANILIST_API = 'https://graphql.anilist.co';
-const ANILAB_API = 'https://anilab-beta.vercel.app/api';
+// Central registry for AniFoX data providers.
+// A provider stays inactive until its API and usage permissions are verified.
+const ANIFOX_PROVIDERS = Object.freeze({
+  anilist: Object.freeze({
+    name: 'AniList',
+    role: 'metadata',
+    status: 'active',
+    endpoint: 'https://graphql.anilist.co'
+  }),
+  anilab: Object.freeze({
+    name: 'AniLab',
+    role: 'catalog',
+    status: 'active',
+    endpoint: 'https://anilab-beta.vercel.app/api'
+  }),
+  kuramanime: Object.freeze({
+    name: 'Kuramanime',
+    role: 'catalog',
+    status: 'pending-review',
+    endpoint: null
+  })
+});
+
+function providerUrl(providerId, path = '') {
+  const provider = ANIFOX_PROVIDERS[providerId];
+
+  if (!provider || provider.status !== 'active' || !provider.endpoint) {
+    throw new Error(`Provider ${providerId} belum aktif atau belum diverifikasi.`);
+  }
+
+  return `${provider.endpoint}${path}`;
+}
 
 const SUPABASE_URL =
   'https://oomkaubthpchrsozhsma.supabase.co';
@@ -1195,7 +1225,7 @@ async function saveProfile() {
 // ANILIST API
 // ========================================
 async function anilist(query, variables = {}) {
-  const response = await fetch(ANILIST_API, {
+  const response = await fetch(providerUrl('anilist'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1269,7 +1299,7 @@ async function getSeasonAnime() {
 
 async function getPopularAnime(page = 1) {
   const response = await fetch(
-    `${ANILAB_API}/catalog?page=${page}`
+    providerUrl('anilab', `/catalog?page=${page}`)
   );
 
   if (!response.ok) {
@@ -1548,7 +1578,7 @@ async function loadGenres() {
   `;
 
   try {
-    const response = await fetch(`${ANILAB_API}/genres`);
+    const response = await fetch(providerUrl('anilab', '/genres'));
 
     if (!response.ok) {
       throw new Error('Gagal mengambil daftar genre.');
@@ -1620,7 +1650,7 @@ async function loadGenreAnime(genre, page = 1) {
 
   try {
     const url =
-      `${ANILAB_API}/genre?name=${encodeURIComponent(genre)}&page=${page}`;
+      providerUrl('anilab', `/genre?name=${encodeURIComponent(genre)}&page=${page}`);
 
     const response = await fetch(url);
 
