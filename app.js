@@ -2106,9 +2106,39 @@ function renderOfficialStreamingLinks(items = []) {
 // EPISODE CATALOG
 // ========================================
 
-// Register only episode sources AniFoX is authorized to play.
-// Supported types: "hls", "mp4", and "embed".
+// Register optional direct sources only when AniFoX is authorized to play them.
 const ANIFOX_EPISODE_SOURCES = {};
+
+async function fetchAniFoXStreamApi(path) {
+  const accessToken = authSession?.access_token;
+  if (!accessToken) throw new Error('Silakan login ke AniFoX untuk memuat episode.');
+
+  const response = await fetch(path, {
+    method: 'GET',
+    headers: { Authorization: 'Bearer ' + accessToken, Accept: 'application/json' },
+    cache: 'no-store'
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload?.error || 'API streaming AniFoX gagal dihubungi.');
+  return payload;
+}
+
+function getAniFoXAnimeSlug(anime) {
+  if (anime?.slug) return String(anime.slug).trim();
+  return titleOf(anime).normalize('NFKD').toLowerCase()
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100);
+}
+
+async function fetchAniFoXEpisodeCatalog(anime) {
+  const slug = getAniFoXAnimeSlug(anime);
+  if (!slug) throw new Error('Slug anime belum tersedia.');
+  const detailPayload = await fetchAniFoXStreamApi('/api/anime-detail?slug=' + encodeURIComponent(slug));
+  const animeId = detailPayload?.data?.id;
+  if (!animeId) throw new Error('Anime ini belum terdaftar di katalog streaming AniFoX.');
+  const episodesPayload = await fetchAniFoXStreamApi('/api/episodes?anime_id=' + encodeURIComponent(animeId));
+  return { animeId, episodes: Array.isArray(episodesPayload?.data) ? episodesPayload.data : [] };
+}
 
 // Exact hostnames approved for embedded players.
 // Add a hostname only after its provider explicitly permits third-party embedding.
@@ -2158,56 +2188,42 @@ function getLastWatchedEpisode(animeId) {
   return latest ? Number(latest.episode) || 1 : null;
 }
 
-function renderEpisodes(anime) {
+async function renderEpisodes(anime) {
   const host = $('episode-list');
   if (!host) return;
-
   const total = Math.max(0, Math.min(500, Number(anime?.episodes) || 0));
-
   if (!total) {
-    host.innerHTML = `
-      <div class="empty-message">
-        Jumlah episode belum tersedia dari katalog anime.
-      </div>
-    `;
+    host.innerHTML = '<div class="empty-message">Jumlah episode belum tersedia dari katalog anime.</div>';
     return;
   }
-
+  host.innerHTML = '<div class="empty-message">Memeriksa daftar episode AniFoX...</div>';
   const lastWatched = getLastWatchedEpisode(anime.id);
-  let availableCount = 0;
-
-  host.innerHTML = Array.from({ length: total }, (_, index) => {
-    const number = index + 1;
-    const source = getEpisodeSource(anime, number);
-    const isLastWatched = number === lastWatched;
-    if (source) availableCount += 1;
-
-    const status = source ? 'Sumber tersedia' : 'Belum ada sumber';
-    const classes = [
-      'episode-button',
-      source ? 'episode-source-available' : 'episode-source-missing',
-      isLastWatched ? 'episode-last-watched' : ''
-    ].filter(Boolean).join(' ');
-
-    return `
-      <button type="button"
-        class="${classes}"
-        data-episode="${number}"
-        aria-label="Buka episode ${number}, ${status}${isLastWatched ? ', terakhir ditonton' : ''}">
-        <span>Episode ${number}</span>
-        <small>${isLastWatched ? 'Terakhir ditonton' : source ? 'Sumber tersedia' : 'Belum ada sumber'}</small>
-      </button>
-    `;
-  }).join('');
-
-  const summary = $('episode-source-summary');
-  if (summary) {
-    summary.textContent = availableCount
-      ? `${availableCount} dari ${total} episode memiliki sumber yang diizinkan.`
-      : `0 dari ${total} episode memiliki sumber video. Tautan layanan resmi ditampilkan di atas jika tersedia.`;
+  try {
+    const catalog = await fetchAniFoXEpisodeCatalog(anime);
+    if (state.current?.id !== anime.id) return;
+    const available = new Set(catalog.episodes.filter(item => item.has_stream).map(item => Number(item.episode_number)));
+    host.innerHTML = Array.from({ length: total }, (_, index) => {
+      const number = index + 1;
+      const hasSource = available.has(number) || Boolean(getEpisodeSource(anime, number));
+      const isLastWatched = number === lastWatched;
+      const status = hasSource ? 'Sumber tersedia' : 'Belum ada sumber';
+      return `<button type="button" class="episode-button ${hasSource ? 'episode-source-available' : 'episode-source-missing'} ${isLastWatched ? 'episode-last-watched' : ''}" data-episode="${number}" aria-label="Buka episode ${number}, ${status}${isLastWatched ? ', terakhir ditonton' : ''}"><span>Episode ${number}</span><small>${isLastWatched ? 'Terakhir ditonton' : status}</small></button>`;
+    }).join('');
+    const summary = $('episode-source-summary');
+    if (summary) summary.textContent = available.size
+      ? `${available.size} episode memiliki sumber video di AniFoX.`
+      : 'Belum ada video yang diunggah untuk anime ini.';
+  } catch (error) {
+    if (state.current?.id !== anime.id) return;
+    host.innerHTML = Array.from({ length: total }, (_, index) => {
+      const number = index + 1;
+      const isLastWatched = number === lastWatched;
+      return `<button type="button" class="episode-button episode-source-missing ${isLastWatched ? 'episode-last-watched' : ''}" data-episode="${number}"><span>Episode ${number}</span><small>${isLastWatched ? 'Terakhir ditonton' : 'Belum ada sumber'}</small></button>`;
+    }).join('');
+    const summary = $('episode-source-summary');
+    if (summary) summary.textContent = error.message;
   }
 }
-
 function handleEpisodeClick(event) {
   const button = event.target.closest('[data-episode]');
   if (!button || !state.current) return;
@@ -2480,9 +2496,8 @@ function changePlayerEpisode(offset) {
   openPlayer(target);
 }
 
-function openPlayer(episode = 1) {
+async function openPlayer(episode = 1) {
   if (!state.current) return;
-
   state.previousPage = 'detail';
   state.currentEpisode = episode;
   updatePlayerEpisodeNavigation();
@@ -2492,76 +2507,67 @@ function openPlayer(episode = 1) {
 
   const video = $('anifox-video');
   const empty = $('video-empty');
-  const source = getEpisodeSource(state.current, episode);
-
   resetAniFoXVideo();
-  if (empty) empty.style.display = 'flex';
-
-  if (!source?.url) {
-    empty.innerHTML = `
-      <div class="empty-play">▶</div>
-      <strong>Sumber video belum tersedia</strong>
-      <p>Episode ini sudah masuk daftar AniFoX. Pemutar akan aktif setelah sumber video yang diizinkan ditambahkan.</p>
-    `;
-    $('player-source-note').textContent =
-      'Belum ada sumber video untuk episode ini.';
-    return;
+  if (empty) {
+    empty.style.display = 'flex';
+    empty.innerHTML = '<div class="empty-play">…</div><strong>Menyiapkan episode</strong><p>Memeriksa sumber video AniFoX.</p>';
   }
 
-  if (!video) return;
+  try {
+    let source = getEpisodeSource(state.current, episode);
+    if (!source) {
+      const catalog = await fetchAniFoXEpisodeCatalog(state.current);
+      const record = catalog.episodes.find(item => Number(item.episode_number) === Number(episode));
+      if (!record?.has_stream) throw new Error('Video episode ini belum tersedia di katalog AniFoX.');
+      const streamPayload = await fetchAniFoXStreamApi('/api/stream?episode_id=' + encodeURIComponent(record.id));
+      source = streamPayload?.url ? { type: streamPayload.type || 'hls', url: streamPayload.url, label: 'AniFoX Stream' } : null;
+    }
+    if (!source?.url) throw new Error('Sumber video episode belum tersedia.');
+    if (!video) return;
 
-  if (source.type === 'embed') {
-    const embedUrl = getAllowedAniFoXEmbedUrl(source.url);
-    const embed = $('anifox-embed-player');
-
-    if (!embedUrl || !embed) {
-      showPlayerError('Embed belum tersedia atau domain provider belum diizinkan oleh AniFoX.');
+    if (source.type === 'embed') {
+      const embedUrl = getAllowedAniFoXEmbedUrl(source.url);
+      const embed = $('anifox-embed-player');
+      if (!embedUrl || !embed) throw new Error('Embed belum tersedia atau domain belum diizinkan.');
+      embed.src = embedUrl;
+      embed.classList.remove('hidden');
+      if (empty) empty.style.display = 'none';
+      $('player-source-note').textContent = source.label || 'Embed provider yang diizinkan.';
+      saveWatchHistoryEntry(state.current, episode);
       return;
     }
 
-    embed.src = embedUrl;
-    embed.classList.remove('hidden');
-    empty.style.display = 'none';
-    $('player-source-note').textContent =
-      source.label || 'Embed dari provider yang diizinkan.';
-    saveWatchHistoryEntry(state.current, episode);
-    return;
-  }
-
-  const isHls = source.type === 'hls' || /\.m3u8(?:$|\?)/i.test(source.url);
-  video.classList.remove('hidden');
-  empty.style.display = 'none';
-
-  $('player-source-note').textContent =
-    source.label || 'Diputar melalui pemutar AniFoX.';
-
-  if (isHls) {
-    if (window.Hls && Hls.isSupported()) {
-      anifoxHlsInstance = new Hls({ enableWorker: true });
-      anifoxHlsInstance.loadSource(source.url);
-      anifoxHlsInstance.attachMedia(video);
-      anifoxHlsInstance.on(Hls.Events.ERROR, (_event, data) => {
-        if (data.fatal) {
-          resetAniFoXVideo();
-          showPlayerError('Format HLS gagal dimuat. Pastikan sumber resmi mendukung akses pemutaran dari AniFoX.');
-        }
-      });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    const isHls = source.type === 'hls' || /\.m3u8(?:$|\?)/i.test(source.url);
+    video.classList.remove('hidden');
+    if (empty) empty.style.display = 'none';
+    $('player-source-note').textContent = source.label || 'Diputar melalui pemutar AniFoX.';
+    if (isHls) {
+      if (window.Hls && Hls.isSupported()) {
+        anifoxHlsInstance = new Hls({ enableWorker: true });
+        anifoxHlsInstance.loadSource(source.url);
+        anifoxHlsInstance.attachMedia(video);
+        anifoxHlsInstance.on(Hls.Events.ERROR, (_event, data) => {
+          if (data.fatal) {
+            resetAniFoXVideo();
+            showPlayerError('Format HLS gagal dimuat. Periksa koneksi atau konfigurasi sumber video.');
+          }
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = source.url;
+        video.load();
+      } else {
+        throw new Error('Perangkat ini tidak mendukung pemutaran HLS.');
+      }
+    } else {
       video.src = source.url;
       video.load();
-    } else {
-      video.classList.add('hidden');
-      showPlayerError('Perangkat ini tidak mendukung pemutaran HLS.');
-      return;
     }
-  } else {
-    video.src = source.url;
-    video.load();
+    saveWatchHistoryEntry(state.current, episode);
+  } catch (error) {
+    resetAniFoXVideo();
+    showPlayerError(error?.message || 'Episode gagal dimuat.');
   }
-
-  saveWatchHistoryEntry(state.current, episode);
 }
-
 
 function playDemoStream() {
   const video = $('anifox-video');
