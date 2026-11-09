@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#07152f">
-  <meta name="description" content="AniFoX — katalog anime dan pemutar Bstation">
+  <meta name="description" content="AniFoX — katalog anime dan pemutar video internal">
   <title>AniFoX — Anime Streaming</title>
 
   <link rel="icon" type="image/png" href="anifox-logo.png">
@@ -173,7 +173,7 @@
       <div class="sidebar-note">
         <span class="note-icon">✧</span>
         <strong>Jelajahi anime</strong>
-        <p>Temukan anime dan episode Bstation dalam satu tempat.</p>
+        <p>Temukan anime dan panduan episode dalam satu tempat.</p>
       </div>
 
       <div class="sidebar-footer">
@@ -571,8 +571,7 @@
             <div id="episode-list" class="episode-list"></div>
 
             <p class="muted-note">
-              Daftar episode hanya menampilkan ID Bstation
-              yang sudah diverifikasi.
+              Daftar episode mengikuti jumlah episode dari katalog anime.
             </p>
 
             <div class="episode-comment-box">
@@ -628,27 +627,24 @@
 
           <div class="video-shell">
 
-            <iframe id="bilibili-player"
-              class="youtube-player hidden"
-              src=""
-              title="Pemutar episode Bstation"
-              allow="fullscreen; autoplay; encrypted-media; picture-in-picture"
-              allowfullscreen></iframe>
+            <video id="anifox-video"
+              class="video-player hidden"
+              controls
+              playsinline
+              preload="metadata"
+              aria-label="Pemutar episode AniFoX"></video>
 
             <div id="video-empty" class="video-empty">
               <div class="empty-play">▶</div>
               <strong>Video belum tersedia</strong>
-              <p>Episode diputar melalui pemutar Bstation.</p>
+              <p>Pilih episode untuk melihat status sumber videonya.</p>
             </div>
 
           </div>
 
-          <a id="bstation-link"
-            class="official-link"
-            href="https://www.bilibili.tv/anime"
-            target="_blank" rel="noopener">
-            Jelajahi anime di Bstation ↗
-          </a>
+          <p id="player-source-note" class="muted-note">
+            Pemutar internal AniFoX.
+          </p>
 
         </section>
 
@@ -657,7 +653,7 @@
           <span>Ani<span>FoX</span></span>
           <p>
             Katalog anime didukung AniList.
-            Episode diputar melalui Bstation.
+            Pemutar video internal AniFoX.
           </p>
         </footer>
 
