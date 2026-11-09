@@ -3676,3 +3676,16 @@ button:focus-visible {
 .profile-edit-icon:active,.profile-copy-button:active,.profile-save-button:active,.profile-logout-button:active{box-shadow:0 0 0 4px rgba(65,174,255,.13),0 0 20px rgba(65,174,255,.22)}
 .profile-page button:focus-visible{outline:2px solid rgba(104,199,255,.9);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.profile-page button,.profile-tab,.profile-tab::before{transition:none!important}}
+
+
+/* Full-screen profile: sembunyikan seluruh navigasi global */
+#app.profile-focus .topbar,
+#app.profile-focus .bottom-nav,
+#app.profile-focus .sidebar{display:none!important}
+#app.profile-focus .main-shell{margin-left:0!important;width:100%!important;min-width:0!important}
+#app.profile-focus main{width:100%;max-width:none;margin:0 auto;padding-top:18px}
+#app.profile-focus .profile-page{width:100%;max-width:1100px;margin:0 auto;padding:0 16px 42px}
+@media(min-width:900px){
+  #app.profile-focus main{padding:24px 28px}
+  #app.profile-focus .profile-page{padding-left:0;padding-right:0}
+}
