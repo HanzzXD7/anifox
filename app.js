@@ -506,6 +506,9 @@ function navigate(page) {
   target.classList.remove('hidden');
   target.classList.add('active');
 
+  // Profil memakai tampilan fokus penuh tanpa header atau navigasi aplikasi.
+  $('app')?.classList.toggle('profile-focus', page === 'profile');
+
   document.querySelectorAll('[data-page].nav-item').forEach(button => {
     button.classList.toggle(
       'active',
