@@ -2116,6 +2116,36 @@ function renderWatchHistory() {
 // ANIFOX VIDEO PLAYER
 // ========================================
 
+// HLS.js handles authorized .m3u8 sources on browsers without native HLS.
+let anifoxHlsInstance = null;
+
+function resetAniFoXVideo() {
+  const video = $('anifox-video');
+  if (anifoxHlsInstance) {
+    anifoxHlsInstance.destroy();
+    anifoxHlsInstance = null;
+  }
+  if (!video) return;
+  video.pause();
+  video.removeAttribute('src');
+  video.load();
+  video.classList.add('hidden');
+}
+
+function showPlayerError(message) {
+  const empty = $('video-empty');
+  if (empty) {
+    empty.innerHTML = `
+      <div class="empty-play">!</div>
+      <strong>Video tidak dapat diputar</strong>
+      <p>${message}</p>
+    `;
+    empty.style.display = 'flex';
+  }
+  const note = $('player-source-note');
+  if (note) note.textContent = 'Periksa sumber video atau coba lagi nanti.';
+}
+
 function openPlayer(episode = 1) {
   if (!state.current) return;
 
@@ -2129,14 +2159,8 @@ function openPlayer(episode = 1) {
   const empty = $('video-empty');
   const source = getEpisodeSource(state.current, episode);
 
-  if (video) {
-    video.pause();
-    video.removeAttribute('src');
-    video.load();
-    video.classList.add('hidden');
-  }
-
-  empty.style.display = 'flex';
+  resetAniFoXVideo();
+  if (empty) empty.style.display = 'flex';
 
   if (!source?.url) {
     empty.innerHTML = `
@@ -2150,22 +2174,43 @@ function openPlayer(episode = 1) {
   }
 
   if (!video) return;
-  video.src = source.url;
+
+  const isHls = source.type === 'hls' || /\.m3u8(?:$|\?)/i.test(source.url);
   video.classList.remove('hidden');
   empty.style.display = 'none';
+
   $('player-source-note').textContent =
     source.label || 'Diputar melalui pemutar AniFoX.';
-  video.load();
+
+  if (isHls) {
+    if (window.Hls && Hls.isSupported()) {
+      anifoxHlsInstance = new Hls({ enableWorker: true });
+      anifoxHlsInstance.loadSource(source.url);
+      anifoxHlsInstance.attachMedia(video);
+      anifoxHlsInstance.on(Hls.Events.ERROR, (_event, data) => {
+        if (data.fatal) {
+          resetAniFoXVideo();
+          showPlayerError('Format HLS gagal dimuat. Pastikan sumber resmi mendukung akses pemutaran dari AniFoX.');
+        }
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = source.url;
+      video.load();
+    } else {
+      video.classList.add('hidden');
+      showPlayerError('Perangkat ini tidak mendukung pemutaran HLS.');
+      return;
+    }
+  } else {
+    video.src = source.url;
+    video.load();
+  }
+
   saveWatchHistoryEntry(state.current, episode);
 }
 
 function stopAniFoXPlayer() {
-  const video = $('anifox-video');
-  if (!video) return;
-  video.pause();
-  video.removeAttribute('src');
-  video.load();
-  video.classList.add('hidden');
+  resetAniFoXVideo();
 }
 
 // ========================================
