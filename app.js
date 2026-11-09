@@ -192,6 +192,7 @@ function bindEvents() {
   );
 
   $('episode-list')?.addEventListener('click', handleEpisodeClick);
+  $('history-list')?.addEventListener('click', handleHistoryResume);
 
   document.querySelectorAll('[data-page]').forEach(button => {
     button.addEventListener('click', event => {
@@ -2166,6 +2167,8 @@ function renderWatchHistory() {
   }
 
   host.innerHTML = history.map(item => {
+    const animeId = Number(item.animeId) || 0;
+    const episode = Number(item.episode) || 1;
     const date = item.watchedAt
       ? new Date(item.watchedAt).toLocaleString('id-ID', {
           dateStyle: 'medium',
@@ -2178,12 +2181,63 @@ function renderWatchHistory() {
           onerror="this.style.display='none'">
         <div class="watch-history-info">
           <strong>${esc(item.title || 'Anime')}</strong>
-          <span>Episode ${Number(item.episode) || 1} · ${esc(date)}</span>
+          <span>Episode ${episode} · ${esc(date)}</span>
           <div class="watch-history-track"><i></i></div>
+          <button class="history-resume-button" type="button"
+            data-history-resume="${animeId}" data-episode="${episode}"
+            ${animeId > 0 ? '' : 'disabled'}>
+            Lanjutkan menonton
+          </button>
         </div>
       </article>
     `;
   }).join('');
+}
+
+async function handleHistoryResume(event) {
+  const button = event.target.closest('[data-history-resume]');
+  if (!button || button.disabled) return;
+
+  const animeId = Number(button.dataset.historyResume);
+  const episode = Math.max(1, Number(button.dataset.episode) || 1);
+
+  if (!Number.isSafeInteger(animeId) || animeId < 1) {
+    toast('Data anime di riwayat tidak valid.');
+    return;
+  }
+
+  const historyItem = getWatchHistory().find(item =>
+    Number(item.animeId) === animeId
+  );
+
+  if (!historyItem) {
+    toast('Riwayat anime ini sudah tidak tersedia.');
+    renderWatchHistory();
+    return;
+  }
+
+  const anime = state.anime.get(animeId) || {
+    id: animeId,
+    title: { english: historyItem.title || 'Anime' },
+    coverImage: { large: historyItem.cover || '' }
+  };
+
+  button.disabled = true;
+  button.textContent = 'Memuat anime...';
+
+  try {
+    await openDetail(anime);
+
+    if (state.current?.id === animeId) {
+      openPlayer(episode);
+    }
+  } catch (error) {
+    console.error('Resume history error:', error);
+    toast('Anime gagal dibuka. Coba lagi.');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Lanjutkan menonton';
+  }
 }
 
 // ========================================
