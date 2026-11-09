@@ -1961,11 +1961,31 @@ function renderOfficialStreamingLinks(items = []) {
 // EPISODE CATALOG
 // ========================================
 
-// Add only video URLs that AniFoX is authorized to play.
+// Register only episode sources AniFoX is authorized to play.
+// Supported types: "hls", "mp4", and "embed".
 const ANIFOX_EPISODE_SOURCES = {};
+
+// Exact hostnames approved for embedded players.
+// Add a hostname only after its provider explicitly permits third-party embedding.
+const ANIFOX_EMBED_HOSTS = [];
 
 function getEpisodeSource(anime, episode) {
   return ANIFOX_EPISODE_SOURCES[`${anime?.id}:${episode}`] || null;
+}
+
+function getAllowedAniFoXEmbedUrl(rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+    if (url.protocol !== 'https:') return null;
+
+    const hostAllowed = ANIFOX_EMBED_HOSTS.some(host =>
+      url.hostname === host
+    );
+
+    return hostAllowed ? url.href : null;
+  } catch {
+    return null;
+  }
 }
 
 function getLastWatchedEpisode(animeId) {
@@ -2175,15 +2195,24 @@ let anifoxHlsInstance = null;
 
 function resetAniFoXVideo() {
   const video = $('anifox-video');
+  const embed = $('anifox-embed-player');
+
   if (anifoxHlsInstance) {
     anifoxHlsInstance.destroy();
     anifoxHlsInstance = null;
   }
-  if (!video) return;
-  video.pause();
-  video.removeAttribute('src');
-  video.load();
-  video.classList.add('hidden');
+
+  if (video) {
+    video.pause();
+    video.removeAttribute('src');
+    video.load();
+    video.classList.add('hidden');
+  }
+
+  if (embed) {
+    embed.removeAttribute('src');
+    embed.classList.add('hidden');
+  }
 }
 
 function showPlayerError(message) {
@@ -2228,6 +2257,24 @@ function openPlayer(episode = 1) {
   }
 
   if (!video) return;
+
+  if (source.type === 'embed') {
+    const embedUrl = getAllowedAniFoXEmbedUrl(source.url);
+    const embed = $('anifox-embed-player');
+
+    if (!embedUrl || !embed) {
+      showPlayerError('Embed belum tersedia atau domain provider belum diizinkan oleh AniFoX.');
+      return;
+    }
+
+    embed.src = embedUrl;
+    embed.classList.remove('hidden');
+    empty.style.display = 'none';
+    $('player-source-note').textContent =
+      source.label || 'Embed dari provider yang diizinkan.';
+    saveWatchHistoryEntry(state.current, episode);
+    return;
+  }
 
   const isHls = source.type === 'hls' || /\.m3u8(?:$|\?)/i.test(source.url);
   video.classList.remove('hidden');
