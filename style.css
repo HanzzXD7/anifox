@@ -3738,3 +3738,51 @@ button:focus-visible {
 .profile-level-role .profile-role{display:inline-flex;align-items:center;justify-content:center;min-height:32px;margin:0 0 0 2px;padding:6px 13px;border-radius:9px;white-space:nowrap;line-height:1}
 .profile-level-role .profile-role-dev{margin-left:2px}
 @media(max-width:360px){.profile-level-role{gap:7px!important}.profile-level-group{gap:6px;padding-right:7px}.profile-level-role .profile-role{padding-left:10px;padding-right:10px}}
+
+
+/* PROFILE CARD RANK AURA — follows the user's current level */
+.profile-hero-card {
+  --profile-aura: rgba(120, 130, 145, .22);
+  --profile-aura-strong: rgba(120, 130, 145, .12);
+  transition: border-color .35s ease, box-shadow .35s ease;
+}
+.profile-hero-card.rank-coal { --profile-aura: rgba(150, 160, 175, .28); --profile-aura-strong: rgba(150, 160, 175, .12); }
+.profile-hero-card.rank-copper { --profile-aura: rgba(229, 139, 80, .38); --profile-aura-strong: rgba(229, 139, 80, .16); }
+.profile-hero-card.rank-iron { --profile-aura: rgba(205, 220, 235, .34); --profile-aura-strong: rgba(205, 220, 235, .14); }
+.profile-hero-card.rank-gold { --profile-aura: rgba(255, 211, 78, .42); --profile-aura-strong: rgba(255, 211, 78, .17); }
+.profile-hero-card.rank-emerald { --profile-aura: rgba(54, 232, 121, .5); --profile-aura-strong: rgba(54, 232, 121, .2); }
+.profile-hero-card.rank-diamond { --profile-aura: rgba(66, 223, 255, .52); --profile-aura-strong: rgba(66, 223, 255, .2); }
+.profile-hero-card.rank-nether-star { --profile-aura: rgba(185, 217, 255, .55); --profile-aura-strong: rgba(185, 217, 255, .22); }
+.profile-hero-card.rank-golden-apple { --profile-aura: rgba(255, 211, 78, .58); --profile-aura-strong: rgba(255, 211, 78, .23); }
+.profile-hero-card.rank-lava { --profile-aura: rgba(255, 101, 56, .6); --profile-aura-strong: rgba(255, 101, 56, .24); }
+.profile-hero-card.rank-elytra { --profile-aura: rgba(183, 138, 255, .68); --profile-aura-strong: rgba(183, 138, 255, .28); }
+
+.profile-hero-card[class*="rank-"] {
+  border-color: color-mix(in srgb, var(--profile-aura) 75%, rgba(107,177,255,.18));
+  box-shadow:
+    0 0 10px var(--profile-aura-strong),
+    0 0 28px var(--profile-aura-strong),
+    0 18px 42px rgba(0,0,0,.22),
+    inset 0 0 30px var(--profile-aura-strong);
+}
+.profile-hero-card[class*="rank-"] .profile-hero-cover {
+  background:
+    radial-gradient(ellipse at 50% 0%, var(--profile-aura), transparent 72%),
+    linear-gradient(125deg, #153e70, #102747 55%, #07152d);
+  transition: background .35s ease;
+}
+@keyframes profile-rank-aura-pulse {
+  0%, 100% { box-shadow: 0 0 10px var(--profile-aura-strong), 0 0 25px var(--profile-aura-strong), 0 18px 42px rgba(0,0,0,.22), inset 0 0 30px var(--profile-aura-strong); }
+  50% { box-shadow: 0 0 16px var(--profile-aura), 0 0 38px var(--profile-aura-strong), 0 18px 42px rgba(0,0,0,.22), inset 0 0 38px var(--profile-aura-strong); }
+}
+.profile-hero-card.rank-emerald,
+.profile-hero-card.rank-diamond,
+.profile-hero-card.rank-nether-star,
+.profile-hero-card.rank-golden-apple,
+.profile-hero-card.rank-lava,
+.profile-hero-card.rank-elytra {
+  animation: profile-rank-aura-pulse 3.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .profile-hero-card { animation: none !important; }
+}
