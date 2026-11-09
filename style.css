@@ -3696,3 +3696,35 @@ button:focus-visible {
 .profile-back-button:hover{border-color:rgba(91,190,255,.6);background:linear-gradient(135deg,rgba(28,77,128,.95),rgba(9,35,66,.96));box-shadow:0 8px 24px rgba(31,139,225,.16)}
 .profile-back-button:hover svg{transform:translateX(-3px)}
 .profile-back-button:active{transform:scale(.96);box-shadow:0 0 0 4px rgba(65,174,255,.12)}
+
+
+/* Rank material badge beside level on profile */
+.profile-level-role{gap:7px}
+.profile-level-emblem{position:relative;isolation:isolate;display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border:1px solid color-mix(in srgb,var(--rank-color) 58%,transparent);border-radius:9px;background:color-mix(in srgb,var(--rank-color) 13%,#081a33);box-shadow:0 0 12px var(--rank-glow),inset 0 0 9px var(--rank-glow);overflow:hidden}
+.profile-level-emblem::before{content:"";position:absolute;inset:-55%;z-index:-1;background:conic-gradient(from 0deg,transparent 0 68%,var(--rank-color) 82%,transparent 100%);opacity:0;animation:none}
+.profile-level-emblem img{display:block;width:22px;height:22px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 0 5px var(--rank-glow))}
+.profile-level-role>strong{color:var(--rank-color);border-color:color-mix(in srgb,var(--rank-color) 45%,transparent);background:color-mix(in srgb,var(--rank-color) 12%,transparent);text-shadow:0 0 9px var(--rank-glow);box-shadow:0 0 12px var(--rank-glow)}
+.profile-level-role.rank-coal{--rank-color:#9299a5;--rank-glow:rgba(120,130,145,.2)}
+.profile-level-role.rank-copper{--rank-color:#e58b50;--rank-glow:rgba(229,139,80,.28)}
+.profile-level-role.rank-iron{--rank-color:#bdc7d2;--rank-glow:rgba(189,199,210,.24)}
+.profile-level-role.rank-gold{--rank-color:#ffd34e;--rank-glow:rgba(255,211,78,.28)}
+.profile-level-role.rank-emerald{--rank-color:#36e879;--rank-glow:rgba(30,255,105,.38)}
+.profile-level-role.rank-diamond{--rank-color:#42dfff;--rank-glow:rgba(66,223,255,.38)}
+.profile-level-role.rank-nether-star{--rank-color:#b9d9ff;--rank-glow:rgba(185,217,255,.4)}
+.profile-level-role.rank-golden-apple{--rank-color:#ffd34e;--rank-glow:rgba(255,211,78,.38)}
+.profile-level-role.rank-lava{--rank-color:#ff6538;--rank-glow:rgba(255,75,35,.4)}
+.profile-level-role.rank-elytra{--rank-color:#b78aff;--rank-glow:rgba(183,138,255,.45)}
+.profile-level-role.rank-emerald .profile-level-emblem::before,
+.profile-level-role.rank-diamond .profile-level-emblem::before,
+.profile-level-role.rank-nether-star .profile-level-emblem::before,
+.profile-level-role.rank-golden-apple .profile-level-emblem::before,
+.profile-level-role.rank-lava .profile-level-emblem::before,
+.profile-level-role.rank-elytra .profile-level-emblem::before{opacity:.9;animation:rank-frame-spin 4s linear infinite}
+.profile-level-role.rank-emerald .profile-level-emblem,
+.profile-level-role.rank-diamond .profile-level-emblem,
+.profile-level-role.rank-nether-star .profile-level-emblem,
+.profile-level-role.rank-golden-apple .profile-level-emblem,
+.profile-level-role.rank-lava .profile-level-emblem,
+.profile-level-role.rank-elytra .profile-level-emblem{border-color:var(--rank-color);box-shadow:0 0 15px var(--rank-glow),inset 0 0 11px var(--rank-glow)}
+.rank-effects-lite .profile-level-role .profile-level-emblem::before{animation-duration:9s!important}
+@media(prefers-reduced-motion:reduce){.profile-level-role .profile-level-emblem::before{animation:none!important}}
