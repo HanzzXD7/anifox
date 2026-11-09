@@ -233,7 +233,6 @@ function bindEvents() {
   });
   $('social-panel-close')?.addEventListener('click', closeSocialPanel);
   $('social-refresh')?.addEventListener('click', loadSocialLine);
-  $('social-comment-submit')?.addEventListener('click', submitEpisodeComment);
 
   $('social-panel-content')?.addEventListener('click', event => {
     const actionButton = event.target.closest('[data-social-action]');
@@ -1949,9 +1948,6 @@ function handleEpisodeClick(event) {
 
   state.currentEpisode = Number(button.dataset.episode) || 1;
 
-  const episodeInput = $('social-comment-episode');
-  if (episodeInput) episodeInput.value = String(state.currentEpisode);
-
   openPlayer(state.currentEpisode);
 }
 
@@ -2551,67 +2547,6 @@ async function handleSocialRequestAction(action, requestId) {
   } catch (error) {
     console.error('Friend request action error:', error);
     toast(error.message || 'Aksi pertemanan gagal.');
-  }
-}
-
-async function submitEpisodeComment() {
-  if (!supabaseClient || !authSession?.user) {
-    toast('Silakan login untuk mengirim komentar.');
-    return;
-  }
-
-  if (!state.current || !isAllowedAnime(state.current)) {
-    toast('Pilih anime terlebih dahulu.');
-    return;
-  }
-
-  const input = $('social-comment-text');
-  const episodeInput = $('social-comment-episode');
-  const comment = input?.value.trim() || '';
-  const episode = Number(episodeInput?.value || state.currentEpisode || 1);
-
-  if (!comment || comment.length > 1000) {
-    toast('Komentar harus berisi 1–1000 karakter.');
-    return;
-  }
-
-  if (!Number.isInteger(episode) || episode < 1 || episode > 9999) {
-    toast('Nomor episode tidak valid.');
-    return;
-  }
-
-  const button = $('social-comment-submit');
-  if (button) {
-    button.disabled = true;
-    button.textContent = 'Mengirim...';
-  }
-
-  try {
-    const { error } = await supabaseClient
-      .from('episode_comments')
-      .insert({
-        user_id: authSession.user.id,
-        anime_id: Number(state.current.id),
-        anime_title: titleOf(state.current),
-        anime_cover: imageOf(state.current) || null,
-        episode_number: episode,
-        comment
-      });
-
-    if (error) throw error;
-
-    input.value = '';
-    state.currentEpisode = episode;
-    toast('Komentar berhasil dikirim. Temanmu bisa melihatnya di Social Line.');
-
-  } catch (error) {
-    console.error('Episode comment error:', error);
-    toast(error.message || 'Komentar gagal dikirim.');
-  } finally {
-    if (button) {
-      button.disabled = false;
-      button.textContent = 'Kirim Komentar';
-    }
   }
 }
 
