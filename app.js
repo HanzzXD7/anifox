@@ -172,6 +172,7 @@ function bindEvents() {
   $('detail-watchlist')?.addEventListener('click', toggleWatchlist);
   $('back-detail')?.addEventListener('click', goBack);
   $('back-player')?.addEventListener('click', goBack);
+  $('player-demo-test')?.addEventListener('click', playDemoStream);
 
   $('see-season')?.addEventListener('click', () => {
     navigate('season');
@@ -2260,6 +2261,43 @@ function openPlayer(episode = 1) {
   }
 
   saveWatchHistoryEntry(state.current, episode);
+}
+
+
+function playDemoStream() {
+  const video = $('anifox-video');
+  const empty = $('video-empty');
+  if (!video || !empty) return;
+
+  state.previousPage = 'player';
+  $('player-title').textContent = 'Tes Pemutar AniFoX';
+  $('player-episode').textContent = 'Video demo HLS — bukan episode anime';
+
+  resetAniFoXVideo();
+  empty.style.display = 'none';
+  video.classList.remove('hidden');
+  $('player-source-note').textContent =
+    'Video pengujian publik dari Mux. Tidak terkait katalog atau episode anime.';
+
+  const demoUrl = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+
+  if (window.Hls && Hls.isSupported()) {
+    anifoxHlsInstance = new Hls({ enableWorker: true });
+    anifoxHlsInstance.loadSource(demoUrl);
+    anifoxHlsInstance.attachMedia(video);
+    anifoxHlsInstance.on(Hls.Events.ERROR, (_event, data) => {
+      if (data.fatal) {
+        resetAniFoXVideo();
+        showPlayerError('Video demo HLS gagal dimuat. Periksa koneksi internet lalu coba lagi.');
+      }
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = demoUrl;
+    video.load();
+  } else {
+    video.classList.add('hidden');
+    showPlayerError('Browser ini belum mendukung pemutaran HLS.');
+  }
 }
 
 function stopAniFoXPlayer() {
