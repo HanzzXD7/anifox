@@ -3861,3 +3861,52 @@ button:focus-visible {
   }
 }
 
+
+
+/* Official streaming provider links */
+.official-streaming-list {
+  display: grid;
+  gap: 10px;
+}
+
+.official-streaming-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(90, 150, 255, .2);
+  border-radius: 14px;
+  color: inherit;
+  text-decoration: none;
+  background: rgba(20, 34, 62, .58);
+  transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+
+.official-streaming-link:hover {
+  border-color: rgba(80, 160, 255, .65);
+  background: rgba(30, 54, 94, .7);
+  transform: translateY(-1px);
+}
+
+.official-streaming-link > span:first-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.official-streaming-link strong {
+  font-size: .92rem;
+  color: var(--text-primary, #f4f7ff);
+}
+
+.official-streaming-link small {
+  color: var(--text-muted, #9ba9c4);
+  overflow-wrap: anywhere;
+}
+
+.official-streaming-open {
+  flex: 0 0 auto;
+  color: var(--accent, #65a8ff);
+  font-size: 1.15rem;
+}
