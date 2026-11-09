@@ -1321,6 +1321,12 @@ async function getAnimeDetail(id) {
     query ($id: Int) {
       Media(id: $id, type: ANIME) {
         ${MEDIA_FIELDS}
+        streamingEpisodes {
+          title
+          thumbnail
+          url
+          site
+        }
         tags {
           name
         }
@@ -1849,6 +1855,7 @@ async function openDetail(anime) {
   $('episode-list').innerHTML = `
     <div class="empty-message">Menyiapkan daftar episode...</div>
   `;
+  renderOfficialStreamingLinks([]);
 
   updateWatchButton();
 
@@ -1893,6 +1900,7 @@ async function openDetail(anime) {
       `${detail.episodes ?? '?'} episode`;
 
     renderEpisodes(detail);
+    renderOfficialStreamingLinks(detail.streamingEpisodes || []);
     updateWatchButton();
 
   } catch {
@@ -1901,6 +1909,51 @@ async function openDetail(anime) {
 
     renderEpisodes(anime);
   }
+}
+
+// ========================================
+// OFFICIAL STREAMING LINKS — ANILIST
+// AniList documents these as legal streaming episode links.
+// They open at the provider; they are not direct video streams.
+// ========================================
+
+function renderOfficialStreamingLinks(items = []) {
+  const host = $('official-streaming-list');
+  if (!host) return;
+
+  const links = (Array.isArray(items) ? items : [])
+    .map(item => {
+      try {
+        const url = new URL(item.url);
+        if (url.protocol !== 'https:') return null;
+        return {
+          title: String(item.title || 'Tonton episode'),
+          site: String(item.site || 'Layanan resmi'),
+          url: url.href
+        };
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+
+  if (!links.length) {
+    host.innerHTML = '<p class="empty-message">Belum ada tautan layanan resmi yang tercatat untuk anime ini.</p>';
+    return;
+  }
+
+  host.innerHTML = links.map(item => `
+    <a class="official-streaming-link"
+      href="${esc(item.url)}"
+      target="_blank"
+      rel="noopener noreferrer">
+      <span>
+        <strong>${esc(item.site)}</strong>
+        <small>${esc(item.title)}</small>
+      </span>
+      <span class="official-streaming-open" aria-hidden="true">↗</span>
+    </a>
+  `).join('');
 }
 
 // ========================================
