@@ -204,6 +204,8 @@ function bindEvents() {
   });
 
   $('logout-button')?.addEventListener('click', logoutAniFoX);
+  $('profile-edit-toggle')?.addEventListener('click', () => $('profile-edit-panel')?.classList.toggle('hidden'));
+  document.querySelectorAll('[data-profile-tab]').forEach(button => button.addEventListener('click', () => renderProfileTab(button.dataset.profileTab)));
 
   $('copy-profile-id')?.addEventListener(
     'click',
@@ -521,6 +523,7 @@ function navigate(page) {
 
   if (page === 'profile') {
     loadProfile();
+    renderProfileTab('comments');
   }
 
   if (page === 'social') {
@@ -726,6 +729,7 @@ function renderProfileFallback(user) {
 
   if ($('profile-role')) {
     $('profile-role').textContent = 'USER';
+    $('profile-role').classList.remove('profile-role-dev');
   }
 
   if ($('profile-id')) {
@@ -734,6 +738,7 @@ function renderProfileFallback(user) {
 
   renderRank(1, 0, 'USER');
   renderHomeProfile(null, user);
+  renderProfileStats(user);
 }
 
 function renderProfile(data, user) {
@@ -765,6 +770,7 @@ function renderProfile(data, user) {
   if ($('profile-role')) {
     $('profile-role').textContent =
       data.role === 'DEV' ? 'DEV' : 'USER';
+    $('profile-role').classList.toggle('profile-role-dev', data.role === 'DEV');
   }
 
   if ($('profile-id')) {
@@ -782,6 +788,48 @@ function renderProfile(data, user) {
   );
 
   renderHomeProfile(data, user);
+  renderProfileStats(user);
+}
+
+async function renderProfileStats(user) {
+  const joined = user?.created_at ? new Date(user.created_at) : null;
+  if ($('profile-joined')) {
+    if (!joined || Number.isNaN(joined.getTime())) $('profile-joined').textContent = '—';
+    else {
+      const months = Math.max(0, Math.floor((Date.now() - joined.getTime()) / 2629800000));
+      $('profile-joined').textContent = months < 1 ? 'Baru' : months < 12 ? `${months} bln` : `${Math.floor(months / 12)} thn`;
+    }
+  }
+  const history = getWatchHistory();
+  if ($('profile-episode-count')) $('profile-episode-count').textContent = history.length.toLocaleString('id-ID');
+  const minutes = history.reduce((sum, item) => sum + (Number(item.watchedMinutes) || 0), 0);
+  if ($('profile-watch-minutes')) $('profile-watch-minutes').textContent = minutes.toLocaleString('id-ID');
+  if ($('profile-comment-count')) {
+    $('profile-comment-count').textContent = '…';
+    if (supabaseClient && user?.id) {
+      try {
+        const { count, error } = await supabaseClient.from('episode_comments').select('id', { count: 'exact', head: true }).eq('user_id', user.id);
+        if (error) throw error;
+        $('profile-comment-count').textContent = Number(count || 0).toLocaleString('id-ID');
+      } catch (error) {
+        console.warn('Profile comment count unavailable:', error);
+        $('profile-comment-count').textContent = '—';
+      }
+    } else $('profile-comment-count').textContent = '0';
+  }
+}
+
+function renderProfileTab(tab = 'comments') {
+  document.querySelectorAll('[data-profile-tab]').forEach(button => button.classList.toggle('active', button.dataset.profileTab === tab));
+  const host = $('profile-tab-content');
+  if (!host) return;
+  const content = {
+    comments: ['Belum ada komentar', 'Komentar anime yang kamu tulis akan tampil di sini.'],
+    favorites: ['Belum ada anime favorit', 'Anime yang kamu simpan sebagai favorit akan tampil di sini.'],
+    history: ['Belum ada riwayat tontonan', 'Episode yang pernah kamu tonton akan tampil di sini.']
+  };
+  const [title, description] = content[tab] || content.comments;
+  host.innerHTML = `<div class="profile-tab-empty"><strong>${title}</strong><p>${description}</p></div>`;
 }
 
 function renderHomeProfile(data, user) {
