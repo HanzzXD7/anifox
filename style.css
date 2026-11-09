@@ -3997,3 +3997,37 @@ button:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .player-episode-navigation button { transition: none; }
 }
+
+
+/* Episode source availability states */
+.episode-list .episode-button.episode-source-available {
+  border-color: rgba(69, 190, 150, .28);
+}
+.episode-list .episode-button.episode-source-available small {
+  color: #78dfbd;
+}
+.episode-list .episode-button.episode-source-missing small {
+  color: #a0aec2;
+}
+.episode-list .episode-button.episode-last-watched small {
+  color: #65e8c2;
+  font-weight: 800;
+}
+.source-empty-state {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border: 1px dashed rgba(115, 174, 232, .22);
+  border-radius: 13px;
+  background: rgba(10, 29, 56, .4);
+}
+.source-empty-state strong {
+  color: #dcecff;
+  font-size: 13px;
+}
+.source-empty-state p {
+  margin: 0;
+  color: #8da7c7;
+  font-size: 12px;
+  line-height: 1.5;
+}
