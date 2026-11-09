@@ -57,6 +57,7 @@ function rankSpriteUrl(rankIcon) {
 const $ = id => document.getElementById(id);
 
 const WATCH_KEY = 'anifox_watchlist_v3';
+const HISTORY_KEY = 'anifox_watch_history_v1';
 const ONBOARDING_KEY = 'anifox_onboarding_seen_v1';
 
 const state = {
@@ -512,6 +513,10 @@ function navigate(page) {
 
   if (page === 'list') {
     renderWatchlist();
+  }
+
+  if (page === 'history') {
+    renderWatchHistory();
   }
 
   if (page === 'profile') {
@@ -1996,6 +2001,77 @@ function renderWatchlist() {
   );
 }
 
+
+// ========================================
+// WATCH HISTORY
+// ========================================
+
+function getWatchHistory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    return Array.isArray(saved) ? saved : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveWatchHistoryEntry(anime, episode) {
+  if (!anime || !isAllowedAnime(anime)) return;
+  const history = getWatchHistory().filter(item =>
+    !(Number(item.animeId) === Number(anime.id) &&
+      Number(item.episode) === Number(episode))
+  );
+  history.unshift({
+    animeId: anime.id,
+    title: titleOf(anime),
+    cover: imageOf(anime),
+    episode: Number(episode) || 1,
+    watchedAt: new Date().toISOString()
+  });
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 100)));
+  } catch {
+    toast('Riwayat belum bisa disimpan di perangkat ini.');
+  }
+}
+
+function renderWatchHistory() {
+  const host = $('history-list');
+  if (!host) return;
+  const history = getWatchHistory();
+
+  if (!history.length) {
+    host.innerHTML = `
+      <div class="history-empty-state">
+        <span class="history-empty-icon">◷</span>
+        <strong>Belum ada riwayat menonton</strong>
+        <p>Episode yang berhasil dibuka nantinya akan muncul di sini.</p>
+      </div>
+    `;
+    return;
+  }
+
+  host.innerHTML = history.map(item => {
+    const date = item.watchedAt
+      ? new Date(item.watchedAt).toLocaleString('id-ID', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        })
+      : '';
+    return `
+      <article class="watch-history-item">
+        <img src="${esc(item.cover || '')}" alt="" loading="lazy"
+          onerror="this.style.display='none'">
+        <div class="watch-history-info">
+          <strong>${esc(item.title || 'Anime')}</strong>
+          <span>Episode ${Number(item.episode) || 1} · ${esc(date)}</span>
+          <div class="watch-history-track"><i></i></div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
 // ========================================
 // VIDEO PLAYER — BSTATION
 // ========================================
@@ -2053,6 +2129,7 @@ function openPlayer(episode = 1) {
   iframe.classList.remove('hidden');
 
   empty.style.display = 'none';
+  saveWatchHistoryEntry(state.current, episode);
 
   $('bstation-link').href =
     `https://www.bilibili.tv/play/${series.seasonId}/${episodeId}`;
