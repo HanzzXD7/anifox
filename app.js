@@ -616,6 +616,56 @@ function titleOf(anime) {
     'Untitled';
 }
 
+// Convert provider records into the shape used by AniFoX cards and detail views.
+// Original fields are preserved so provider-specific metadata is not discarded.
+function normalizeAnimeRecord(record, providerId = 'unknown') {
+  if (!record || typeof record !== 'object') return null;
+
+  const rawTitle = record.title;
+  const title = rawTitle && typeof rawTitle === 'object'
+    ? {
+        english: rawTitle.english || rawTitle.userPreferred || '',
+        romaji: rawTitle.romaji || '',
+        native: rawTitle.native || ''
+      }
+    : {
+        english: String(rawTitle || record.name || record.animeTitle || '').trim(),
+        romaji: '',
+        native: ''
+      };
+
+  const cover = record.coverImage && typeof record.coverImage === 'object'
+    ? {
+        ...record.coverImage,
+        large: record.coverImage.large || record.poster || record.image || '',
+        extraLarge: record.coverImage.extraLarge || record.poster || record.image || ''
+      }
+    : {
+        large: record.poster || record.image || record.thumbnail || '',
+        extraLarge: record.poster || record.image || record.thumbnail || ''
+      };
+
+  const id = Number(record.id ?? record.anilistId ?? record.animeId);
+  if (!Number.isSafeInteger(id) || id < 1) return null;
+  if (!title.english && !title.romaji && !title.native) return null;
+
+  return {
+    ...record,
+    id,
+    title,
+    coverImage: cover,
+    genres: Array.isArray(record.genres) ? record.genres : [],
+    sourceProvider: record.sourceProvider || providerId
+  };
+}
+
+function normalizeAnimeList(records, providerId) {
+  return (Array.isArray(records) ? records : [])
+    .map(record => normalizeAnimeRecord(record, providerId))
+    .filter(Boolean)
+    .filter(isAllowedAnime);
+}
+
 // Hentai disaring, Ecchi tetap diperbolehkan.
 function isAllowedAnime(anime) {
   const genres = Array.isArray(anime?.genres)
@@ -1290,7 +1340,7 @@ async function getSeasonAnime() {
     year: new Date().getFullYear()
   });
 
-  return (data.Page.media || []).filter(isAllowedAnime);
+  return normalizeAnimeList(data.Page.media, 'anilist');
 }
 
 // ========================================
@@ -1312,7 +1362,7 @@ async function getPopularAnime(page = 1) {
     throw new Error('Respons katalog AniLab tidak valid.');
   }
 
-  return result.data.filter(isAllowedAnime);
+  return normalizeAnimeList(result.data, 'anilab');
 }
 
 // ========================================
@@ -1344,7 +1394,7 @@ async function searchAnime(keyword, page = 1) {
   });
 
   return {
-    items: (data.Page.media || []).filter(isAllowedAnime),
+    items: normalizeAnimeList(data.Page.media, 'anilist'),
     page: data.Page.pageInfo.currentPage,
     hasNextPage: data.Page.pageInfo.hasNextPage
   };
@@ -1670,7 +1720,7 @@ async function loadGenreAnime(genre, page = 1) {
     state.genrePage = result.page;
     state.genreHasNextPage = result.hasNextPage;
 
-    const items = (result.data || []).filter(isAllowedAnime);
+    const items = normalizeAnimeList(result.data, 'anilab');
 
     remember(items);
 
