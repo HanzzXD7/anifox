@@ -471,126 +471,38 @@
         </section>
 
         <!-- PROFILE -->
-        <section id="page-profile"
-          class="page hidden profile-page">
-
-          <div class="page-title">
-            <span class="eyebrow">YOUR ACCOUNT</span>
-            <h1>Profil Saya</h1>
-            <p>Identitas dan perjalananmu di AniFoX.</p>
-          </div>
-
-          <div class="profile-card">
-
-            <div class="profile-user">
-
-              <div class="profile-avatar-wrap">
-                <img id="profile-avatar"
-                  src="anifox-logo.png"
-                  alt="Foto profil">
-              </div>
-
-              <div class="profile-user-info">
-                <div class="profile-name-row">
-                  <h2 id="profile-name">Memuat profil...</h2>
-                  <strong id="profile-id" class="profile-user-id">#—</strong>
-                  <button id="copy-profile-id"
-                    type="button"
-                    class="profile-copy-button"
-                    aria-label="Salin ID"
-                    title="Salin ID">⧉</button>
-                </div>
-                <p id="profile-email">-</p>
-                <span id="profile-role" class="profile-role">
-                  USER
-                </span>
-              </div>
-
+        <section id="page-profile" class="page hidden profile-page">
+          <div class="profile-hero-card">
+            <button id="profile-edit-toggle" class="profile-edit-icon" type="button" aria-label="Edit profil" title="Edit profil"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button>
+            <div class="profile-hero-cover"></div>
+            <div class="profile-identity">
+              <div class="profile-avatar-wrap"><img id="profile-avatar" src="anifox-logo.png" alt="Foto profil"></div>
+              <h2 id="profile-name">Memuat profil...</h2>
+              <div class="profile-id-line"><strong id="profile-id" class="profile-user-id">#—</strong><button id="copy-profile-id" type="button" class="profile-copy-button" aria-label="Salin ID" title="Salin ID">⧉</button></div>
+              <div class="profile-level-role"><strong id="profile-level">Lv. 1</strong><span id="profile-role" class="profile-role">USER</span></div>
+              <p id="profile-email" class="profile-email-hidden">-</p>
             </div>
-
-          </div>
-
-          <!-- LEVEL AND RANK -->
-          <div class="profile-level-section">
-
-            <div class="section-heading">
-              <div>
-                <span class="eyebrow">YOUR ACHIEVEMENT</span>
-                <h2>Level & Rank</h2>
-              </div>
+            <div class="profile-stats-grid">
+              <div class="profile-stat"><strong id="profile-joined">—</strong><span>Bergabung</span></div>
+              <div class="profile-stat"><strong id="profile-comment-count">0</strong><span>Komentar</span></div>
+              <div class="profile-stat"><strong id="profile-episode-count">0</strong><span>Episode ditonton</span></div>
+              <div class="profile-stat"><strong id="profile-watch-minutes">0</strong><span>Menit menonton</span></div>
             </div>
-
-            <div id="profile-rank-card"
-              class="rank-card rank-coal">
-
-              <div class="rank-icon-wrap">
-                <img id="profile-rank-icon"
-                  src="assets/ranks/coal.png"
-                  alt="Rank emblem">
-              </div>
-
-              <div class="rank-info">
-                <strong id="profile-level">Lv. 1</strong>
-                <span id="profile-rank-name">Coal</span>
-
-                <div class="rank-exp-track">
-                  <div id="profile-exp-progress"></div>
-                </div>
-
-                <small id="profile-exp-text">0 EXP</small>
-              </div>
-
-            </div>
-
           </div>
-
-          <!-- EDIT PROFILE -->
-          <div class="profile-settings-card">
-
-            <div class="section-heading">
-              <div>
-                <span class="eyebrow">PERSONAL SETTINGS</span>
-                <h2>Edit Profil</h2>
-              </div>
-            </div>
-
-            <label class="profile-input-label"
-              for="edit-username">
-              Username AniFoX
-            </label>
-
-            <input id="edit-username"
-              class="profile-input"
-              type="text"
-              maxlength="24"
-              placeholder="Masukkan username">
-
-            <label class="profile-input-label"
-              for="edit-avatar">
-              Foto Profil AniFoX
-            </label>
-
-            <input id="edit-avatar"
-              class="profile-input"
-              type="file"
-              accept="image/png,image/jpeg,image/webp">
-
-            <button id="save-profile"
-              class="primary-button profile-save-button"
-              type="button">
-              Simpan Perubahan
-            </button>
-
-            <p id="profile-message" class="login-message"></p>
-
+          <div id="profile-edit-panel" class="profile-settings-card hidden">
+            <div class="section-heading"><div><span class="eyebrow">PERSONAL SETTINGS</span><h2>Edit Profil</h2></div></div>
+            <label class="profile-input-label" for="edit-username">Username AniFoX</label><input id="edit-username" class="profile-input" type="text" maxlength="24" placeholder="Masukkan username">
+            <label class="profile-input-label" for="edit-avatar">Foto Profil AniFoX</label><input id="edit-avatar" class="profile-input" type="file" accept="image/png,image/jpeg,image/webp">
+            <button id="save-profile" class="primary-button profile-save-button" type="button">Simpan Perubahan</button>
+            <p id="profile-message" class="login-message"></p><button id="logout-button" class="profile-logout-button" type="button">Keluar dari Akun</button>
           </div>
-
-          <button id="logout-button"
-            class="profile-logout-button"
-            type="button">
-            Keluar dari Akun
-          </button>
-
+          <div class="profile-tabs-divider"></div>
+          <nav class="profile-content-tabs" aria-label="Aktivitas profil">
+            <button class="profile-tab active" type="button" data-profile-tab="comments"><span>▤</span>Komentar</button>
+            <button class="profile-tab" type="button" data-profile-tab="favorites"><span>♡</span>Favorit</button>
+            <button class="profile-tab" type="button" data-profile-tab="history"><span>◷</span>History</button>
+          </nav>
+          <div id="profile-tab-content" class="profile-tab-content"><div class="profile-tab-empty"><strong>Belum ada komentar</strong><p>Komentar anime yang kamu tulis akan tampil di sini.</p></div></div>
         </section>
 
         <!-- DETAIL -->
