@@ -142,7 +142,7 @@
         </button>
 
         <button class="nav-item" data-page="season">
-          <span>▦</span>Season Anime
+          <span>▦</span>Jadwal Tayang
         </button>
 
         <button class="nav-item" data-page="popular">
@@ -150,7 +150,7 @@
         </button>
 
         <button class="nav-item" data-page="list">
-          <span>♡</span>Watchlist
+          <span>▣</span>Subscribed Anime
         </button>
 
         <button class="nav-item" data-page="social">
@@ -288,8 +288,8 @@
           <section class="content-section">
             <div class="section-heading">
               <div>
-                <span class="eyebrow">THIS SEASON</span>
-                <h2>Season Anime</h2>
+                <span class="eyebrow">NOW AIRING</span>
+                <h2>Anime Sedang Tayang</h2>
               </div>
 
               <button id="see-season"
@@ -360,8 +360,8 @@
 
           <div class="page-title">
             <span class="eyebrow">NOW AIRING & UPCOMING</span>
-            <h1>Season Anime</h1>
-            <p>Anime pilihan dari season saat ini.</p>
+            <h1>Jadwal Tayang</h1>
+            <p>Pantau anime yang sedang tayang dan episode terbarunya.</p>
           </div>
 
           <div id="season-full" class="anime-grid"></div>
@@ -386,12 +386,28 @@
 
           <div class="page-title">
             <span class="eyebrow">YOUR COLLECTION</span>
-            <h1>Watchlist Saya</h1>
-            <p>Daftar anime yang ingin kamu tonton.</p>
+            <h1>Subscribed Anime</h1>
+            <p>Koleksi anime yang kamu simpan untuk diikuti.</p>
           </div>
 
           <div id="watchlist" class="anime-grid"></div>
 
+        </section>
+
+        <!-- WATCH HISTORY -->
+        <section id="page-history" class="page hidden history-page">
+          <div class="page-title">
+            <span class="eyebrow">YOUR WATCH JOURNEY</span>
+            <h1>Riwayat Menonton</h1>
+            <p>Anime dan episode yang terakhir kamu buka.</p>
+          </div>
+          <div id="history-list" class="watch-history-list">
+            <div class="history-empty-state">
+              <span class="history-empty-icon">◷</span>
+              <strong>Belum ada riwayat menonton</strong>
+              <p>Episode yang kamu putar nantinya akan muncul di sini.</p>
+            </div>
+          </div>
         </section>
 
         <!-- SOCIAL LINE -->
@@ -742,13 +758,19 @@
       <button class="nav-item"
         data-page="season" type="button">
         <span>▦</span>
-        <small>Season</small>
+        <small>Jadwal</small>
       </button>
 
       <button class="nav-item"
         data-page="list" type="button">
         <span>♡</span>
-        <small>Watchlist</small>
+        <small>Subscribed</small>
+      </button>
+
+      <button class="nav-item"
+        data-page="history" type="button">
+        <span>◷</span>
+        <small>History</small>
       </button>
 
       <button class="nav-item"
