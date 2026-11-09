@@ -3728,3 +3728,13 @@ button:focus-visible {
 .profile-level-role.rank-elytra .profile-level-emblem{border-color:var(--rank-color);box-shadow:0 0 15px var(--rank-glow),inset 0 0 11px var(--rank-glow)}
 .rank-effects-lite .profile-level-role .profile-level-emblem::before{animation-duration:9s!important}
 @media(prefers-reduced-motion:reduce){.profile-level-role .profile-level-emblem::before{animation:none!important}}
+
+
+/* Keep level/rank and account role as two clearly separated badges */
+.profile-level-role{display:flex!important;flex-flow:row wrap;align-items:center;justify-content:center;gap:10px!important;margin-top:11px}
+.profile-level-group{display:inline-flex;align-items:center;gap:8px;padding:3px 9px 3px 4px;border:1px solid color-mix(in srgb,var(--rank-color) 48%,transparent);border-radius:11px;background:color-mix(in srgb,var(--rank-color) 8%,rgba(5,18,38,.8));box-shadow:0 0 13px var(--rank-glow);min-height:38px}
+.profile-level-group .profile-level-emblem{flex:0 0 30px}
+.profile-level-group #profile-level{display:inline-flex;align-items:center;white-space:nowrap;padding:5px 2px;border:0;background:transparent;box-shadow:none;font-size:13px;line-height:1.2}
+.profile-level-role .profile-role{display:inline-flex;align-items:center;justify-content:center;min-height:32px;margin:0 0 0 2px;padding:6px 13px;border-radius:9px;white-space:nowrap;line-height:1}
+.profile-level-role .profile-role-dev{margin-left:2px}
+@media(max-width:360px){.profile-level-role{gap:7px!important}.profile-level-group{gap:6px;padding-right:7px}.profile-level-role .profile-role{padding-left:10px;padding-right:10px}}
