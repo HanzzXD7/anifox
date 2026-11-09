@@ -924,7 +924,26 @@ function renderRank(level, exp, role) {
   const card = $('profile-rank-card');
   const icon = $('profile-rank-icon');
   const levelText = $('profile-level');
+  const profileLevelBadge = $('profile-level-role');
+  const profileLevelIcon = $('profile-level-icon');
   const rankName = $('profile-rank-name');
+
+  if (profileLevelBadge) {
+    profileLevelBadge.classList.remove(
+      'rank-coal', 'rank-copper', 'rank-iron', 'rank-gold',
+      'rank-emerald', 'rank-diamond', 'rank-nether-star',
+      'rank-golden-apple', 'rank-lava', 'rank-elytra'
+    );
+    profileLevelBadge.classList.add(rank.className);
+  }
+
+  if (profileLevelIcon) {
+    profileLevelIcon.src = rankSpriteUrl(rank.icon);
+    profileLevelIcon.alt = `${rank.name} material`;
+    profileLevelIcon.onerror = () => {
+      profileLevelIcon.style.visibility = 'hidden';
+    };
+  }
   const expProgress = $('profile-exp-progress');
   const expText = $('profile-exp-text');
 
