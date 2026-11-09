@@ -3956,3 +3956,44 @@ button:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .history-resume-button { transition: none; }
 }
+
+
+/* Player episode navigation */
+.player-episode-navigation {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0 22px;
+}
+.player-episode-navigation button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid rgba(91, 169, 235, .25);
+  border-radius: 12px;
+  background: rgba(15, 43, 75, .78);
+  color: #c9e8ff;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+.player-episode-navigation button:hover:not(:disabled) {
+  border-color: rgba(88, 190, 255, .7);
+  background: rgba(25, 76, 119, .9);
+}
+.player-episode-navigation button:active:not(:disabled) { transform: scale(.98); }
+.player-episode-navigation button:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+@media (max-width: 420px) {
+  .player-episode-navigation { gap: 7px; }
+  .player-episode-navigation button { min-height: 42px; padding: 9px 7px; font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .player-episode-navigation button { transition: none; }
+}
