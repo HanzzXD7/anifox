@@ -3786,3 +3786,64 @@ button:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .profile-hero-card { animation: none !important; }
 }
+
+/* EPISODE LIST — vertical full-width rows */
+.episode-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.episode-list .episode-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 15px;
+  border: 1px solid rgba(104, 169, 224, .16);
+  border-radius: 12px;
+  background: linear-gradient(105deg, rgba(16, 39, 62, .96), rgba(10, 27, 46, .96));
+  color: #dcecff;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.episode-list .episode-button span {
+  min-width: 0;
+}
+
+.episode-list .episode-button small {
+  flex: 0 0 auto;
+  color: #8ca9c5;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.episode-list .episode-button:hover {
+  border-color: rgba(76, 178, 255, .58);
+  background: linear-gradient(105deg, rgba(19, 55, 84, .98), rgba(12, 35, 58, .98));
+  color: #8ed3ff;
+  box-shadow: 0 5px 18px rgba(37, 137, 237, .12);
+}
+
+.episode-list .episode-button:active {
+  transform: scale(.985);
+}
+
+@media (max-width: 430px) {
+  .episode-list .episode-button {
+    min-height: 54px;
+    padding: 11px 13px;
+    font-size: 12px;
+  }
+
+  .episode-list .episode-button small {
+    font-size: 9px;
+  }
+}
+
